@@ -1,0 +1,23 @@
+{
+  "extends": ["plugin:@typescript-eslint/recommended"],
+  "plugins": ["@typescript-eslint"],
+  "root": true,
+  "globals": {},
+  "rules": {
+    "no-unused-vars": "error",
+    "max-len": [
+      "error",
+      {
+        "code": 150,
+        "ignoreComments": true,
+        "ignoreTrailingComments": true,
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true
+      }
+    ]
+  },
+  "parser": "@typescript-eslint/parser",
+  "env": {},
+  "overrides": []
+}
