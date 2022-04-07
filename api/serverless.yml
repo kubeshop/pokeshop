@@ -139,5 +139,3 @@ resources:
   - ${file(./infra/queue.yml)}
   - ${file(./infra/s3.yml)}
   - ${file(./infra/elasticache.yml)}
-  - ${file(./infra/elasticsearch.yml)}
-  - ${file(./infra/ecs.yml)}
