@@ -1,12 +1,18 @@
-import { PromiseHandler } from '@lambda-middleware/utils';
+import { jsonResponse } from '../middlewares/response';
 import FeaturedService from '../services/fetured.service';
 
 const featuredService = FeaturedService();
 
-const featured: PromiseHandler = async () => {
+const featured = async () => {
   const items = await featuredService.get();
 
   return items;
 };
 
-export default featured;
+export default function setupRoute(router) {
+  router.get(
+    '/pokemon/featured',
+    jsonResponse(200),
+    featured
+  );
+}

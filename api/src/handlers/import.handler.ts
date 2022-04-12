@@ -1,33 +1,30 @@
-import { PromiseHandler } from '@lambda-middleware/utils';
-import { composeHandler } from '@lambda-middleware/compose';
-import { classValidator } from '@lambda-middleware/class-validator';
 import { prisma } from '../utils/db';
 import ImportPokemon from '../validators/importPokemon';
 import PokeAPIService from '../services/pokeApi.service';
-import ImageDownloader from '../services/imageDownloader.service';
+import PokemonSyncronizer from '../services/pokemonSyncronizer.service'
+import { validate } from '../middlewares/validation';
+import { jsonResponse } from '../middlewares/response';
 
 const pokeApiService = PokeAPIService();
-const downloader = ImageDownloader();
+const pokemonSyncronizer = PokemonSyncronizer(pokeApiService);
 
-const importPokemon: PromiseHandler = async (event: { body: ImportPokemon }) => {
-  const { name = '', id = 0 } = event.body;
+const importPokemon = async (ctx: { body: ImportPokemon }) => {
+  const { id = 0 } = ctx.body;
 
-  const { imageUrl, ...createPokemonData } = await pokeApiService.getPokemon(id ? `${id}` : name);
-  const pokemon = await prisma.pokemon.create({
-    data: createPokemonData,
+  await pokemonSyncronizer.queue({
+    id: id,
   });
 
-  await downloader.queue({
-    id: pokemon.id,
-    url: imageUrl,
-  });
-
-  return pokemon;
+  return {
+    id
+  };
 };
 
-export default composeHandler(
-  classValidator({
-    bodyType: ImportPokemon,
-  }),
-  importPokemon
-);
+export default function setupRoute(router) {
+  router.post(
+    '/pokemon/import',
+    validate(ImportPokemon),
+    jsonResponse(200),
+    importPokemon
+  )
+};

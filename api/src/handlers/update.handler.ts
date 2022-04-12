@@ -1,24 +1,24 @@
-import { PromiseHandler } from '@lambda-middleware/utils';
-import { composeHandler } from '@lambda-middleware/compose';
-import { classValidator } from '@lambda-middleware/class-validator';
 import { prisma } from '../utils/db';
 import UpdatePokemon from '../validators/updatePokemon';
-import { APIGatewayEvent } from 'aws-lambda';
+import { validate } from '../middlewares/validation';
+import { jsonResponse } from '../middlewares/response';
 
-const update: PromiseHandler = async ({ body, pathParameters }: APIGatewayEvent & { body: UpdatePokemon }) => {
-  const { id = '0' } = pathParameters || {};
+const update = async (ctx: { body, params }) => {
+  const { id = '0' } = ctx.params || {};
 
   const pokemon = await prisma.pokemon.update({
     where: { id: +id },
-    data: body,
+    data: ctx.body,
   });
 
   return pokemon;
 };
 
-export default composeHandler(
-  classValidator({
-    bodyType: UpdatePokemon,
-  }),
-  update
-);
+export default function setupRoute(router) {
+  router.patch(
+    '/pokemon/:id',
+    validate(UpdatePokemon),
+    jsonResponse(),
+    update
+  );
+}

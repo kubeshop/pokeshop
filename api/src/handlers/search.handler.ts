@@ -1,10 +1,9 @@
-import { PromiseHandler } from '@lambda-middleware/utils';
 import { prisma } from '../utils/db';
-import { APIGatewayEvent } from 'aws-lambda';
 import { Prisma } from '@prisma/client';
+import { jsonResponse } from '../middlewares/response';
 
-const search: PromiseHandler = async ({ queryStringParameters }: APIGatewayEvent) => {
-  const { skip = '0', take = '20', s = '' } = queryStringParameters || {};
+const search = async (ctx) => {
+  const { skip = '0', take = '20', s = '' } = ctx.request.query || {};
   const query: Prisma.PokemonFindManyArgs = { skip: +skip, take: +take, where: { name: { contains: s } } };
 
   const [items, totalCount] = await Promise.all([
@@ -20,4 +19,10 @@ const search: PromiseHandler = async ({ queryStringParameters }: APIGatewayEvent
   };
 };
 
-export default search;
+export default function setupRoute(router) {
+  router.get(
+    '/pokemon/search',
+    jsonResponse(),
+    search
+  );
+};

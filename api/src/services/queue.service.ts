@@ -1,21 +1,50 @@
-import { SQS } from 'aws-sdk';
-const { SQS_QUEUE_URL = '' } = process.env;
+import Stomp from 'stomp-client';
+const { ACTIVEMQ_HOST = '' } = process.env;
 
 const QueueService = <T>(messageGroup: string) => {
-  const sqs = new SQS();
+  const stompClient = new Stomp(ACTIVEMQ_HOST, 61613);
 
   return {
-    async send(message: T) {
-      const result = await sqs
-        .sendMessage({
-          MessageBody: JSON.stringify(message),
-          QueueUrl: SQS_QUEUE_URL,
-          MessageGroupId: messageGroup,
-        })
-        .promise();
+    isConnected: false,
 
-      return result;
+    async connect() {
+      if (this.isConnected) {
+        return true;
+      }
+
+      this.isConnected = await new Promise((resolve, reject) => {
+        stompClient.connect(resolve, reject)
+      });
+
+      return this.isConnected;
     },
+
+    async send(message: T) {
+      return new Promise(async (resolve) => {
+        const isConnected = await this.connect();
+        if (!isConnected) {
+          throw new Error("could not connect to queue service");
+        }
+        stompClient.publish(messageGroup, JSON.stringify(message));
+        resolve(null);
+      });
+    },
+
+    subscribe(callback) {
+      return new Promise(async (resolve) => {
+        const isConnected = await this.connect();
+        if (!isConnected) {
+          throw new Error("could not connect to queue service");
+        }
+
+        const subscribeCallback = (body, headers) => {
+          callback(body)
+          resolve(null);
+        };
+
+        stompClient.subscribe(messageGroup, subscribeCallback)
+      });
+    }
   };
 };
 

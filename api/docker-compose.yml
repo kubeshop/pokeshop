@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:14
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: ashketchum
+      POSTGRES_PASSWORD: squirtle123
+      POSTGRES_DB: pokeshop
+  cache:
+    image: redis:6
+    ports:
+      - 6379:6379
+  queue:
+    image: rmohr/activemq:5.10.0
+    ports:
+      - 61613:61613
+      - 8161:8161

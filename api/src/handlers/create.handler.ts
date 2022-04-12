@@ -1,12 +1,10 @@
-import { PromiseHandler } from '@lambda-middleware/utils';
-import { composeHandler } from '@lambda-middleware/compose';
-import { classValidator } from '@lambda-middleware/class-validator';
-import ImageDownloader from '../services/imageDownloader.service';
 import { prisma } from '../utils/db';
 import CreatePokemon from '../validators/createPokemon';
+import { validate } from '../middlewares/validation'
+import { jsonResponse } from '../middlewares/response';
 
-const create: PromiseHandler = async (event: { body: CreatePokemon }) => {
-  const { name = '', type = '', isFeatured = false, imageUrl = '' } = event.body;
+const create = async (ctx: { body: CreatePokemon }) => {
+  const { name = '', type = '', isFeatured = false, imageUrl = '' } = ctx.body;
 
   const pokemon = await prisma.pokemon.create({
     data: {
@@ -16,21 +14,14 @@ const create: PromiseHandler = async (event: { body: CreatePokemon }) => {
     },
   });
 
-  if (!!imageUrl) {
-    const downloader = ImageDownloader();
-
-    await downloader.queue({
-      id: pokemon.id,
-      url: imageUrl,
-    });
-  }
-
   return pokemon;
 };
 
-export default composeHandler(
-  classValidator({
-    bodyType: CreatePokemon,
-  }),
-  create
-);
+export default function setupRoute(router) {
+  router.post(
+    '/pokemon',
+    validate(CreatePokemon),
+    jsonResponse(201),
+    create
+  );
+}

@@ -1,9 +1,8 @@
-import { PromiseHandler } from '@lambda-middleware/utils';
+import { jsonResponse } from '../middlewares/response';
 import { prisma } from '../utils/db';
-import { APIGatewayEvent } from 'aws-lambda';
 
-const remove: PromiseHandler = async ({ pathParameters }: APIGatewayEvent) => {
-  const { id = '0' } = pathParameters || {};
+const remove = async (ctx) => {
+  const { id = '0' } = ctx.params || {};
 
   const pokemon = await prisma.pokemon.delete({
     where: { id: +id },
@@ -12,4 +11,10 @@ const remove: PromiseHandler = async ({ pathParameters }: APIGatewayEvent) => {
   return pokemon;
 };
 
-export default remove;
+export default function setupRoute(router) {
+  router.delete(
+    '/pokemon/:id',
+    jsonResponse(),
+    remove
+  )
+};
