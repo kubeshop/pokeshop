@@ -1,7 +1,0 @@
-Resources:
-  AssetsQueue:
-      Type: "AWS::SQS::Queue"
-      Properties:
-        QueueName: pma-queue-${opt:stage, 'local'}.fifo
-        FifoQueue: true
-        ContentBasedDeduplication: true
