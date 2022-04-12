@@ -9,7 +9,7 @@ import importHandler from './handlers/import.handler';
 import removeHandler from './handlers/remove.handler';
 import searchHandler from './handlers/search.handler';
 import updateHandler from './handlers/update.handler';
-import imageDownloaderHandler from './handlers/imageDownloader.handler';
+import syncronizeHandler from './handlers/syncronize.handler';
 import QueueService from './services/queue.service';
 import { MESSAGE_GROUP } from './services/pokemonSyncronizer.service';
 
@@ -38,7 +38,7 @@ app
 
 // setup workers
 const imageDownloadQueueService = QueueService(MESSAGE_GROUP);
-imageDownloaderHandler(imageDownloadQueueService);
+syncronizeHandler(imageDownloadQueueService);
 
 console.log('Starting server on port 3000');
 app.listen(3000);
