@@ -14,33 +14,37 @@ import healthcheckHandler from '@pokemon/handlers/healthcheck.handler';
 import QueueService from '@pokemon/services/queue.service';
 import { MESSAGE_GROUP } from '@pokemon/services/pokemonSyncronizer.service';
 
-const app = new Koa();
-const router = new Router();
+async function startApp() {
+    const app = new Koa();
+    const router = new Router();
 
-const routeSetupFunctions = [
-    createHandler,
-    getHandler,
-    featuredHandler,
-    importHandler,
-    removeHandler,
-    searchHandler,
-    updateHandler,
-    healthcheckHandler
-];
-
-for (const routeSetup of routeSetupFunctions) {
-    routeSetup(router);
+    const routeSetupFunctions = [
+        createHandler,
+        getHandler,
+        featuredHandler,
+        importHandler,
+        removeHandler,
+        searchHandler,
+        updateHandler,
+        healthcheckHandler
+    ];
+    
+    for (const routeSetup of routeSetupFunctions) {
+        routeSetup(router);
+    }
+    
+    app
+        .use(bodyParse())
+        .use(KoaLogger())
+        .use(router.routes())
+        .use(router.allowedMethods())
+    
+    // setup workers
+    const pokemonSyncronizationQueueService = QueueService(MESSAGE_GROUP);
+    syncronizeHandler(pokemonSyncronizationQueueService);
+    
+    console.log('Starting server on port 3000');
+    app.listen(3000);
 }
 
-app
-    .use(bodyParse())
-    .use(KoaLogger())
-    .use(router.routes())
-    .use(router.allowedMethods())
-
-// setup workers
-const pokemonSyncronizationQueueService = QueueService(MESSAGE_GROUP);
-syncronizeHandler(pokemonSyncronizationQueueService);
-
-console.log('Starting server on port 3000');
-app.listen(3000);
+startApp();

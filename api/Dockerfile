@@ -18,4 +18,6 @@ RUN npm i --production
 EXPOSE 3000
 
 COPY --from=build /build/.build/* ./
+RUN ls
+RUN ls telemetry
 CMD ["npm", "run", "run-production"]

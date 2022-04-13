@@ -5,6 +5,7 @@
     "experimentalDecorators": true,
     "preserveConstEnums": true,
     "strictNullChecks": true,
+    "skipLibCheck": true,
     "sourceMap": true,
     "allowJs": true,
     "target": "es5",

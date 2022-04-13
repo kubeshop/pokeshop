@@ -20,7 +20,7 @@ const healthcheck = async (ctx, next) => {
   const response = {
     cache: await cache.isAvailable(),
     database: await isDatabaseAvailable(),
-    queue: await queue.healthcheck()
+    queue: await queue.healthcheck(),
   }
 
   return response
