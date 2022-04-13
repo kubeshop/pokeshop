@@ -10,6 +10,7 @@ import removeHandler from '@pokemon/handlers/remove.handler';
 import searchHandler from '@pokemon/handlers/search.handler';
 import updateHandler from '@pokemon/handlers/update.handler';
 import syncronizeHandler from '@pokemon/handlers/syncronize.handler';
+import healthcheckHandler from '@pokemon/handlers/healthcheck.handler';
 import QueueService from '@pokemon/services/queue.service';
 import { MESSAGE_GROUP } from '@pokemon/services/pokemonSyncronizer.service';
 
@@ -23,7 +24,8 @@ const routeSetupFunctions = [
     importHandler,
     removeHandler,
     searchHandler,
-    updateHandler
+    updateHandler,
+    healthcheckHandler
 ];
 
 for (const routeSetup of routeSetupFunctions) {

@@ -7,16 +7,27 @@ const QueueService = <T>(messageGroup: string) => {
   return {
     isConnected: false,
 
+    async healthcheck() {
+      return await new Promise((resolve, reject) => {
+        stompClient.connect(() => {
+          stompClient.disconnect()
+          resolve(true)
+        }, () => resolve(false))
+      })
+    },
+
     async connect() {
       if (this.isConnected) {
         return true;
       }
 
-      this.isConnected = await new Promise((resolve, reject) => {
+      const sessionId = await new Promise((resolve, reject) => {
         stompClient.connect(resolve, reject)
       });
 
-      return this.isConnected;
+      this.isConnected = !!sessionId
+
+      return this.isConnected
     },
 
     async send(message: T) {

@@ -17,6 +17,14 @@ const CacheService = <T>() => {
     async set<K = T>(key: string, value: K) {
       return redis.set(key, JSON.stringify(value), 'EX', defaultExpireTime);
     },
+    async isAvailable() {
+      try {
+        const response = await redis.ping();
+        return (response === "PONG")
+      } catch (ex) {
+        return false;
+      }
+    }
   };
 };
 

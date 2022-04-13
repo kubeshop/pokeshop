@@ -1,4 +1,3 @@
-import { prisma } from '@pokemon/utils/db';
 import ImportPokemon from '@pokemon/validators/importPokemon';
 import PokeAPIService from '@pokemon/services/pokeApi.service';
 import PokemonSyncronizer from '@pokemon/services/pokemonSyncronizer.service'
