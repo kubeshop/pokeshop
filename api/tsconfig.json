@@ -8,11 +8,19 @@
     "sourceMap": true,
     "allowJs": true,
     "target": "es5",
-    "outDir": ".build",
+    "module": "CommonJS",
+    "outDir": ".build/",
     "moduleResolution": "node",
-    "lib": ["es2015"],
-    "rootDir": "./"
+    "lib": ["es5", "es6", "es7"],
+    "rootDir": "./",
+    "baseUrl": ".",
+    "paths": {
+      "@pokemon/*": [
+        "src/*"
+      ]
+    }
   },
+  "include": ["./src/**/*"],
   "exclude": ["node_modules"],
   "types": ["node", "aws-sdk"]
 }

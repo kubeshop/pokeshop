@@ -1,5 +1,5 @@
-import { jsonResponse } from '../middlewares/response';
-import FeaturedService from '../services/fetured.service';
+import { jsonResponse } from '@pokemon/middlewares/response';
+import FeaturedService from '@pokemon/services/fetured.service';
 
 const featuredService = FeaturedService();
 

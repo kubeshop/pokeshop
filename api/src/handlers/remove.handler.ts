@@ -1,5 +1,5 @@
-import { jsonResponse } from '../middlewares/response';
-import { prisma } from '../utils/db';
+import { jsonResponse } from '@pokemon/middlewares/response';
+import { prisma } from '@pokemon/utils/db';
 
 const remove = async (ctx) => {
   const { id = '0' } = ctx.params || {};

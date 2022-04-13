@@ -1,7 +1,7 @@
-import { prisma } from '../utils/db';
-import UpdatePokemon from '../validators/updatePokemon';
-import { validate } from '../middlewares/validation';
-import { jsonResponse } from '../middlewares/response';
+import { prisma } from '@pokemon/utils/db';
+import UpdatePokemon from '@pokemon/validators/updatePokemon';
+import { validate } from '@pokemon/middlewares/validation';
+import { jsonResponse } from '@pokemon/middlewares/response';
 
 const update = async (ctx: { body, params }) => {
   const { id = '0' } = ctx.params || {};

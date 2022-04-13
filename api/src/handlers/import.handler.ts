@@ -1,9 +1,9 @@
-import { prisma } from '../utils/db';
-import ImportPokemon from '../validators/importPokemon';
-import PokeAPIService from '../services/pokeApi.service';
-import PokemonSyncronizer from '../services/pokemonSyncronizer.service'
-import { validate } from '../middlewares/validation';
-import { jsonResponse } from '../middlewares/response';
+import { prisma } from '@pokemon/utils/db';
+import ImportPokemon from '@pokemon/validators/importPokemon';
+import PokeAPIService from '@pokemon/services/pokeApi.service';
+import PokemonSyncronizer from '@pokemon/services/pokemonSyncronizer.service'
+import { validate } from '@pokemon/middlewares/validation';
+import { jsonResponse } from '@pokemon/middlewares/response';
 
 const pokeApiService = PokeAPIService();
 const pokemonSyncronizer = PokemonSyncronizer(pokeApiService);

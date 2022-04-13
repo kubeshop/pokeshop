@@ -1,7 +1,7 @@
-import { prisma } from '../utils/db';
-import CreatePokemon from '../validators/createPokemon';
-import { validate } from '../middlewares/validation'
-import { jsonResponse } from '../middlewares/response';
+import { prisma } from '@pokemon/utils/db';
+import CreatePokemon from '@pokemon/validators/createPokemon';
+import { validate } from '@pokemon/middlewares/validation'
+import { jsonResponse } from '@pokemon/middlewares/response';
 
 const create = async (ctx: { body: CreatePokemon }) => {
   const { name = '', type = '', isFeatured = false, imageUrl = '' } = ctx.body;

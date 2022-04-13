@@ -1,6 +1,6 @@
-import { prisma } from '../utils/db';
+import { prisma } from '@pokemon/utils/db';
 import { Prisma } from '@prisma/client';
-import { jsonResponse } from '../middlewares/response';
+import { jsonResponse } from '@pokemon/middlewares/response';
 
 const search = async (ctx) => {
   const { skip = '0', take = '20', s = '' } = ctx.request.query || {};

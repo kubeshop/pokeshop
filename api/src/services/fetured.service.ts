@@ -1,6 +1,6 @@
 import { Pokemon } from '@prisma/client';
-import { prisma } from '../utils/db';
-import CacheService from './cache.service';
+import { prisma } from '@pokemon/utils/db';
+import CacheService from '@pokemon/services/cache.service';
 
 const FeaturedService = () => {
   const cacheService = CacheService<Pokemon[]>();

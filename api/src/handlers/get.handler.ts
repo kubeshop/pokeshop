@@ -1,5 +1,5 @@
-import { jsonResponse } from '../middlewares/response';
-import { prisma } from '../utils/db';
+import { jsonResponse } from '@pokemon/middlewares/response';
+import { prisma } from '@pokemon/utils/db';
 
 const get = async (ctx, next) => {
   const { skip = '0', take = '20' } = ctx.request.query || {};

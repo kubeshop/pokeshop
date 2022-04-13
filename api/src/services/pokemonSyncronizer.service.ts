@@ -1,5 +1,5 @@
-import { prisma } from '../utils/db';
-import QueueService from './queue.service';
+import { prisma } from '@pokemon/utils/db';
+import QueueService from '@pokemon/services/queue.service';
 
 export const MESSAGE_GROUP = '/queue/downloadImage';
 

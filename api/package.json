@@ -5,12 +5,10 @@
   "main": "handler.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/index.ts",
+    "start": "node -r tsconfig-paths/register -r ts-node ./src/index.ts",
     "migrate": "prisma migrate dev",
-    "postinstall": "prisma generate"
-  },
-  "engines": {
-    "node": ">=14.0.0 <15.0"
+    "postinstall": "prisma generate",
+    "build": "tscpaths -p tsconfig.json -s ./src/index.ts -o ./build/*"
   },
   "author": "",
   "license": "ISC",
@@ -22,6 +20,7 @@
     "node-ts": "^5.1.2",
     "prisma": "^3.11.1",
     "ts-node": "^10.7.0",
+    "tsconfig-paths": "^3.14.1",
     "typescript": "^4.6.3"
   },
   "dependencies": {
@@ -40,6 +39,7 @@
     "koa-bodyparser": "^4.3.0",
     "koa-logger": "^3.2.1",
     "node-fetch": "^2.6.7",
-    "stomp-client": "^0.9.0"
+    "stomp-client": "^0.9.0",
+    "tscpaths": "0.0.9"
   }
 }
