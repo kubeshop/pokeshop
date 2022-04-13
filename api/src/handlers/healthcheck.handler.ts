@@ -1,11 +1,11 @@
 import { jsonResponse } from '@pokemon/middlewares/response';
 import CacheService from '@pokemon/services/cache.service';
-import { MESSAGE_GROUP } from '@pokemon/services/pokemonSyncronizer.service';
-import QueueService from '@pokemon/services/queue.service';
+import { MESSAGE_GROUP, TPokemonSyncMessage } from '@pokemon/services/pokemonSyncronizer.service';
+import { createQueueService } from '@pokemon/services/queue.service';
 import { prisma } from '@pokemon/utils/db';
 
 const cache = CacheService();
-const queue = new QueueService(MESSAGE_GROUP);
+const queue = createQueueService<TPokemonSyncMessage>(MESSAGE_GROUP);
 
 const isDatabaseAvailable = async () => {
   try {

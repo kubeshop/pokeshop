@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import { getParentSpan, createSpan, runWithSpan } from '@pokemon/telemetry/tracing';
 
 const { POKE_API_BASE_URL = '' } = process.env;
 
@@ -20,17 +21,25 @@ const PokeAPIService = () => {
 
   return {
     async getPokemon(id: string) {
-      const response = await fetch(`${baseUrl}/${id}`, {
-        method: defaultMethod,
+      const parentSpan = await getParentSpan();
+      const span = await createSpan('PokeAPIService::getPokemon', parentSpan);
+      const result = await runWithSpan(span, async () => {
+        const response = await fetch(`${baseUrl}/${id}`, {
+          method: defaultMethod,
+        });
+  
+        const { name, types, sprites } = (await response.json()) as TRawPokemon;
+  
+        return {
+          name,
+          type: types.map(({ type }) => type.name).join(','),
+          imageUrl: sprites.front_default,
+        };
       });
 
-      const { name, types, sprites } = (await response.json()) as TRawPokemon;
+      span.end();
 
-      return {
-        name,
-        type: types.map(({ type }) => type.name).join(','),
-        imageUrl: sprites.front_default,
-      };
+      return result;
     },
   };
 };

@@ -1,11 +1,16 @@
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import * as opentelemetry from '@opentelemetry/api';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
 import { Resource } from '@opentelemetry/resources';
 import * as dotenv from 'dotenv';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { SemanticAttributes, SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { PgInstrumentation } from '@opentelemetry/instrumentation-pg';
+import { IORedisInstrumentation } from '@opentelemetry/instrumentation-ioredis';
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
+import { KoaInstrumentation } from '@opentelemetry/instrumentation-koa';
+import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib';
+import {} from '@opentelemetry/api'
 
 // Make sure all env variables are available in process.env
 dotenv.config();
@@ -23,7 +28,15 @@ async function createTracer(): Promise<opentelemetry.Tracer> {
   const spanProcessor = new SimpleSpanProcessor(jaegerExporter);
   const sdk = new NodeSDK({
     traceExporter: jaegerExporter,
-    instrumentations: [getNodeAutoInstrumentations()]
+    instrumentations: [
+      new AmqplibInstrumentation(),
+      new HttpInstrumentation({
+        requireParentforOutgoingSpans: true
+      }),
+      new IORedisInstrumentation(),
+      new KoaInstrumentation(),
+      new PgInstrumentation(),
+    ]
   });
 
   sdk.configureTracerProvider({}, spanProcessor);
@@ -57,4 +70,39 @@ async function getTracer(): Promise<opentelemetry.Tracer> {
   return createTracer();
 }
 
-export { getTracer };
+async function getParentSpan(): Promise<opentelemetry.Span | undefined> {
+  const parentSpan = opentelemetry.trace.getSpan(opentelemetry.context.active());
+  if (!parentSpan) {
+    return undefined;
+  }
+
+  return parentSpan;
+}
+
+async function createSpan(name: string, parentSpan: opentelemetry.Span | undefined): Promise<opentelemetry.Span> {
+  const tracer = await getTracer();
+  let span: opentelemetry.Span | undefined;
+  if (parentSpan) {
+    const ctx = opentelemetry.trace.setSpan(
+      opentelemetry.context.active(),
+      parentSpan
+    );
+
+    span = tracer.startSpan(name, undefined, ctx);
+  }
+
+  span = tracer.startSpan(name)
+
+  return span;
+}
+
+async function runWithSpan<T>(parentSpan: opentelemetry.Span, fn: () => Promise<T>): Promise<T> {
+  const ctx = opentelemetry.trace.setSpan(
+    opentelemetry.context.active(),
+    parentSpan
+  );
+
+  return await opentelemetry.context.with(ctx, fn);
+}
+
+export { getTracer, getParentSpan, createSpan, runWithSpan };

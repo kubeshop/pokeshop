@@ -1,14 +1,16 @@
 import { transformAndValidate } from 'class-transformer-validator';
 
-const validate = (type) => async (ctx, next) => {
-    const body = ctx.request.body;
-    try {
-        const validType = await transformAndValidate(type, body);
-        ctx.body = validType;
-        next();
-    } catch (validationErrors) {
-        ctx.status = 400;
-        ctx.body = mapErrorToResponse(validationErrors);
+const validate = (type) => {
+    return async function validate(ctx, next) {
+        const body = ctx.request.body;
+        try {
+            const validType = await transformAndValidate(type, body);
+            ctx.body = validType;
+            next();
+        } catch (validationErrors) {
+            ctx.status = 400;
+            ctx.body = mapErrorToResponse(validationErrors);
+        }
     }
 }
 

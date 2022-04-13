@@ -1,8 +1,63 @@
+import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
+import { createSpan, getParentSpan } from '@pokemon/telemetry/tracing';
 import ampqlib from 'amqplib';
 
 const { RABBITMQ_HOST = '' } = process.env;
 
-class QueueService<T> {
+export interface QueueService<T> {
+  healthcheck(): Promise<boolean>;
+  send(message: T): Promise<boolean>;
+  subscribe(callback: Function): Promise<void>;
+}
+
+function createQueueService<T>(messageGroup: string): QueueService<T> {
+  return new RabbitQueueService(messageGroup);
+}
+
+class InstrumentedRabbitQueueService<T> implements QueueService<T> {
+
+  private readonly messageGroup: string;
+  private readonly queueService: QueueService<T>;
+
+  public constructor(messageGroup: string, queueService: QueueService<T>) {
+    this.messageGroup = messageGroup;
+    this.queueService = queueService;
+  }
+
+  public async healthcheck(): Promise<boolean> {
+    const parentSpan = await getParentSpan();
+    const span = await createSpan('rabbitmq ping', parentSpan);
+    const response = await this.queueService.healthcheck();
+    span.end();
+    return response;
+  }
+
+  public async send(message: T): Promise<boolean> {
+    const parentSpan = await getParentSpan();
+    const span = await createSpan('rabbitmq send', parentSpan);
+    span.setAttribute(SemanticAttributes.MESSAGING_DESTINATION, this.messageGroup);
+    const response = await this.queueService.send(message);
+    span.end();
+    return response;
+  }
+
+  public async subscribe(callback: Function): Promise<void> {
+    const parentSpan = await getParentSpan();
+
+    const instrumentedCallback = async (message) => {
+      const span = await createSpan('rabbitmq process', parentSpan);
+      const response = await callback(message)
+      span.end();
+      return response;
+    }
+
+    const response = await this.queueService.subscribe(instrumentedCallback);
+    return response;
+  }
+
+}
+
+class RabbitQueueService<T> implements QueueService<T> {
   private channel: ampqlib.Channel | null = null;
   private readonly messageGroup: string;
 
@@ -65,4 +120,4 @@ class QueueService<T> {
   }
 };
 
-export default QueueService;
+export { createQueueService };

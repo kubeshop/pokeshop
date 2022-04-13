@@ -1,14 +1,14 @@
 import { prisma } from '@pokemon/utils/db';
-import QueueService from '@pokemon/services/queue.service';
+import { createQueueService } from '@pokemon/services/queue.service';
 
-export const MESSAGE_GROUP = '/queue/downloadImage';
+export const MESSAGE_GROUP = '/queue/syncronizePokemon';
 
 export type TPokemonSyncMessage = {
   id: number;
 };
 
 const PokemonSyncronizer = (pokeApiService) => {
-  const queue = new QueueService<TPokemonSyncMessage>(MESSAGE_GROUP);
+  const queue = createQueueService<TPokemonSyncMessage>(MESSAGE_GROUP);
 
   return {
     async queue(message: TPokemonSyncMessage) {

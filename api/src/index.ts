@@ -11,8 +11,8 @@ import searchHandler from '@pokemon/handlers/search.handler';
 import updateHandler from '@pokemon/handlers/update.handler';
 import syncronizeHandler from '@pokemon/handlers/syncronize.handler';
 import healthcheckHandler from '@pokemon/handlers/healthcheck.handler';
-import QueueService from '@pokemon/services/queue.service';
-import { MESSAGE_GROUP } from '@pokemon/services/pokemonSyncronizer.service';
+import { createQueueService } from '@pokemon/services/queue.service';
+import { MESSAGE_GROUP, TPokemonSyncMessage } from '@pokemon/services/pokemonSyncronizer.service';
 
 async function startApp() {
     const app = new Koa();
@@ -40,7 +40,7 @@ async function startApp() {
         .use(router.allowedMethods())
     
     // setup workers
-    const pokemonSyncronizationQueueService = new QueueService(MESSAGE_GROUP);
+    const pokemonSyncronizationQueueService = createQueueService<TPokemonSyncMessage>(MESSAGE_GROUP);
     syncronizeHandler(pokemonSyncronizationQueueService);
     
     console.log('Starting server on port 3000');
