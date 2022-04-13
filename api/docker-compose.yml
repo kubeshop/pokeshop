@@ -28,16 +28,16 @@ services:
       timeout: 3s
       retries: 60
   queue:
-    image: rmohr/activemq:5.10.0
+    image: rabbitmq:3.9
     ports:
-      - 61613:61613
-      - 8161:8161
+      - 5672:5672
+      - 15672:15672
     networks:
       - local
     healthcheck:
-      test: ["CMD-SHELL", "curl localhost:8161"]
+      test: rabbitmq-diagnostics -q ping
       interval: 1s
-      timeout: 1s
+      timeout: 5s
       retries: 60
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -65,7 +65,7 @@ services:
     environment:
       REDIS_URL: cache
       DATABASE_URL: postgresql://ashketchum:squirtle123@db:5432/pokeshop?schema=public
-      ACTIVEMQ_HOST: queue
+      RABBITMQ_HOST: queue
       POKE_API_BASE_URL: https://pokeapi.co/api/v2
       JAEGER_HOST: jaeger
       JAEGER_PORT: 9411

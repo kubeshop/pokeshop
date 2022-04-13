@@ -1,62 +1,68 @@
-import Stomp from 'stomp-client';
-const { ACTIVEMQ_HOST = '' } = process.env;
+import ampqlib from 'amqplib';
 
-const QueueService = <T>(messageGroup: string) => {
-  const stompClient = new Stomp(ACTIVEMQ_HOST, 61613);
+const { RABBITMQ_HOST = '' } = process.env;
 
-  return {
-    isConnected: false,
+class QueueService<T> {
+  private channel: ampqlib.Channel | null = null;
+  private readonly messageGroup: string;
 
-    async healthcheck() {
-      return await new Promise((resolve, reject) => {
-        stompClient.connect(() => {
-          stompClient.disconnect()
-          resolve(true)
-        }, () => resolve(false))
-      })
-    },
+  public constructor(messageGroup: string) {
+    this.messageGroup = messageGroup;
+  }
 
-    async connect() {
-      if (this.isConnected) {
-        return true;
-      }
-
-      const sessionId = await new Promise((resolve, reject) => {
-        stompClient.connect(resolve, reject)
-      });
-
-      this.isConnected = !!sessionId
-
-      return this.isConnected
-    },
-
-    async send(message: T) {
-      return new Promise(async (resolve) => {
-        const isConnected = await this.connect();
-        if (!isConnected) {
-          throw new Error("could not connect to queue service");
-        }
-        stompClient.publish(messageGroup, JSON.stringify(message));
-        resolve(null);
-      });
-    },
-
-    subscribe(callback) {
-      return new Promise(async (resolve) => {
-        const isConnected = await this.connect();
-        if (!isConnected) {
-          throw new Error("could not connect to queue service");
-        }
-
-        const subscribeCallback = (body, headers) => {
-          callback(body)
-          resolve(null);
-        };
-
-        stompClient.subscribe(messageGroup, subscribeCallback)
-      });
+  private async connect(useCache: boolean = true): Promise<ampqlib.Channel> {
+    if (useCache && this.channel) {
+      return this.channel;
     }
-  };
+
+    try {
+      const connection = await ampqlib.connect(`amqp://${RABBITMQ_HOST}`);
+      const channel = await connection.createChannel();
+      await channel.assertQueue(this.messageGroup);
+      this.channel = channel;
+    } catch (ex) {
+      throw new Error(`could not connect to queue service: ${ex}`);
+    }
+
+    return this.channel;
+  }
+
+  public async healthcheck(): Promise<boolean> {
+    try {
+      const channel = await this.connect(false);
+      channel.close();
+      return true;
+    } catch (ex) {
+      return false;
+    }
+  }
+
+  public async send(message: T): Promise<boolean> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const channel = await this.connect();
+        const messageSent = channel.sendToQueue(this.messageGroup, Buffer.from(JSON.stringify(message)))
+        resolve(messageSent);
+      } catch (ex) {
+        reject(false);
+      }
+    });
+  }
+
+  public async subscribe(callback: Function): Promise<void> {
+    const channel = await this.connect();
+    const onConsume = async (message) => {
+      if (message) {
+        try {
+          await callback(message);
+          channel.ack(message);
+        } catch(ex) {
+          channel.nack(message);
+        }
+      }
+    }
+    channel.consume(this.messageGroup, onConsume)
+  }
 };
 
 export default QueueService;

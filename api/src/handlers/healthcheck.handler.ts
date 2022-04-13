@@ -5,7 +5,7 @@ import QueueService from '@pokemon/services/queue.service';
 import { prisma } from '@pokemon/utils/db';
 
 const cache = CacheService();
-const queue = QueueService(MESSAGE_GROUP);
+const queue = new QueueService(MESSAGE_GROUP);
 
 const isDatabaseAvailable = async () => {
   try {

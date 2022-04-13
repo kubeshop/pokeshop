@@ -3,15 +3,15 @@ import QueueService from '@pokemon/services/queue.service';
 
 export const MESSAGE_GROUP = '/queue/downloadImage';
 
-export type TQueueMessage = {
+export type TPokemonSyncMessage = {
   id: number;
 };
 
 const PokemonSyncronizer = (pokeApiService) => {
-  const queue = QueueService<TQueueMessage>(MESSAGE_GROUP);
+  const queue = new QueueService<TPokemonSyncMessage>(MESSAGE_GROUP);
 
   return {
-    async queue(message: TQueueMessage) {
+    async queue(message: TPokemonSyncMessage) {
       return queue.send(message);
     },
     async sync(pokemonId: Number) {

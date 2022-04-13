@@ -40,7 +40,7 @@ async function startApp() {
         .use(router.allowedMethods())
     
     // setup workers
-    const pokemonSyncronizationQueueService = QueueService(MESSAGE_GROUP);
+    const pokemonSyncronizationQueueService = new QueueService(MESSAGE_GROUP);
     syncronizeHandler(pokemonSyncronizationQueueService);
     
     console.log('Starting server on port 3000');
