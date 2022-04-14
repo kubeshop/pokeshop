@@ -1,3 +1,4 @@
+import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
 import { createSpan, getParentSpan, runWithSpan } from '@pokemon/telemetry/tracing';
 import Redis from 'ioredis';
 
@@ -15,39 +16,25 @@ function getCacheService<T>(): CacheService<T> {
   return new InstrumentedCacheService(redisCacheService);
 }
 
-class InstrumentedCacheService<T> implements CacheService<T> {
+class InstrumentedCacheService<T> extends InstrumentedComponent implements CacheService<T> {
   
   private readonly cacheService: CacheService<T>;
 
   public constructor(cacheService: CacheService<T>) {
+    super();
     this.cacheService = cacheService;
   }
 
   async isAvailable(): Promise<boolean> {
-    const parentStan = await getParentSpan();
-    const span = await createSpan('CacheService isAvailable', parentStan);
-    const result = await runWithSpan(span, async () => this.cacheService.isAvailable());
-    span.end();
-
-    return result;
+    return this.instrumentMethod('CacheService isAvailable', () => this.cacheService.isAvailable());
   }
 
   async get(key: string): Promise<T | undefined> {
-    const parentStan = await getParentSpan();
-    const span = await createSpan('CacheService get', parentStan);
-    const result = await runWithSpan(span, async () => this.cacheService.get(key));
-    span.end();
-
-    return result;
+    return this.instrumentMethod('CacheService get', () => this.cacheService.get(key));
   }
 
   async set(key: string, value: T): Promise<void> {
-    const parentStan = await getParentSpan();
-    const span = await createSpan('CacheService set', parentStan);
-    const result = await runWithSpan(span, async () => this.cacheService.set(key, value));
-    span.end();
-
-    return result;
+    return this.instrumentMethod('CacheService set', () => this.cacheService.set(key, value));
   }
 }
 

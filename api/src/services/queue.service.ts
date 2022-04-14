@@ -1,5 +1,6 @@
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
-import { createSpan, getParentSpan } from '@pokemon/telemetry/tracing';
+import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
+import { createSpan, getParentSpan, runWithSpan } from '@pokemon/telemetry/tracing';
 import ampqlib from 'amqplib';
 
 const { RABBITMQ_HOST = '' } = process.env;
@@ -15,31 +16,23 @@ function createQueueService<T>(messageGroup: string): QueueService<T> {
   return new InstrumentedRabbitQueueService(messageGroup, rabbitQueue);
 }
 
-class InstrumentedRabbitQueueService<T> implements QueueService<T> {
+class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements QueueService<T> {
 
   private readonly messageGroup: string;
   private readonly queueService: QueueService<T>;
 
   public constructor(messageGroup: string, queueService: QueueService<T>) {
+    super();
     this.messageGroup = messageGroup;
     this.queueService = queueService;
   }
 
   public async healthcheck(): Promise<boolean> {
-    const parentSpan = await getParentSpan();
-    const span = await createSpan('rabbitmq ping', parentSpan);
-    const response = await this.queueService.healthcheck();
-    span.end();
-    return response;
+    return this.instrumentMethod('QueueService healthcheck', () => this.queueService.healthcheck());
   }
 
   public async send(message: T): Promise<boolean> {
-    const parentSpan = await getParentSpan();
-    const span = await createSpan('rabbitmq send', parentSpan);
-    span.setAttribute(SemanticAttributes.MESSAGING_DESTINATION, this.messageGroup);
-    const response = await this.queueService.send(message);
-    span.end();
-    return response;
+    return this.instrumentMethod('QueueService send', () => this.queueService.send(message));
   }
 
   public async subscribe(callback: Function): Promise<void> {
@@ -47,7 +40,7 @@ class InstrumentedRabbitQueueService<T> implements QueueService<T> {
 
     const instrumentedCallback = async (message) => {
       const span = await createSpan('rabbitmq process', parentSpan);
-      const response = await callback(message)
+      const response = await runWithSpan(span, async () => callback(message));
       span.end();
       return response;
     }
