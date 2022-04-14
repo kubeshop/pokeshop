@@ -58,7 +58,7 @@ export class PrismaPokemonRepository implements PokemonRepository {
     private createPokemonFromPrismaModel(prismaModel: PrismaPokemon): Pokemon {
       const pokemon = new Pokemon();
       pokemon.id = prismaModel.id;
-      pokemon.imageUrl = prismaModel.imageUrl;
+      pokemon.imageUrl = prismaModel.imageUrl || undefined;
       pokemon.isFeatured = !!prismaModel.isFeatured;
       pokemon.name = prismaModel.name;
       pokemon.type = prismaModel.type;
