@@ -1,14 +1,15 @@
-import { prisma } from '@pokemon/utils/db';
-import { Prisma } from '@prisma/client';
 import { jsonResponse } from '@pokemon/middlewares/response';
+import { getPokemonRepository } from '@pokemon/repositories/pokemon.repository';
 
 const search = async (ctx) => {
   const { skip = '0', take = '20', s = '' } = ctx.request.query || {};
-  const query: Prisma.PokemonFindManyArgs = { skip: +skip, take: +take, where: { name: { contains: s } } };
+  const query = { skip: +skip, take: +take, where: { name: { contains: s } } };
+
+  const repository = getPokemonRepository();
 
   const [items, totalCount] = await Promise.all([
-    prisma.pokemon.findMany(query),
-    prisma.pokemon.count({
+    repository.findMany(query),
+    repository.count({
       where: { name: { contains: s } },
     }),
   ]);

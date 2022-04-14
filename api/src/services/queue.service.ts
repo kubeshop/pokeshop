@@ -11,7 +11,8 @@ export interface QueueService<T> {
 }
 
 function createQueueService<T>(messageGroup: string): QueueService<T> {
-  return new RabbitQueueService(messageGroup);
+  const rabbitQueue = new RabbitQueueService(messageGroup);
+  return new InstrumentedRabbitQueueService(messageGroup, rabbitQueue);
 }
 
 class InstrumentedRabbitQueueService<T> implements QueueService<T> {
@@ -85,6 +86,7 @@ class RabbitQueueService<T> implements QueueService<T> {
   public async healthcheck(): Promise<boolean> {
     try {
       const channel = await this.connect(false);
+      channel.assertQueue(this.messageGroup);
       channel.close();
       return true;
     } catch (ex) {

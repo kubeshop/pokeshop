@@ -2,7 +2,7 @@ import { IsBoolean, IsString } from 'class-validator';
 
 class CreatePokemon {
   @IsString()
-  public name: string;
+  public name: number;
 
   @IsString()
   public type: string;

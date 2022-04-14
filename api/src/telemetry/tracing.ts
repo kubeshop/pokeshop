@@ -9,7 +9,6 @@ import { IORedisInstrumentation } from '@opentelemetry/instrumentation-ioredis';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { KoaInstrumentation } from '@opentelemetry/instrumentation-koa';
 import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib';
-import { prisma } from '@pokemon/utils/db';
 import {} from '@opentelemetry/api'
 
 // Make sure all env variables are available in process.env
@@ -76,7 +75,11 @@ async function getParentSpan(): Promise<opentelemetry.Span | undefined> {
   return parentSpan;
 }
 
-async function createSpan(name: string, parentSpan?: opentelemetry.Span | undefined): Promise<opentelemetry.Span> {
+async function createSpan(
+  name: string,
+  parentSpan?: opentelemetry.Span | undefined,
+  options?: opentelemetry.SpanOptions | undefined
+): Promise<opentelemetry.Span> {
   const tracer = await getTracer();
   let span: opentelemetry.Span | undefined;
   if (parentSpan) {
@@ -85,7 +88,7 @@ async function createSpan(name: string, parentSpan?: opentelemetry.Span | undefi
       parentSpan
     );
 
-    span = tracer.startSpan(name, undefined, ctx);
+    span = tracer.startSpan(name, options, ctx);
   }
 
   span = tracer.startSpan(name)

@@ -1,15 +1,13 @@
-import { prisma } from '@pokemon/utils/db';
 import UpdatePokemon from '@pokemon/validators/updatePokemon';
 import { validate } from '@pokemon/middlewares/validation';
 import { jsonResponse } from '@pokemon/middlewares/response';
+import { getPokemonRepository, Pokemon } from '@pokemon/repositories/pokemon.repository';
 
 const update = async (ctx: { body, params }) => {
   const { id = '0' } = ctx.params || {};
+  const repository = getPokemonRepository();
 
-  const pokemon = await prisma.pokemon.update({
-    where: { id: +id },
-    data: ctx.body,
-  });
+  const pokemon = await repository.update(+id, new Pokemon({ ...ctx.body }));
 
   return pokemon;
 };

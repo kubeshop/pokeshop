@@ -3,6 +3,7 @@
     "strictPropertyInitialization": false,
     "esModuleInterop": true,
     "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "preserveConstEnums": true,
     "strictNullChecks": true,
     "skipLibCheck": true,
