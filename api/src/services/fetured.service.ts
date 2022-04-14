@@ -1,9 +1,9 @@
 import { Pokemon } from '@prisma/client';
 import { prisma } from '@pokemon/utils/db';
-import CacheService from '@pokemon/services/cache.service';
+import { getCacheService } from '@pokemon/services/cache.service';
 
 const FeaturedService = () => {
-  const cacheService = CacheService<Pokemon[]>();
+  const cacheService = getCacheService<Pokemon[]>();
   const key = 'featured-list';
 
   return {
