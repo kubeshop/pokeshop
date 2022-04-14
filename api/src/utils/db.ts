@@ -1,9 +1,6 @@
 import { PokemonModel } from '@pokemon/repositories/pokemon.sequelize.repository';
-import { PrismaClient } from '@prisma/client';
 import { Sequelize } from 'sequelize-typescript';
 import { SequelizeStorage, Umzug } from 'umzug';
-
-export const prisma = new PrismaClient();
 
 export async function setupSequelize() {
     const { DATABASE_URL = '' } = process.env;

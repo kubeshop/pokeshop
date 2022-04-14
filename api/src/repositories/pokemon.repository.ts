@@ -25,7 +25,8 @@ export type SearchOptions = {
 export interface PokemonRepository {
   create(pokemon: Pokemon): Promise<Pokemon>;
   update(id: number, pokemon: Pokemon): Promise<Pokemon>;
-  delete(pokemonId: number): Promise<Pokemon>;
+  delete(pokemonId: number): Promise<void>;
+  findOne(id: number): Promise<Pokemon | null>
   findMany(options?: SearchOptions | undefined): Promise<Pokemon[]>;
   count(options?: SearchOptions | undefined): Promise<number>;
 }

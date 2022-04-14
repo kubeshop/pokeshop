@@ -1,3 +1,4 @@
+import { SpanStatusCode } from "@opentelemetry/api";
 import { createSpan, getParentSpan, runWithSpan } from "@pokemon/telemetry/tracing";
 
 const jsonResponse = (statusCode: Number = 200) => {
@@ -5,11 +6,15 @@ const jsonResponse = (statusCode: Number = 200) => {
         const parentSpan = await getParentSpan();
         const span = await createSpan('middleware jsonResponse', parentSpan);
         try {
-            const response = await runWithSpan(span, async () => await next());
             ctx.status = statusCode;
+            const response = await runWithSpan(span, async () => await next(ctx));
+            const status = ctx.status
             ctx.body = response;
+            // This is needed because if ctx.body = null | undefined, ctx.status is updated to 204
+            ctx.status = status
         } catch (ex) {
             span.recordException(ex);
+            span.setStatus({ code: SpanStatusCode.ERROR });
             ctx.status = 500;
             ctx.body = {};
         } finally {

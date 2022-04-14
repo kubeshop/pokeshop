@@ -18,8 +18,12 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
         return this.instrumentMethod('PokemonRepository update', async () => await this.repository.update(id, pokemon));
     }
 
-    async delete(pokemonId: number): Promise<Pokemon> {
+    async delete(pokemonId: number): Promise<void> {
         return this.instrumentMethod('PokemonRepository delete', async () => await this.repository.delete(pokemonId));
+    }
+
+    findOne(id: number): Promise<Pokemon | null> {
+        return this.instrumentMethod('PokemonRepository findOne', async () => await this.repository.findOne(id));
     }
 
     async findMany(options?: SearchOptions): Promise<Pokemon[]> {

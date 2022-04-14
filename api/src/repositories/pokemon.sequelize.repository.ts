@@ -36,23 +36,30 @@ export class SequelizePokemonRepository implements PokemonRepository {
     }
 
     async update(id: number, pokemon: Pokemon): Promise<Pokemon> {
+        const newData = { ...pokemon };
+        delete newData.id;
         await PokemonModel.update(
-            { ...pokemon },
+            { ...newData },
             { where: { id: id } }
         );
 
         const model = await PokemonModel.findOne({
             where: { id: id }
         });
-
         return this.createPokemonFromModel(model!!);
     }
 
-    async delete(pokemonId: number): Promise<Pokemon> {
-        const model = await PokemonModel.findOne({ where: {id: pokemonId}});
-        await PokemonModel.destroy({ where: { id: pokemonId }});
+    async delete(id: number): Promise<void> {
+        await PokemonModel.destroy({ where: { id: id }});
+    }
 
-        return this.createPokemonFromModel(model!!);
+    async findOne(id: number): Promise<Pokemon | null> {
+        const model = await PokemonModel.findOne({ where: {id: id} });
+        if (!model) {
+            return null;
+        }
+
+        return this.createPokemonFromModel(model);
     }
 
     async findMany(options?: SearchOptions): Promise<Pokemon[]> {

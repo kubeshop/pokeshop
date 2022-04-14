@@ -18,10 +18,16 @@ const isDatabaseAvailable = async () => {
 }
 
 const healthcheck = async (ctx, next) => {
+  const [ cacheAvailable, databaseAvailable, queueAvailable ] = await Promise.all([
+    cache.isAvailable(),
+    isDatabaseAvailable(),
+    queue.healthcheck()
+  ]);
+
   const response = {
-    cache: await cache.isAvailable(),
-    database: await isDatabaseAvailable(),
-    queue: await queue.healthcheck(),
+    cache: cacheAvailable,
+    database: databaseAvailable,
+    queue: queueAvailable,
   }
 
   return response

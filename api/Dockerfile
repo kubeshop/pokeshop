@@ -11,7 +11,7 @@ RUN npm run build
 FROM node:alpine as app
 
 WORKDIR /app
-COPY prisma/ .
+COPY migrations .
 COPY package.json .
 RUN npm i --production
 

@@ -5,8 +5,13 @@ const remove = async (ctx) => {
   const { id = '0' } = ctx.params || {};
   const repository = getPokemonRepository();
 
-  const pokemon = await repository.delete(+id);
-
+  const pokemon = await repository.findOne(id);
+  if (!pokemon) {
+    ctx.status = 404;
+    return;
+  }
+  
+  await repository.delete(+id);
   return pokemon;
 };
 

@@ -3,13 +3,19 @@ import { validate } from '@pokemon/middlewares/validation';
 import { jsonResponse } from '@pokemon/middlewares/response';
 import { getPokemonRepository, Pokemon } from '@pokemon/repositories';
 
-const update = async (ctx: { body, params }) => {
+const update = async (ctx: { status, body, params }) => {
   const { id = '0' } = ctx.params || {};
   const repository = getPokemonRepository();
 
-  const pokemon = await repository.update(+id, new Pokemon({ ...ctx.body }));
+  const pokemon = await repository.findOne(+id)
+  if (!pokemon) {
+    ctx.status = 404;
+    return;
+  }
 
-  return pokemon;
+  const updatedPokemon = await repository.update(+id, new Pokemon({ ...ctx.body }));
+
+  return updatedPokemon;
 };
 
 export default function setupRoute(router) {

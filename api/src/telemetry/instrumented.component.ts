@@ -1,3 +1,4 @@
+import { SpanStatusCode } from "@opentelemetry/api";
 import { createSpan, getParentSpan, runWithSpan } from "@pokemon/telemetry/tracing";
 
 export abstract class InstrumentedComponent {
@@ -12,6 +13,7 @@ export abstract class InstrumentedComponent {
             });
         } catch (ex) {
             span.recordException(ex);
+            span.setStatus({ code: SpanStatusCode.ERROR });
             throw ex;
         } finally {
             span.end();
