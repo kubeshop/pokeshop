@@ -3,7 +3,7 @@ export class Pokemon {
   public name: string;
   public type: string;
   public isFeatured: boolean;
-  public imageUrl?: string | null;
+  public imageUrl?: string;
 
   public constructor(data?: object | undefined) {
     if (data) {

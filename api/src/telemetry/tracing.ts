@@ -9,6 +9,7 @@ import { IORedisInstrumentation } from '@opentelemetry/instrumentation-ioredis';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { KoaInstrumentation } from '@opentelemetry/instrumentation-koa';
 import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib';
+import { PgInstrumentation } from '@opentelemetry/instrumentation-pg'
 import {} from '@opentelemetry/api'
 
 // Make sure all env variables are available in process.env
@@ -32,6 +33,7 @@ async function createTracer(): Promise<opentelemetry.Tracer> {
       new HttpInstrumentation(),
       new IORedisInstrumentation(),
       new KoaInstrumentation(),
+      new PgInstrumentation(),
     ]
   });
 

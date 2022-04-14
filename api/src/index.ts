@@ -13,10 +13,13 @@ import syncronizeHandler from '@pokemon/handlers/syncronize.handler';
 import healthcheckHandler from '@pokemon/handlers/healthcheck.handler';
 import { createQueueService } from '@pokemon/services/queue.service';
 import { MESSAGE_GROUP, TPokemonSyncMessage } from '@pokemon/services/pokemonSyncronizer.service';
+import { setupSequelize } from '@pokemon/utils/db';
 
 async function startApp() {
     const app = new Koa();
     const router = new Router();
+
+    await setupSequelize();
 
     const routeSetupFunctions = [
         createHandler,
