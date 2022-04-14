@@ -86,8 +86,8 @@ class RabbitQueueService<T> implements QueueService<T> {
   public async healthcheck(): Promise<boolean> {
     try {
       const channel = await this.connect(false);
-      channel.assertQueue(this.messageGroup);
-      channel.close();
+      await channel.assertQueue(this.messageGroup);
+      await channel.close();
       return true;
     } catch (ex) {
       return false;

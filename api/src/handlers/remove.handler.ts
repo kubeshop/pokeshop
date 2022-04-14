@@ -1,5 +1,5 @@
 import { jsonResponse } from '@pokemon/middlewares/response';
-import { getPokemonRepository } from '@pokemon/repositories/pokemon.repository';
+import { getPokemonRepository } from '@pokemon/repositories';
 
 const remove = async (ctx) => {
   const { id = '0' } = ctx.params || {};

@@ -1,7 +1,7 @@
 import UpdatePokemon from '@pokemon/validators/updatePokemon';
 import { validate } from '@pokemon/middlewares/validation';
 import { jsonResponse } from '@pokemon/middlewares/response';
-import { getPokemonRepository, Pokemon } from '@pokemon/repositories/pokemon.repository';
+import { getPokemonRepository, Pokemon } from '@pokemon/repositories';
 
 const update = async (ctx: { body, params }) => {
   const { id = '0' } = ctx.params || {};

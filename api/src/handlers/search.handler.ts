@@ -1,5 +1,5 @@
 import { jsonResponse } from '@pokemon/middlewares/response';
-import { getPokemonRepository } from '@pokemon/repositories/pokemon.repository';
+import { getPokemonRepository } from '@pokemon/repositories';
 
 const search = async (ctx) => {
   const { skip = '0', take = '20', s = '' } = ctx.request.query || {};

@@ -1,5 +1,5 @@
 import { jsonResponse } from '@pokemon/middlewares/response';
-import { getPokemonRepository } from '@pokemon/repositories/pokemon.repository';
+import { getPokemonRepository } from '@pokemon/repositories';
 import { getCacheService } from '@pokemon/services/cache.service';
 import { MESSAGE_GROUP, TPokemonSyncMessage } from '@pokemon/services/pokemonSyncronizer.service';
 import { createQueueService } from '@pokemon/services/queue.service';

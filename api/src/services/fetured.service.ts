@@ -1,5 +1,5 @@
 import { getCacheService } from '@pokemon/services/cache.service';
-import { getPokemonRepository, Pokemon } from '@pokemon/repositories/pokemon.repository';
+import { getPokemonRepository, Pokemon } from '@pokemon/repositories';
 
 const FeaturedService = () => {
   const cacheService = getCacheService<Pokemon[]>();

@@ -1,4 +1,4 @@
-import { getPokemonRepository, Pokemon } from '@pokemon/repositories/pokemon.repository';
+import { getPokemonRepository, Pokemon } from '@pokemon/repositories';
 import { createQueueService } from '@pokemon/services/queue.service';
 import { createSpan, getParentSpan, runWithSpan } from '@pokemon/telemetry/tracing';
 
