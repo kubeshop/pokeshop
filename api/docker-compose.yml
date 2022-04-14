@@ -35,7 +35,7 @@ services:
     networks:
       - local
     healthcheck:
-      test: rabbitmq-diagnostics -q ping
+      test: rabbitmq-diagnostics -q check_running
       interval: 1s
       timeout: 5s
       retries: 60
@@ -68,7 +68,7 @@ services:
       RABBITMQ_HOST: queue
       POKE_API_BASE_URL: https://pokeapi.co/api/v2
       JAEGER_HOST: jaeger
-      JAEGER_PORT: 9411
+      JAEGER_PORT: 6832
     ports:
       - 3000:3000
     networks:
