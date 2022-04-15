@@ -46,8 +46,8 @@ async function startApp() {
     const pokemonSyncronizationQueueService = createQueueService<TPokemonSyncMessage>(MESSAGE_GROUP);
     syncronizeHandler(pokemonSyncronizationQueueService);
     
-    console.log('Starting server on port 3000');
-    app.listen(3000);
+    console.log('Starting server on port 80');
+    app.listen(80);
 }
 
 startApp();
