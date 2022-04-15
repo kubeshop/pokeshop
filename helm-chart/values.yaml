@@ -87,7 +87,7 @@ env:
   - name: POKE_API_BASE_URL
     value: https://pokeapi.co/api/v2
   - name: JAEGER_HOST
-    value: localhost
+    value: jaeger-agent.tracetest.svc.cluster.local
   - name: JAEGER_PORT
     value: "6832"
 

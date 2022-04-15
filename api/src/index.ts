@@ -47,7 +47,7 @@ async function startApp() {
     syncronizeHandler(pokemonSyncronizationQueueService);
     
     console.log('Starting server on port 80');
-    app.listen(8080);
+    app.listen(80);
 }
 
 startApp();
