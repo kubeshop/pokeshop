@@ -14,7 +14,7 @@ WORKDIR /app
 COPY package.json .
 RUN npm i --production
 
-EXPOSE 3000
+EXPOSE 80
 
 COPY --from=build /build/.build/* ./
 COPY --from=build /build/migrations/* ./migrations/
