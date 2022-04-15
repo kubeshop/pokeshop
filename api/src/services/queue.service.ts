@@ -1,3 +1,4 @@
+import { SpanStatusCode } from '@opentelemetry/api';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
 import { createSpan, getParentSpan, runWithSpan } from '@pokemon/telemetry/tracing';
@@ -40,9 +41,14 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
 
     const instrumentedCallback = async (message) => {
       const span = await createSpan('rabbitmq process', parentSpan);
-      const response = await runWithSpan(span, async () => callback(message));
-      span.end();
-      return response;
+      try {
+        return await runWithSpan(span, async () => callback(message));
+      } catch (ex) {
+        span.recordException(ex);
+        span.setStatus({ code: SpanStatusCode.ERROR });
+      } finally {
+        span.end();
+      }
     }
 
     const response = await this.queueService.subscribe(instrumentedCallback);
@@ -108,6 +114,7 @@ class RabbitQueueService<T> implements QueueService<T> {
           channel.ack(message);
         } catch(ex) {
           channel.nack(message);
+          throw ex;
         }
       }
     }
