@@ -33,7 +33,10 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
   }
 
   public async send(message: T): Promise<boolean> {
-    return this.instrumentMethod('QueueService send', () => this.queueService.send(message));
+    return this.instrumentMethod('QueueService send', (span) => {
+      span?.setAttribute('messaging.message_payload', JSON.stringify(message));
+      return this.queueService.send(message);
+    });
   }
 
   public async subscribe(callback: Function): Promise<void> {
@@ -41,6 +44,7 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
 
     const instrumentedCallback = async (message) => {
       const span = await createSpan('rabbitmq process', parentSpan);
+      span.setAttribute('messaging.request_payload', JSON.stringify(message));
       try {
         return await runWithSpan(span, async () => callback(message));
       } catch (ex) {
