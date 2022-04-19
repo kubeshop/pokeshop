@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: mathnogueira/pokemon-api
+  repository: kubeshop/demo-pokemon-api
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
