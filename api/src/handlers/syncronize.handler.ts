@@ -8,12 +8,8 @@ const pokemonSyncronizationHandler = async (message: ampqlib.ConsumeMessage) => 
   const pokeApiService = PokeAPIService()
   const pokemonSyncronizer = PokemonSyncronizer(pokeApiService);
   const { id }: TPokemonSyncMessage = JSON.parse(message.content.toString());
-
-  const parentSpan = await getParentSpan();
-  const span = await createSpan('pokemonSyncronizationHandler', parentSpan);
   
-  await runWithSpan(span, async () => await pokemonSyncronizer.sync(id));
-  span.end();
+  await pokemonSyncronizer.sync(id);
 };
 
 export default function setupWorker(queueService: QueueService<TPokemonSyncMessage>) {

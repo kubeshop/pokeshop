@@ -6,9 +6,6 @@ import { Resource } from '@opentelemetry/resources';
 import * as dotenv from 'dotenv';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { IORedisInstrumentation } from '@opentelemetry/instrumentation-ioredis';
-import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
-import { KoaInstrumentation } from '@opentelemetry/instrumentation-koa';
-import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib';
 import { PgInstrumentation } from '@opentelemetry/instrumentation-pg'
 import {} from '@opentelemetry/api'
 
@@ -80,19 +77,25 @@ async function createSpan(
   options?: opentelemetry.SpanOptions | undefined
 ): Promise<opentelemetry.Span> {
   const tracer = await getTracer();
-  let span: opentelemetry.Span | undefined;
   if (parentSpan) {
-    const ctx = opentelemetry.trace.setSpan(
+    const context = opentelemetry.trace.setSpan(
       opentelemetry.context.active(),
       parentSpan
     );
 
-    span = tracer.startSpan(name, options, ctx);
+    return createSpanFromContext(name, context, options);
   }
 
-  span = tracer.startSpan(name)
+  return tracer.startSpan(name)
+}
 
-  return span;
+async function createSpanFromContext(
+  name: string,
+  context: opentelemetry.Context,
+  options?: opentelemetry.SpanOptions | undefined
+): Promise<opentelemetry.Span> {
+  const tracer = await getTracer();
+  return tracer.startSpan(name, options, context);
 }
 
 async function runWithSpan<T>(parentSpan: opentelemetry.Span, fn: () => Promise<T>): Promise<T> {
@@ -104,4 +107,4 @@ async function runWithSpan<T>(parentSpan: opentelemetry.Span, fn: () => Promise<
   return await opentelemetry.context.with(ctx, fn);
 }
 
-export { getTracer, getParentSpan, createSpan, runWithSpan };
+export { getTracer, getParentSpan, createSpan, createSpanFromContext, runWithSpan };

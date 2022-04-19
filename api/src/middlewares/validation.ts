@@ -11,11 +11,13 @@ const validate = (type) => {
         try {
             const validType = await runWithSpan(span, async () => await transformAndValidate(type, body));
             ctx.body = validType;
+            span.setAttribute('http.request.valid', true);
             return runWithSpan(span, async () => await next(ctx));
         } catch (validationErrors) {
             ctx.status = 400;
             const response = mapErrorToResponse(validationErrors);
             span.setAttribute('http.validation.errors', JSON.stringify(response.errors));
+            span.setAttribute('http.request.valid', false);
             span.setStatus({ code: SpanStatusCode.ERROR });
             ctx.body = response;
             return response;

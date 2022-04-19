@@ -1,14 +1,21 @@
-import { SpanStatusCode } from '@opentelemetry/api';
-import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
+import { context, Span, SpanStatusCode, trace, propagation } from '@opentelemetry/api';
 import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
-import { createSpan, getParentSpan, runWithSpan } from '@pokemon/telemetry/tracing';
+import { createSpan, createSpanFromContext, getParentSpan, runWithSpan } from '@pokemon/telemetry/tracing';
 import ampqlib from 'amqplib';
 
 const { RABBITMQ_HOST = '' } = process.env;
 
+const parseMessage = (message) => {
+  const messageCopy = JSON.parse(JSON.stringify(message));
+  const string = String.fromCharCode(...messageCopy.content.data);
+  messageCopy.content = JSON.parse(string);
+
+  return messageCopy;
+}
+
 export interface QueueService<T> {
   healthcheck(): Promise<boolean>;
-  send(message: T): Promise<boolean>;
+  send(message: T, headers?: any): Promise<boolean>;
   subscribe(callback: Function): Promise<void>;
 }
 
@@ -29,22 +36,26 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
   }
 
   public async healthcheck(): Promise<boolean> {
-    return this.instrumentMethod('QueueService healthcheck', () => this.queueService.healthcheck());
+    return this.instrumentMethod(`queue ${this.messageGroup}: healthcheck`, () => this.queueService.healthcheck());
   }
 
   public async send(message: T): Promise<boolean> {
-    return this.instrumentMethod('QueueService send', (span) => {
-      span?.setAttribute('messaging.message_payload', JSON.stringify(message));
-      return this.queueService.send(message);
+    return this.instrumentMethod(`queue ${this.messageGroup}: send`, async (span: Span) => {
+      span.setAttribute('messaging.message.payload', JSON.stringify(message));
+      const headers = {};
+      propagation.inject(trace.setSpan(context.active(), span), headers);
+      span.setAttribute('messaging.message.headers', JSON.stringify(headers));
+      return this.queueService.send(message, headers);
     });
   }
 
   public async subscribe(callback: Function): Promise<void> {
-    const parentSpan = await getParentSpan();
 
     const instrumentedCallback = async (message) => {
-      const span = await createSpan('rabbitmq process', parentSpan);
-      span.setAttribute('messaging.request_payload', JSON.stringify(message));
+      const headers = message.properties.headers ?? {};
+      const parentContext = propagation.extract(context.active(), headers);
+      const span = await createSpanFromContext(`queue ${this.messageGroup}: consume`, parentContext);
+      span.setAttribute('messaging.message.payload', JSON.stringify(parseMessage(message)));
       try {
         return await runWithSpan(span, async () => callback(message));
       } catch (ex) {
@@ -97,11 +108,11 @@ class RabbitQueueService<T> implements QueueService<T> {
     }
   }
 
-  public async send(message: T): Promise<boolean> {
+  public async send(message: T, headers?: any): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       try {
         const channel = await this.connect();
-        const messageSent = channel.sendToQueue(this.messageGroup, Buffer.from(JSON.stringify(message)))
+        const messageSent = channel.sendToQueue(this.messageGroup, Buffer.from(JSON.stringify(message)), { headers });
         resolve(messageSent);
       } catch (ex) {
         reject(false);
