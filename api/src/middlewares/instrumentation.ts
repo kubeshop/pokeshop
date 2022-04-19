@@ -1,4 +1,5 @@
-import { createSpan, getParentSpan, runWithSpan } from "@pokemon/telemetry/tracing"
+import { context, propagation } from "@opentelemetry/api";
+import { createSpan, createSpanFromContext, getParentSpan, runWithSpan } from "@pokemon/telemetry/tracing"
 
 const instrumentRoute = () => {
     return async (ctx, next) => {
@@ -7,8 +8,8 @@ const instrumentRoute = () => {
         const requestBody = ctx.body;
         const headers = ctx.request.headers;
 
-        const parentSpan = await getParentSpan();
-        const span = await createSpan(`${method} ${route}`, parentSpan);
+        const parentContext = propagation.extract(context.active(), headers);
+        const span = await createSpanFromContext(`${method} ${route}`, parentContext);
 
         span.setAttribute('http.request.body', JSON.stringify(requestBody))
         span.setAttribute('http.request.headers', JSON.stringify(headers));
