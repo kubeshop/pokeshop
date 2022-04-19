@@ -23,8 +23,8 @@ const PokeAPIService = () => {
     async getPokemon(id: string) {
       const parentSpan = await getParentSpan();
       const span = await createSpan('PokeAPIService getPokemon', parentSpan);
-      span.setAttribute('http.url', `${baseUrl}/${id}`);
       span.setAttribute('http.method', defaultMethod);
+      span.setAttribute('http.url', `${baseUrl}/${id}`);
       const result = await runWithSpan(span, async () => {
         const response = await fetch(`${baseUrl}/${id}`, {
           method: defaultMethod,
