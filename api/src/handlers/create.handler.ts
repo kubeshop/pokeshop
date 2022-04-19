@@ -21,8 +21,8 @@ const create = async (ctx: { body: CreatePokemon }) => {
 export default function setupRoute(router) {
   router.post(
     '/pokemon',
-    validate(CreatePokemon),
     jsonResponse(201),
+    validate(CreatePokemon),
     create
   );
 }

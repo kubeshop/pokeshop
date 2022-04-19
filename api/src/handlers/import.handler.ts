@@ -22,8 +22,8 @@ const importPokemon = async (ctx: { body: ImportPokemon }) => {
 export default function setupRoute(router) {
   router.post(
     '/pokemon/import',
-    validate(ImportPokemon),
     jsonResponse(200),
+    validate(ImportPokemon),
     importPokemon
   )
 };

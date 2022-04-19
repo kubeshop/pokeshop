@@ -8,8 +8,7 @@ export abstract class InstrumentedComponent {
         const span = await createSpan(spanName, parentSpan);
         try {
             return await runWithSpan(span, async () => {
-                const result = await innerMethod()
-                return result;
+                return await innerMethod(span);
             });
         } catch (ex) {
             span.recordException(ex);

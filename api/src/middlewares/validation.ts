@@ -1,10 +1,11 @@
+import { SpanStatusCode } from '@opentelemetry/api';
 import { createSpan, getParentSpan, runWithSpan } from '@pokemon/telemetry/tracing';
 import { transformAndValidate } from 'class-transformer-validator';
 
 const validate = (type) => {
     return async function validate(ctx, next) {
         const parentSpan = await getParentSpan();
-        const span = await createSpan('middleware validate', parentSpan);
+        const span = await createSpan('request validation', parentSpan);
 
         const body = ctx.request.body;
         try {
@@ -13,7 +14,11 @@ const validate = (type) => {
             return runWithSpan(span, async () => await next(ctx));
         } catch (validationErrors) {
             ctx.status = 400;
-            ctx.body = mapErrorToResponse(validationErrors);
+            const response = mapErrorToResponse(validationErrors);
+            span.setAttribute('http.validation.errors', JSON.stringify(response.errors));
+            span.setStatus({ code: SpanStatusCode.ERROR });
+            ctx.body = response;
+            return response;
         } finally {
             span.end();
         }

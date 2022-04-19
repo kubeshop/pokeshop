@@ -14,6 +14,7 @@ import healthcheckHandler from '@pokemon/handlers/healthcheck.handler';
 import { createQueueService } from '@pokemon/services/queue.service';
 import { MESSAGE_GROUP, TPokemonSyncMessage } from '@pokemon/services/pokemonSyncronizer.service';
 import { setupSequelize } from '@pokemon/utils/db';
+import { instrumentRoute } from '@pokemon/middlewares/instrumentation';
 
 const { APP_PORT = 80 } = process.env;
 
@@ -41,6 +42,7 @@ async function startApp() {
     app
         .use(bodyParse())
         .use(KoaLogger())
+        .use(instrumentRoute())
         .use(router.routes())
         .use(router.allowedMethods())
     

@@ -1,5 +1,36 @@
+import { Span } from "@opentelemetry/api";
 import { Pokemon, PokemonRepository, SearchOptions } from "@pokemon/repositories/pokemon.repository";
 import { InstrumentedComponent } from "@pokemon/telemetry/instrumented.component";
+
+const searchOptionsToJSON = (options?: SearchOptions) => {
+    if (!options) {
+        return JSON.stringify({});
+    }
+
+    const objectWithoutSymbols = replaceSymbolsInObject(options);
+    return JSON.stringify(objectWithoutSymbols);
+}
+
+const replaceSymbolsInObject = function(object: Object): Object {
+    const outputObject = {};
+    const symbolKeys = Object.getOwnPropertySymbols(object);
+    for (const symbol of symbolKeys) {
+        outputObject[symbol.toString()] = object[symbol];
+    }
+
+    for (const key in object) {
+        const value = object[key];
+        if (typeof value === 'object') {
+            outputObject[key] = replaceSymbolsInObject(value);
+        } else if (typeof value === 'symbol') {
+            outputObject[key] = value.toString();
+        } else {
+            outputObject[key] = value;
+        }
+    }
+
+    return outputObject;
+}
 
 export class InstrumentedPokemonRepository extends InstrumentedComponent implements PokemonRepository {
 
@@ -11,27 +42,77 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
     }
 
     async create(pokemon: Pokemon): Promise<Pokemon> {
-        return this.instrumentMethod('PokemonRepository create', async () => await this.repository.create(pokemon));
+        return this.instrumentMethod('PokemonRepository create', async (span: Span) => {
+            span.setAttribute('db.repository.operation', 'create');
+            span.setAttribute('db.repository.params.payload', JSON.stringify(pokemon));
+
+            const result = await this.repository.create(pokemon)
+            span.setAttribute('db.repository.result', JSON.stringify(result));
+
+            return result;
+        });
     }
 
     async update(id: number, pokemon: Pokemon): Promise<Pokemon> {
-        return this.instrumentMethod('PokemonRepository update', async () => await this.repository.update(id, pokemon));
+        return this.instrumentMethod('PokemonRepository update', async (span: Span) => {
+            span.setAttribute('db.repository.operation', 'update');
+            span.setAttribute('db.repository.params.id', id);
+            span.setAttribute('db.repository.params.payload', JSON.stringify(pokemon));
+
+            const result = await this.repository.update(id, pokemon)
+            span.setAttribute('db.repository.result', JSON.stringify(result));
+
+            return result;
+        });
     }
 
-    async delete(pokemonId: number): Promise<void> {
-        return this.instrumentMethod('PokemonRepository delete', async () => await this.repository.delete(pokemonId));
+    async delete(pokemonId: number): Promise<number> {
+        return this.instrumentMethod('PokemonRepository delete', async (span: Span) => {
+            span.setAttribute('db.repository.operation', 'delete');
+            span.setAttribute('db.repository.params.id', pokemonId);
+
+            const affectedRows = await this.repository.delete(pokemonId);
+            span.setAttribute('db.repository.affected_rows', affectedRows);
+
+            return affectedRows;
+        });
     }
 
     findOne(id: number): Promise<Pokemon | null> {
-        return this.instrumentMethod('PokemonRepository findOne', async () => await this.repository.findOne(id));
+        return this.instrumentMethod('PokemonRepository findOne', async (span: Span) => {
+            span.setAttribute('db.repository.operation', 'findOne');
+            span.setAttribute('db.repository.params.id', id);
+
+            const result = await this.repository.findOne(id);
+            span.setAttribute('db.repository.result', JSON.stringify(result));
+
+            return result;
+        });
     }
 
     async findMany(options?: SearchOptions): Promise<Pokemon[]> {
-        return this.instrumentMethod('PokemonRepository findMany', async () => await this.repository.findMany(options));
+        return this.instrumentMethod('PokemonRepository findMany', async (span: Span) => {
+            console.log(searchOptionsToJSON(options));
+            span.setAttribute('db.repository.operation', 'findMany');
+            span.setAttribute('db.repository.params.payload', searchOptionsToJSON(options));
+
+            const result = await this.repository.findMany(options);
+            span.setAttribute('db.repository.result', JSON.stringify(result));
+
+            return result;
+        });
     }
 
     async count(options?: SearchOptions): Promise<number> {
-        return this.instrumentMethod('PokemonRepository count', async () => await this.repository.count(options));
+        return this.instrumentMethod('PokemonRepository count', async (span: Span) => {
+            span.setAttribute('db.repository.operation', 'count');
+            span.setAttribute('db.repository.params.payload', searchOptionsToJSON(options));
+
+            const result = await this.repository.count(options);
+            span.setAttribute('db.repository.result', result);
+
+            return result;
+        });
     }
 
 }
