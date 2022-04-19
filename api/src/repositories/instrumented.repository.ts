@@ -92,7 +92,6 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
 
     async findMany(options?: SearchOptions): Promise<Pokemon[]> {
         return this.instrumentMethod('PokemonRepository findMany', async (span: Span) => {
-            console.log(searchOptionsToJSON(options));
             span.setAttribute('db.repository.operation', 'findMany');
             span.setAttribute('db.repository.params.payload', searchOptionsToJSON(options));
 

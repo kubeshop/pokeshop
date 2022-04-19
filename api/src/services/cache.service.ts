@@ -1,3 +1,4 @@
+import { Span } from '@opentelemetry/sdk-trace-base';
 import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
 import { createSpan, getParentSpan, runWithSpan } from '@pokemon/telemetry/tracing';
 import Redis from 'ioredis';
@@ -7,7 +8,7 @@ const defaultExpireTime = 20;
 
 export interface CacheService<T> {
   isAvailable(): Promise<boolean>;
-  get(key: string): Promise<T | undefined>;
+  get(key: string): Promise<T | null>;
   set(key: string, value: T): Promise<void>;
 }
 
@@ -26,15 +27,33 @@ class InstrumentedCacheService<T> extends InstrumentedComponent implements Cache
   }
 
   async isAvailable(): Promise<boolean> {
-    return this.instrumentMethod('CacheService isAvailable', () => this.cacheService.isAvailable());
+    return this.instrumentMethod('CacheService isAvailable', async (span: Span) => {
+      span.setAttribute('db.operation', 'healthcheck');
+      
+      const result = await this.cacheService.isAvailable();
+      span.setAttribute('db.result', result);
+
+      return result;
+    });
   }
 
-  async get(key: string): Promise<T | undefined> {
-    return this.instrumentMethod('CacheService get', () => this.cacheService.get(key));
+  async get(key: string): Promise<T | null> {
+    return this.instrumentMethod('CacheService get', async (span: Span) => {
+      span.setAttribute('db.operation', 'get');
+
+      const result = await this.cacheService.get(key);
+      span.setAttribute('db.result', JSON.stringify(result));
+
+      return result;
+    });
   }
 
   async set(key: string, value: T): Promise<void> {
-    return this.instrumentMethod('CacheService set', () => this.cacheService.set(key, value));
+    return this.instrumentMethod('CacheService set', async (span: Span) => {
+      span.setAttribute('db.operation', 'set');
+      span.setAttribute('db.operation.params', JSON.stringify({key, value}));
+      return this.cacheService.set(key, value);
+    });
   }
 }
 
@@ -48,9 +67,9 @@ class RedisCacheService<T> implements CacheService<T> {
     });
   }
 
-  public async get(key: string): Promise<T | undefined> {
+  public async get(key: string): Promise<T | null> {
     const result = await this.redis.get(key);
-    return result ? (JSON.parse(result) as T) : undefined;
+    return result ? (JSON.parse(result) as T) : null;
   }
 
   public async set(key: string, value: T): Promise<void> {
