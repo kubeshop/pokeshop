@@ -29,10 +29,7 @@ async function createTracer(): Promise<opentelemetry.Tracer> {
   const sdk = new NodeSDK({
     traceExporter: jaegerExporter,
     instrumentations: [
-      new AmqplibInstrumentation(),
-      new HttpInstrumentation(),
       new IORedisInstrumentation(),
-      new KoaInstrumentation(),
       new PgInstrumentation(),
     ]
   });
