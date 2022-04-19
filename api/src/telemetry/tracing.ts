@@ -27,6 +27,9 @@ async function createTracer(): Promise<opentelemetry.Tracer> {
     traceExporter: jaegerExporter,
     instrumentations: [
       new IORedisInstrumentation(),
+      // new KoaInstrumentation({
+      //   ignoreLayersType: [],
+      // }),
       new PgInstrumentation(),
     ]
   });
@@ -91,11 +94,15 @@ async function createSpan(
 
 async function createSpanFromContext(
   name: string,
-  context: opentelemetry.Context,
+  ctx: opentelemetry.Context,
   options?: opentelemetry.SpanOptions | undefined
 ): Promise<opentelemetry.Span> {
   const tracer = await getTracer();
-  return tracer.startSpan(name, options, context);
+  if (!ctx) {
+    return tracer.startSpan(name, options, opentelemetry.context.active());
+  }
+
+  return tracer.startSpan(name, options, ctx);
 }
 
 async function runWithSpan<T>(parentSpan: opentelemetry.Span, fn: () => Promise<T>): Promise<T> {

@@ -11,13 +11,14 @@ const instrumentRoute = () => {
         const parentContext = propagation.extract(context.active(), headers);
         const span = await createSpanFromContext(`${method} ${route}`, parentContext);
 
+        
+        const result = await runWithSpan(span, async () => await next(ctx));
+        
+        span.setAttribute('http.status_code', ctx.status);
+        span.setAttribute('http.response.body', JSON.stringify(ctx.body));
+
         span.setAttribute('http.request.body', JSON.stringify(requestBody))
         span.setAttribute('http.request.headers', JSON.stringify(headers));
-
-        const result = runWithSpan(span, async () => await next(ctx));
-
-        span.setAttribute('http.response.body', JSON.stringify(ctx.body));
-        span.setAttribute('http.status_code', ctx.status);
 
         span.end();
 
