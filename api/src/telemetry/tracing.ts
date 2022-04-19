@@ -1,4 +1,4 @@
-import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import * as opentelemetry from '@opentelemetry/api';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
@@ -22,7 +22,7 @@ async function createTracer(): Promise<opentelemetry.Tracer> {
     port: +JAEGER_PORT,
   });
 
-  const spanProcessor = new SimpleSpanProcessor(jaegerExporter);
+  const spanProcessor = new BatchSpanProcessor(jaegerExporter);
   const sdk = new NodeSDK({
     traceExporter: jaegerExporter,
     instrumentations: [
