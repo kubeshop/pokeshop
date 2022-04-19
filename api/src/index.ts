@@ -15,6 +15,8 @@ import { createQueueService } from '@pokemon/services/queue.service';
 import { MESSAGE_GROUP, TPokemonSyncMessage } from '@pokemon/services/pokemonSyncronizer.service';
 import { setupSequelize } from '@pokemon/utils/db';
 
+const { APP_PORT = 80 } = process.env;
+
 async function startApp() {
     const app = new Koa();
     const router = new Router();
@@ -46,8 +48,8 @@ async function startApp() {
     const pokemonSyncronizationQueueService = createQueueService<TPokemonSyncMessage>(MESSAGE_GROUP);
     syncronizeHandler(pokemonSyncronizationQueueService);
     
-    console.log('Starting server on port 80');
-    app.listen(80);
+    console.log(`Starting server on port ${APP_PORT}`);
+    app.listen(APP_PORT);
 }
 
 startApp();
