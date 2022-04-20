@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
+import { IsNumber, IsPositive } from 'class-validator';
 
 class ImportPokemon {
   @IsNumber()
