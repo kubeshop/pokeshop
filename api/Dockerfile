@@ -16,7 +16,9 @@ RUN npm i --production
 
 EXPOSE 80
 
+ENV NPM_RUN_COMMAND=api
+
 COPY --from=build /build/.build/* ./
 COPY --from=build /build/migrations/* ./migrations/
-RUN ls
-CMD ["npm", "run", "run-production"]
+
+CMD ["sh", "-c", "npm run $NPM_RUN_COMMAND"]

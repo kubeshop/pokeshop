@@ -27,9 +27,6 @@ async function createTracer(): Promise<opentelemetry.Tracer> {
     traceExporter: jaegerExporter,
     instrumentations: [
       new IORedisInstrumentation(),
-      // new KoaInstrumentation({
-      //   ignoreLayersType: [],
-      // }),
       new PgInstrumentation(),
     ]
   });

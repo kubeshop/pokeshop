@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node -r tsconfig-paths/register -r ./src/telemetry/setup.ts ./src/index.ts",
     "build": "tsc --project tsconfig.json && tspath -f",
-    "run-production": "node --require ./telemetry/setup.js index.js"
+    "api": "node --require ./telemetry/setup.js api.js",
+    "worker": "node --require ./telemetry/setup.js worker.js"
   },
   "author": "",
   "license": "ISC",
