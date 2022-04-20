@@ -1,13 +1,9 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 
 class ImportPokemon {
   @IsNumber()
-  @IsOptional()
+  @IsPositive()
   public id: number;
-
-  @IsString()
-  @IsOptional()
-  public name: string;
 }
 
 export default ImportPokemon;
