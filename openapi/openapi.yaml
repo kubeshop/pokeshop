@@ -1,0 +1,286 @@
+openapi: 3.0.0
+info:
+  title: Pokemon Api
+  version: 0.0.8
+  description: OpenAPI description for endpoints and and resources of the Pokemon API
+servers:
+  - url: /api
+paths:
+  /pokemon:
+    get:
+      tags:
+        - api
+      summary: Get a list of pokemons
+      description: Get a paginated list of existing pokemons in the API
+      operationId: getPokemons
+      parameters:
+        - in: query 
+          name: skip
+          description: how many pokemons to skip
+          schema:
+            type: number
+        - in: query
+          name: take
+          description: maximum number of pokemons to be returned
+          schema:
+            type: number
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pokemon"
+    post:
+      tags:
+        - api
+      summary: Create a new pokemon
+      description: Create a new pokemon
+      operationId: createPokemon
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePokemonRequest"
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pokemon"
+        400:
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequest"
+  /pokemon/featured:
+    get:
+      tags:
+        - api
+      summary: list pokemons featured in the show
+      description: Get a list of all pokemons featured in the show
+      operationId: getFeaturedPokemons
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pokemon"
+  /pokemon/{id}:
+    delete:
+      tags:
+        - api
+      summary: delete a specific pokemon
+      description: delete the pokemon identified by the provided id
+      operationId: deletePokemon
+      parameters:
+        - in: path
+          name: id
+          description: id of the pokemon that will be deleted
+          schema:
+            type: number
+          required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pokemon"
+        404:
+          description: specified pokemon doesn't exist
+    patch:
+      tags:
+        - api
+      summary: updates a specific pokemon
+      description: updates the pokemon identified by the provided id
+      operationId: updatePokemon
+      parameters:
+        - in: path
+          name: id
+          description: id of the pokemon that will be updated
+          schema:
+            type: number
+          required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pokemon"
+        400:
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequest"
+        404:
+          description: specified pokemon doesn't exist
+  /pokemon/import:
+    post:
+      tags:
+        - api
+      summary: Import a pokemon from pokeapi.co
+      description: Import an existing pokemon from pokeapi.co
+      operationId: importPokemon
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportPokemonRequest"
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportPokemonResponse"
+  /pokemon/search:
+    get:
+      tags:
+        - api
+      summary: search pokemons by name
+      description: search pokemons that their names contain the search term
+      operationId: searchPokemons
+      parameters:
+        - in: query
+          name: s
+          description: search term
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pokemon"
+  /pokemon/healthcheck:
+    get:
+      tags:
+        - api
+      summary: verify if the api is in a healthy state
+      description: validate if the api is working properly and can connect to all its dependencies
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthcheckResponse"
+        500:
+          description: some required dependency is not available
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthcheckResponse"
+components:
+  schemas:
+    Pokemon:
+      type: object
+      properties:
+        id:
+          type: number
+          description: ID
+          readOnly: true
+        name:
+          type: string
+          description: Pokemon name
+          example: charmeleon
+          readOnly: true
+        type:
+          type: string
+          description: List of types of this specific pokemon separated by comma
+          example: fire
+          readOnly: true
+        featured:
+          type: boolean
+          description: Indicates if the pokemon was featured on the show
+          readOnly: true
+        imageUrl:
+          type: string
+          description: URL for the image of the pokemon
+          readOnly: true
+    CreatePokemonRequest:
+      type: object
+      required:
+        - name
+        - type
+        - featured
+        - imageUrl
+      properties:
+        name:
+          type: string
+          description: Pokemon name
+          example: charmeleon
+        type:
+          type: string
+          description: List of types of this specific pokemon separated by comma
+          example: fire
+        featured:
+          type: boolean
+          description: Indicates if the pokemon was featured on the show
+        imageUrl:
+          type: string
+          description: URL for the image of the pokemon
+    ImportPokemonRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: number
+          description: Pokemon id
+          example: 52
+    ImportPokemonResponse:
+      type: object
+      properties:
+        id:
+          type: number
+          description: Pokemon id
+          readOnly: true
+    HealthcheckResponse:
+      type: object
+      properties:
+        cache:
+          type: boolean
+          description: cache system is online and is accessible from the API
+          readOnly: true
+        queue:
+          type: boolean
+          description: queue system is online and is accessible from the API
+          readOnly: true
+        database:
+          type: boolean
+          description: database system is online and is accessible from the API
+          readOnly: true
+    InvalidRequest:
+      type: object
+      properties:
+        errors:
+          type: array
+          description: list of errors in the request validation
+          items:
+            $ref: "#/components/schemas/ValidationError"
+    ValidationError:
+      type: object
+      properties:
+        property:
+          type: string
+          description: field that contains an invalid value
+        constraints:
+          type: array
+          description: array containing all reasons the validation failed
+          items:
+            type: string
+            description: description of why the value is invalid
