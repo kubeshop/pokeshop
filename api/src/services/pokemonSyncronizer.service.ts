@@ -20,13 +20,16 @@ const PokemonSyncronizer = (pokeApiService) => {
       const parentSpan = await getParentSpan();
       const span = await createSpan('import pokemon', parentSpan);
 
-      const result = await runWithSpan(span, async () => {
-        const data = await pokeApiService.getPokemon(pokemonId);
-        await repository.create(new Pokemon({ ...data }))
-      })
-
-      span.end();
-      return result;
+      try {
+        return await runWithSpan(span, async () => {
+          const data = await pokeApiService.getPokemon(pokemonId);
+          await repository.create(new Pokemon({ ...data }))
+        })
+      } catch (ex) {
+        console.log(ex);
+      } finally {
+        span.end();
+      }
     },
   };
 };

@@ -1,4 +1,4 @@
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { BatchSpanProcessor, Span } from '@opentelemetry/sdk-trace-base';
 import * as opentelemetry from '@opentelemetry/api';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
@@ -7,7 +7,7 @@ import * as dotenv from 'dotenv';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { IORedisInstrumentation } from '@opentelemetry/instrumentation-ioredis';
 import { PgInstrumentation } from '@opentelemetry/instrumentation-pg'
-import {} from '@opentelemetry/api'
+import { SpanStatusCode } from '@opentelemetry/api'
 
 // Make sure all env variables are available in process.env
 dotenv.config();
@@ -111,7 +111,13 @@ async function runWithSpan<T>(parentSpan: opentelemetry.Span, fn: () => Promise<
     parentSpan
   );
 
-  return await opentelemetry.context.with(ctx, fn);
+  try {
+    return await opentelemetry.context.with(ctx, fn);
+  } catch (ex) {
+    parentSpan.recordException(ex);
+    parentSpan.setStatus({ code: SpanStatusCode.ERROR });
+    throw ex;
+  }
 }
 
 export { getTracer, getParentSpan, createSpan, createSpanFromContext, runWithSpan };

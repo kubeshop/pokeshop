@@ -4,7 +4,7 @@ import PokemonSyncronizer from '@pokemon/services/pokemonSyncronizer.service'
 import { validate } from '@pokemon/middlewares/validation';
 import { jsonResponse } from '@pokemon/middlewares/response';
 
-const pokeApiService = PokeAPIService();
+const pokeApiService = new PokeAPIService();
 const pokemonSyncronizer = PokemonSyncronizer(pokeApiService);
 
 const importPokemon = async (ctx: { body: ImportPokemon }) => {
