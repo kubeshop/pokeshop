@@ -3,3 +3,4 @@ This is a demo application instrumented with opentelemetry to generate traces. I
 
 ## Summary
 1. [Installation](https://github.com/kubeshop/pokeshop/blob/master/docs/installing.md)
+2. [OpenAPI specs](https://github.com/kubeshop/pokeshop/blob/master/openapi/openapi.yaml)
