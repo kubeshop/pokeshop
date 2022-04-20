@@ -24,10 +24,16 @@ const healthcheck = async (ctx, next) => {
     queue.healthcheck()
   ]);
 
+  const requiredDependencies = [cacheAvailable, databaseAvailable, queueAvailable];
+
   const response = {
     cache: cacheAvailable,
     database: databaseAvailable,
     queue: queueAvailable,
+  }
+
+  if (requiredDependencies.some(item => !item)) {
+    ctx.status = 500;
   }
 
   return response
