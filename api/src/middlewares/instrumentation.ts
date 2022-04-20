@@ -1,4 +1,4 @@
-import { context, propagation } from "@opentelemetry/api";
+import { context, propagation, SpanStatusCode } from "@opentelemetry/api";
 import { createSpanFromContext, runWithSpan } from "@pokemon/telemetry/tracing"
 
 const instrumentRoute = () => {
@@ -11,17 +11,20 @@ const instrumentRoute = () => {
         const parentContext = propagation.extract(context.active(), headers);
         const span = await createSpanFromContext(`${method} ${route}`, parentContext);
 
-        const result = await runWithSpan(span, async () => next(ctx));
-        
-        span.setAttribute('http.status_code', ctx.response.status);
-        span.setAttribute('http.response.body', JSON.stringify(ctx.body));
+        try {
+            return await runWithSpan(span, async () => next(ctx));
+        } catch (ex) {
+            span.recordException(ex);
+            span.setStatus({ code: SpanStatusCode.ERROR });
+            ctx.status = 400;
+        } finally {
+            span.setAttribute('http.status_code', ctx.response.status);
+            span.setAttribute('http.response.body', JSON.stringify(ctx.body));
+            span.setAttribute('http.request.body', JSON.stringify(requestBody))
+            span.setAttribute('http.request.headers', JSON.stringify(headers));
 
-        span.setAttribute('http.request.body', JSON.stringify(requestBody))
-        span.setAttribute('http.request.headers', JSON.stringify(headers));
-
-        span.end();
-
-        return result;
+            span.end();
+        }
     }
 }
 

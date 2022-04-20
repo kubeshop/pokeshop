@@ -40,9 +40,9 @@ async function startApp() {
     }
     
     app
+        .use(instrumentRoute())
         .use(bodyParse())
         .use(KoaLogger())
-        .use(instrumentRoute())
         .use(router.routes())
         .use(router.allowedMethods())
     
