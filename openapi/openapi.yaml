@@ -18,12 +18,16 @@ paths:
           name: skip
           description: how many pokemons to skip
           schema:
-            type: number
+            type: integer
+            default: 0
+          required: false
         - in: query
           name: take
           description: maximum number of pokemons to be returned
           schema:
-            type: number
+            type: integer
+            default: 20
+          required: false
       responses:
         200:
           description: successful operation
@@ -85,7 +89,7 @@ paths:
           name: id
           description: id of the pokemon that will be deleted
           schema:
-            type: number
+            type: integer
           required: true
       responses:
         200:
@@ -107,8 +111,13 @@ paths:
           name: id
           description: id of the pokemon that will be updated
           schema:
-            type: number
+            type: integer
           required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePokemonRequest"
       responses:
         200:
           description: successful operation
@@ -190,7 +199,7 @@ components:
       type: object
       properties:
         id:
-          type: number
+          type: integer
           description: ID
           readOnly: true
         name:
@@ -203,7 +212,7 @@ components:
           description: List of types of this specific pokemon separated by comma
           example: fire
           readOnly: true
-        featured:
+        isFeatured:
           type: boolean
           description: Indicates if the pokemon was featured on the show
           readOnly: true
@@ -216,7 +225,7 @@ components:
       required:
         - name
         - type
-        - featured
+        - isFeatured
         - imageUrl
       properties:
         name:
@@ -227,26 +236,47 @@ components:
           type: string
           description: List of types of this specific pokemon separated by comma
           example: fire
-        featured:
+        isFeatured:
           type: boolean
           description: Indicates if the pokemon was featured on the show
+          example: true
         imageUrl:
           type: string
           description: URL for the image of the pokemon
+          example: https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png
+    UpdatePokemonRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Pokemon name
+          example: charmeleon
+        type:
+          type: string
+          description: List of types of this specific pokemon separated by comma
+          example: fire
+        isFeatured:
+          type: boolean
+          description: Indicates if the pokemon was featured on the show
+          example: true
+        imageUrl:
+          type: string
+          description: URL for the image of the pokemon
+          example: https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png
     ImportPokemonRequest:
       type: object
       required:
         - id
       properties:
         id:
-          type: number
+          type: integer
           description: Pokemon id
           example: 52
     ImportPokemonResponse:
       type: object
       properties:
         id:
-          type: number
+          type: integer
           description: Pokemon id
           readOnly: true
     HealthcheckResponse:
