@@ -5,7 +5,7 @@ import { transformAndValidate } from 'class-transformer-validator';
 const validate = (type) => {
     return async function validate(ctx, next) {
         const parentSpan = await getParentSpan();
-        const span = await createSpan('request validation', parentSpan);
+        const span = await createSpan('validate request', parentSpan);
 
         const body = ctx.request.body;
         try {

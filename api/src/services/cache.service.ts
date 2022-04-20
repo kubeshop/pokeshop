@@ -1,6 +1,5 @@
 import { Span } from '@opentelemetry/sdk-trace-base';
 import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
-import { createSpan, getParentSpan, runWithSpan } from '@pokemon/telemetry/tracing';
 import Redis from 'ioredis';
 
 const { REDIS_URL = '' } = process.env;
@@ -27,7 +26,7 @@ class InstrumentedCacheService<T> extends InstrumentedComponent implements Cache
   }
 
   async isAvailable(): Promise<boolean> {
-    return this.instrumentMethod('CacheService isAvailable', async (span: Span) => {
+    return this.instrumentMethod('cache is available', async (span: Span) => {
       span.setAttribute('db.operation', 'healthcheck');
       
       const result = await this.cacheService.isAvailable();
@@ -38,8 +37,9 @@ class InstrumentedCacheService<T> extends InstrumentedComponent implements Cache
   }
 
   async get(key: string): Promise<T | null> {
-    return this.instrumentMethod('CacheService get', async (span: Span) => {
+    return this.instrumentMethod('get value from cache', async (span: Span) => {
       span.setAttribute('db.operation', 'get');
+      span.setAttribute('db.params.params', JSON.stringify({ key }));
 
       const result = await this.cacheService.get(key);
       span.setAttribute('db.result', JSON.stringify(result));
@@ -49,7 +49,7 @@ class InstrumentedCacheService<T> extends InstrumentedComponent implements Cache
   }
 
   async set(key: string, value: T): Promise<void> {
-    return this.instrumentMethod('CacheService set', async (span: Span) => {
+    return this.instrumentMethod('set value on cache', async (span: Span) => {
       span.setAttribute('db.operation', 'set');
       span.setAttribute('db.operation.params', JSON.stringify({key, value}));
       return this.cacheService.set(key, value);

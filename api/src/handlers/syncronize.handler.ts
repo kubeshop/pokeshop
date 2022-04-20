@@ -1,7 +1,6 @@
 import PokeAPIService from '@pokemon/services/pokeApi.service';
 import PokemonSyncronizer, { TPokemonSyncMessage } from '@pokemon/services/pokemonSyncronizer.service';
 import { QueueService } from '@pokemon/services/queue.service';
-import { createSpan, getParentSpan, runWithSpan } from '@pokemon/telemetry/tracing';
 import ampqlib from 'amqplib';
 
 const pokemonSyncronizationHandler = async (message: ampqlib.ConsumeMessage) => {

@@ -1,6 +1,6 @@
 import { context, Span, SpanStatusCode, trace, propagation } from '@opentelemetry/api';
 import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
-import { createSpan, createSpanFromContext, getParentSpan, runWithSpan } from '@pokemon/telemetry/tracing';
+import { createSpanFromContext, runWithSpan } from '@pokemon/telemetry/tracing';
 import ampqlib from 'amqplib';
 
 const { RABBITMQ_HOST = '' } = process.env;
@@ -36,11 +36,15 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
   }
 
   public async healthcheck(): Promise<boolean> {
-    return this.instrumentMethod(`queue ${this.messageGroup}: healthcheck`, () => this.queueService.healthcheck());
+    return this.instrumentMethod(`queue healthcheck`, async (span: Span) => {
+      span.setAttribute('messaging.destination', this.messageGroup);
+      return this.queueService.healthcheck()
+    });
   }
 
   public async send(message: T): Promise<boolean> {
-    return this.instrumentMethod(`queue ${this.messageGroup}: send`, async (span: Span) => {
+    return this.instrumentMethod(`send message to queue`, async (span: Span) => {
+      span.setAttribute('messaging.destination', this.messageGroup);
       span.setAttribute('messaging.message.payload', JSON.stringify(message));
       const headers = {};
       propagation.inject(trace.setSpan(context.active(), span), headers);
@@ -54,7 +58,8 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
     const instrumentedCallback = async (message) => {
       const headers = message.properties.headers ?? {};
       const parentContext = propagation.extract(context.active(), headers);
-      const span = await createSpanFromContext(`queue ${this.messageGroup}: consume`, parentContext);
+      const span = await createSpanFromContext(`consume message from queue`, parentContext);
+      span.setAttribute('messaging.destination', this.messageGroup);
       span.setAttribute('messaging.message.payload', JSON.stringify(parseMessage(message)));
       try {
         return await runWithSpan(span, async () => callback(message));

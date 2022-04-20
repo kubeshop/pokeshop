@@ -42,7 +42,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
     }
 
     async create(pokemon: Pokemon): Promise<Pokemon> {
-        return this.instrumentMethod('PokemonRepository create', async (span: Span) => {
+        return this.instrumentMethod('save pokemon on database', async (span: Span) => {
             span.setAttribute('db.repository.operation', 'create');
             span.setAttribute('db.repository.params.payload', JSON.stringify(pokemon));
 
@@ -54,7 +54,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
     }
 
     async update(id: number, pokemon: Pokemon): Promise<Pokemon> {
-        return this.instrumentMethod('PokemonRepository update', async (span: Span) => {
+        return this.instrumentMethod('update pokemon on database', async (span: Span) => {
             span.setAttribute('db.repository.operation', 'update');
             span.setAttribute('db.repository.params.id', id);
             span.setAttribute('db.repository.params.payload', JSON.stringify(pokemon));
@@ -67,7 +67,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
     }
 
     async delete(pokemonId: number): Promise<number> {
-        return this.instrumentMethod('PokemonRepository delete', async (span: Span) => {
+        return this.instrumentMethod('delete pokemon from database', async (span: Span) => {
             span.setAttribute('db.repository.operation', 'delete');
             span.setAttribute('db.repository.params.id', pokemonId);
 
@@ -79,7 +79,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
     }
 
     findOne(id: number): Promise<Pokemon | null> {
-        return this.instrumentMethod('PokemonRepository findOne', async (span: Span) => {
+        return this.instrumentMethod('find a pokemon from database', async (span: Span) => {
             span.setAttribute('db.repository.operation', 'findOne');
             span.setAttribute('db.repository.params.id', id);
 
@@ -91,7 +91,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
     }
 
     async findMany(options?: SearchOptions): Promise<Pokemon[]> {
-        return this.instrumentMethod('PokemonRepository findMany', async (span: Span) => {
+        return this.instrumentMethod('search pokemons from database', async (span: Span) => {
             span.setAttribute('db.repository.operation', 'findMany');
             span.setAttribute('db.repository.params.payload', searchOptionsToJSON(options));
 
@@ -103,7 +103,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
     }
 
     async count(options?: SearchOptions): Promise<number> {
-        return this.instrumentMethod('PokemonRepository count', async (span: Span) => {
+        return this.instrumentMethod('count pokemons from database', async (span: Span) => {
             span.setAttribute('db.repository.operation', 'count');
             span.setAttribute('db.repository.params.payload', searchOptionsToJSON(options));
 
