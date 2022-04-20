@@ -10,6 +10,26 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+env:
+  - name: DATABASE_URL
+    value: postgresql://ashketchum:squirtle123@demo-postgresql.demo.svc.cluster.local:5432/pokeshop?schema=public
+  - name: REDIS_URL
+    value: demo-redis-master.demo.svc.cluster.local
+  - name: RABBITMQ_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: demo-rabbitmq
+        key: rabbitmq-password
+        optional: false
+  - name: RABBITMQ_HOST
+    value: pokemon:$(RABBITMQ_PASSWORD)@demo-rabbitmq-headless.demo.svc.cluster.local
+  - name: POKE_API_BASE_URL
+    value: https://pokeapi.co/api/v2
+  - name: JAEGER_HOST
+    value: jaeger-agent.tracetest.svc.cluster.local
+  - name: JAEGER_PORT
+    value: "6832"
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -70,26 +90,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
-env:
-  - name: DATABASE_URL
-    value: postgresql://ashketchum:squirtle123@demo-postgresql.demo.svc.cluster.local:5432/pokeshop?schema=public
-  - name: REDIS_URL
-    value: demo-redis-master.demo.svc.cluster.local
-  - name: RABBITMQ_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: demo-rabbitmq
-        key: rabbitmq-password
-        optional: false
-  - name: RABBITMQ_HOST
-    value: pokemon:$(RABBITMQ_PASSWORD)@demo-rabbitmq-headless.demo.svc.cluster.local
-  - name: POKE_API_BASE_URL
-    value: https://pokeapi.co/api/v2
-  - name: JAEGER_HOST
-    value: jaeger-agent.tracetest.svc.cluster.local
-  - name: JAEGER_PORT
-    value: "6832"
 
 # Dependencies configuration
 postgresql:
