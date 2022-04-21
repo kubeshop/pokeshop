@@ -133,7 +133,7 @@ Successful response:
 Failed response:
 
 ```json
-
+{
     "errors": [
         {
             "property": "id",
