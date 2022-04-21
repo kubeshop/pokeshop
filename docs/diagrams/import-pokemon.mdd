@@ -1,4 +1,3 @@
-```mermaid
 sequenceDiagram
     participant API as POST /pokemon/import
     participant Validator as Validation middleware
@@ -25,5 +24,8 @@ sequenceDiagram
     PokeAPI-->>Worker: pokemon info
     Worker->>DB: save pokemon
     DB-->>Worker: ok
-    Worker-->>Queue: ack
-```
+    alt if succesful
+        Worker-->>Queue: ack
+    else if failed
+        Worker-->>Queue: nack
+    end

@@ -1,4 +1,3 @@
-```mermaid
 sequenceDiagram
     participant API as POST /pokemon
     participant Validator as Validation middleware
@@ -14,4 +13,3 @@ sequenceDiagram
     DB-->>Handler: saved pokemon
     Handler-->>Validator: pokemon object
     Validator-->>API: 200 OK<br><Pokemon object>
-```
