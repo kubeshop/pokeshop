@@ -67,13 +67,15 @@ Successful response:
 
 ```json
 {
-    "id": 1000, // generated id
+    "id": 1000,
     "name": "meowth",
     "type": "normal",
     "imageUrl": "https://assets.pokemon.com/assets/cms2/img/pokedex/full/052.png",
     "isFeatured": true
 }
 ```
+
+> **Note**: the field `id` is automatically generated. It doesn't match the real id of the pokemon.
 
 Failed response:
 ```
