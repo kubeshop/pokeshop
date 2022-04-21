@@ -10,6 +10,27 @@ This section is reserved to explain how each endpoint work in a more general way
 
 **Description**: Get a list of pokemons from the API
 
+```json
+// GET /pokemon?take=20&skip=0
+// response:
+[
+    {
+        "id": 25,
+        "name": "pikachu",
+        "type": "electric",
+        "imageUrl": "https://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png",
+        "isFeatured": true
+    },
+    {
+        "id": 26,
+        "name": "raichu",
+        "type": "electric",
+        "imageUrl": "https://assets.pokemon.com/assets/cms2/img/pokedex/full/026.png",
+        "isFeatured": true
+    }
+]
+```
+
 **Flow**:
 
 ![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/api-get-pokemon.png?)
@@ -18,6 +39,25 @@ This section is reserved to explain how each endpoint work in a more general way
 
 **Description**: Create a new pokemon
 
+```json
+// POST /pokemon
+{
+    "name": "meowth",
+    "type": "normal",
+    "imageUrl": "https://assets.pokemon.com/assets/cms2/img/pokedex/full/052.png",
+    "isFeatured": true
+}
+
+// response
+{
+    "id": 1000, // generated id
+    "name": "meowth",
+    "type": "normal",
+    "imageUrl": "https://assets.pokemon.com/assets/cms2/img/pokedex/full/052.png",
+    "isFeatured": true
+}
+```
+
 **Flow**:
 
 ![create pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/api-create-pokemon.png?)
@@ -25,6 +65,19 @@ This section is reserved to explain how each endpoint work in a more general way
 ### POST /pokemon/import
 
 **Description**: Import an existing pokemon from PokeAPI and inserts it into the database
+
+```json
+// POST /pokemon/import
+// This is import "Persian" into our API
+{
+    "id": 53
+}
+
+// response
+{
+    "id": 53
+}
+```
 
 **API Flow**:
 
