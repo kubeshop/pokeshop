@@ -1,8 +1,9 @@
-SRCDIR  = docs/diagrams
-SRC     = $(wildcard $(SRCDIR)/*.mdd)
-SVG     = ${SRC:.mdd=.svg}
+SRCDIR        = docs/diagrams
+OUTPUT_FORMAT = png
+SRC           = $(wildcard $(SRCDIR)/*.mdd)
+OUT           = ${SRC:.mdd=.$(OUTPUT_FORMAT)}
 
-generate-diagrams: $(SVG)
+generate-diagrams: $(OUT)
 
-$(SRCDIR)/%.svg: $(SRCDIR)/%.mdd
+$(SRCDIR)/%.$(OUTPUT_FORMAT): $(SRCDIR)/%.mdd
 	npm run generate-diagram -- --input $< --output $@

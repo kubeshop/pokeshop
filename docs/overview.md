@@ -10,17 +10,17 @@ This section is reserved to explain how each endpoint work in a more general way
 
 **Description**: Get a list of pokemons from the API
 **Flow**:
-![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/get-pokemon.svg)
+![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/get-pokemon.png)
 
 ### POST /pokemon
 
 **Description**: Create a new pokemon
 **Flow**:
-![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/create-pokemon.svg)
+![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/create-pokemon.png)
 
 ### POST /pokemon/import
 
 **Description**: Import an existing pokemon from PokeAPI and inserts it into the database
 **Flow**:
-![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/import-pokemon.svg)
+![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/import-pokemon.png)
 
