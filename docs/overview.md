@@ -10,7 +10,7 @@ This section is reserved to explain how each endpoint work in a more general way
 
 **Description**: Get a list of pokemons from the API
 **Flow**:
-![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/get-pokemon.png?nocache)
+![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/api-get-pokemon.png)
 
 ### POST /pokemon
 
@@ -18,7 +18,7 @@ This section is reserved to explain how each endpoint work in a more general way
 
 **Flow**:
 
-![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/create-pokemon.png?nocache)
+![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/api-create-pokemon.png)
 
 ### POST /pokemon/import
 
@@ -26,5 +26,5 @@ This section is reserved to explain how each endpoint work in a more general way
 
 **Flow**:
 
-![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/import-pokemon.png?nocache)
+![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/api-import-pokemon.png)
 
