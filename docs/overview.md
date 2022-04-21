@@ -59,16 +59,43 @@ Response:
     "isFeatured": true
 }
 ```
-Response:
 
+Successful response:
+```
+// 201 Created
+```
 
-```response
+```json
 {
     "id": 1000, // generated id
     "name": "meowth",
     "type": "normal",
     "imageUrl": "https://assets.pokemon.com/assets/cms2/img/pokedex/full/052.png",
     "isFeatured": true
+}
+```
+
+Failed response:
+```
+// 400 Bad Request
+```
+
+```json
+{
+    "errors": [
+        {
+            "property": "name",
+            "constraints": [
+                "name cannot be empty"
+            ]
+        },
+        {
+            "property": "type",
+            "constraints": [
+                "type cannot be empty"
+            ]
+        }
+    ]
 }
 ```
 
@@ -94,12 +121,27 @@ Response:
 }
 ```
 
-Response:
+Successful response:
 
 
 ```json
 {
     "id": 53
+}
+```
+
+Failed response:
+
+```json
+
+    "errors": [
+        {
+            "property": "id",
+            "constraints": [
+                "id must be positive"
+            ]
+        }
+    ]
 }
 ```
 
