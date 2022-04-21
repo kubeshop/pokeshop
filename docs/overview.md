@@ -10,9 +10,15 @@ This section is reserved to explain how each endpoint work in a more general way
 
 **Description**: Get a list of pokemons from the API
 
-```json
+**Request**:
+```js
 // GET /pokemon?take=20&skip=0
-// response:
+```
+
+Response:
+
+
+```json
 [
     {
         "id": 25,
@@ -39,16 +45,24 @@ This section is reserved to explain how each endpoint work in a more general way
 
 **Description**: Create a new pokemon
 
-```json
+**Request**:
+
+```js
 // POST /pokemon
+```
+
+```json
 {
     "name": "meowth",
     "type": "normal",
     "imageUrl": "https://assets.pokemon.com/assets/cms2/img/pokedex/full/052.png",
     "isFeatured": true
 }
+```
+Response:
 
-// response
+
+```response
 {
     "id": 1000, // generated id
     "name": "meowth",
@@ -66,14 +80,24 @@ This section is reserved to explain how each endpoint work in a more general way
 
 **Description**: Import an existing pokemon from PokeAPI and inserts it into the database
 
-```json
+**Request**:
+
+> **Note**:This is import "Persian" into our API)
+```js
 // POST /pokemon/import
-// This is import "Persian" into our API
+```
+
+
+```json
 {
     "id": 53
 }
+```
 
-// response
+Response:
+
+
+```json
 {
     "id": 53
 }
