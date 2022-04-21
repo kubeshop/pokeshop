@@ -3,9 +3,6 @@ sequenceDiagram
     participant Validator as Validation middleware
     participant Handler as API Handler
     participant Queue
-    participant Worker
-    participant PokeAPI
-    participant DB as Postgres
 
     API->>Validator: request
     alt request is invalid
@@ -16,16 +13,3 @@ sequenceDiagram
     Queue-->>Handler: ok
     Handler-->>Validator: ok
     Validator-->>API: ok
-
-    loop every new message
-        Queue->>Worker: import pokemon
-    end
-    Worker->>PokeAPI: get pokemon info
-    PokeAPI-->>Worker: pokemon info
-    Worker->>DB: save pokemon
-    DB-->>Worker: ok
-    alt if succesful
-        Worker-->>Queue: ack
-    else if failed
-        Worker-->>Queue: nack
-    end

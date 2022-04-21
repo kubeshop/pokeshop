@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant Queue
+    participant Worker
+    participant PokeAPI
+    participant DB as Postgres
+
+    loop every new message
+        Queue->>Worker: import pokemon
+    end
+    Worker->>PokeAPI: get pokemon info
+    PokeAPI-->>Worker: pokemon info
+    Worker->>DB: save pokemon
+    DB-->>Worker: ok
+    alt if succesful
+        Worker-->>Queue: ack
+    else if failed
+        Worker-->>Queue: nack
+    end
