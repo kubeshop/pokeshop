@@ -9,6 +9,7 @@ This section is reserved to explain how each endpoint work in a more general way
 ### GET /pokemon
 
 **Description**: Get a list of pokemons from the API
+
 **Flow**:
 ![Get pokemon flow](https://github.com/kubeshop/pokeshop/blob/master/docs/diagrams/api-get-pokemon.png?)
 
