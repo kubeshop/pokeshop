@@ -1,0 +1,29 @@
+```mermaid
+sequenceDiagram
+    participant API as POST /pokemon/import
+    participant Validator as Validation middleware
+    participant Handler as API Handler
+    participant Queue
+    participant Worker
+    participant PokeAPI
+    participant DB as Postgres
+
+    API->>Validator: request
+    alt request is invalid
+        Validator-->>API: 400 Bad request<br><List of errors>
+    end
+    Validator->>Handler: valid request
+    Handler->>Queue: enqueue "import" task
+    Queue-->>Handler: ok
+    Handler-->>Validator: ok
+    Validator-->>API: ok
+
+    loop every new message
+        Queue->>Worker: import pokemon
+    end
+    Worker->>PokeAPI: get pokemon info
+    PokeAPI-->>Worker: pokemon info
+    Worker->>DB: save pokemon
+    DB-->>Worker: ok
+    Worker-->>Queue: ack
+```

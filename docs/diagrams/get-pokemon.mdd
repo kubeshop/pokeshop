@@ -1,0 +1,10 @@
+```mermaid
+sequenceDiagram
+    participant API as /GET pokemon
+    participant Handler as API Handler
+    participant DB as Postgres
+    API->>Handler: request
+    Handler-->>DB: get list of pokemons
+    DB-->>Handler: list of pokemons
+    Handler-->>API: 200 OK
+```

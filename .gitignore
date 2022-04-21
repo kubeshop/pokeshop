@@ -1,2 +1,4 @@
 # Downloaded charts
 helm-chart/charts/
+
+node_modules/

@@ -1,0 +1,17 @@
+```mermaid
+sequenceDiagram
+    participant API as POST /pokemon
+    participant Validator as Validation middleware
+    participant Handler as API Handler
+    participant DB as Postgres
+
+    API->>Validator: request
+    alt request is invalid
+        Validator-->>API: 400 Bad Request<br><List of errors>
+    end
+    Validator->>Handler: valid request
+    Handler->>DB: save pokemon
+    DB-->>Handler: saved pokemon
+    Handler-->>Validator: pokemon object
+    Validator-->>API: 200 OK<br><Pokemon object>
+```
