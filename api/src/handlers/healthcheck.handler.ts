@@ -10,8 +10,8 @@ const repository = getPokemonRepository();
 
 const isDatabaseAvailable = async () => {
   try {
-    const response: number = await repository.count();
-    return !!response
+    await repository.count();
+    return true
   } catch (ex) {
     return false;
   }
