@@ -1,3 +1,3 @@
-import { getTracer } from "@pokemon/telemetry/tracing";
+import { getTracer } from '@pokemon/telemetry/tracing';
 
 getTracer();

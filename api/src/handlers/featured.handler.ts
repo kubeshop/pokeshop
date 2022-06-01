@@ -9,9 +9,5 @@ const featured = async () => {
 };
 
 export default function setupRoute(router) {
-  router.get(
-    '/pokemon/featured',
-    jsonResponse(200),
-    featured
-  );
+  router.get('/pokemon/featured', jsonResponse(200), featured);
 }

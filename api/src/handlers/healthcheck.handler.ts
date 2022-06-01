@@ -11,17 +11,17 @@ const repository = getPokemonRepository();
 const isDatabaseAvailable = async () => {
   try {
     await repository.count();
-    return true
+    return true;
   } catch (ex) {
     return false;
   }
-}
+};
 
 const healthcheck = async (ctx, next) => {
-  const [ cacheAvailable, databaseAvailable, queueAvailable ] = await Promise.all([
+  const [cacheAvailable, databaseAvailable, queueAvailable] = await Promise.all([
     cache.isAvailable(),
     isDatabaseAvailable(),
-    queue.healthcheck()
+    queue.healthcheck(),
   ]);
 
   const requiredDependencies = [cacheAvailable, databaseAvailable, queueAvailable];
@@ -30,19 +30,15 @@ const healthcheck = async (ctx, next) => {
     cache: cacheAvailable,
     database: databaseAvailable,
     queue: queueAvailable,
-  }
+  };
 
   if (requiredDependencies.some(item => !item)) {
     ctx.status = 500;
   }
 
-  return response
+  return response;
 };
 
 export default function setupRoute(router) {
-  router.get(
-    '/pokemon/healthcheck',
-    jsonResponse(200),
-    healthcheck
-  );
+  router.get('/pokemon/healthcheck', jsonResponse(200), healthcheck);
 }

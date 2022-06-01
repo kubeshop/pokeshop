@@ -8,7 +8,7 @@ export type TPokemonSyncMessage = {
   id: number;
 };
 
-const PokemonSyncronizer = (pokeApiService) => {
+const PokemonSyncronizer = pokeApiService => {
   const queue = createQueueService<TPokemonSyncMessage>(MESSAGE_GROUP);
   const repository = getPokemonRepository();
 
@@ -23,8 +23,8 @@ const PokemonSyncronizer = (pokeApiService) => {
       try {
         return await runWithSpan(span, async () => {
           const data = await pokeApiService.getPokemon(pokemonId);
-          await repository.create(new Pokemon({ ...data }))
-        })
+          await repository.create(new Pokemon({ ...data }));
+        });
       } catch (ex) {
         console.log(ex);
       } finally {

@@ -1,4 +1,4 @@
-import { BatchSpanProcessor, Span } from '@opentelemetry/sdk-trace-base';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import * as opentelemetry from '@opentelemetry/api';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
@@ -6,8 +6,9 @@ import { Resource } from '@opentelemetry/resources';
 import * as dotenv from 'dotenv';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { IORedisInstrumentation } from '@opentelemetry/instrumentation-ioredis';
-import { PgInstrumentation } from '@opentelemetry/instrumentation-pg'
-import { SpanStatusCode } from '@opentelemetry/api'
+import { PgInstrumentation } from '@opentelemetry/instrumentation-pg';
+import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib';
+import { SpanStatusCode } from '@opentelemetry/api';
 
 // Make sure all env variables are available in process.env
 dotenv.config();
@@ -17,7 +18,7 @@ const { JAEGER_HOST = '', JAEGER_PORT = '6832', SERVICE_NAME = 'pokeshop' } = pr
 let globalTracer: opentelemetry.Tracer | null = null;
 
 async function createTracer(): Promise<opentelemetry.Tracer> {
-  const jaegerExporter = new JaegerExporter({ 
+  const jaegerExporter = new JaegerExporter({
     host: JAEGER_HOST,
     port: +JAEGER_PORT,
   });
@@ -25,28 +26,28 @@ async function createTracer(): Promise<opentelemetry.Tracer> {
   const spanProcessor = new BatchSpanProcessor(jaegerExporter);
   const sdk = new NodeSDK({
     traceExporter: jaegerExporter,
-    instrumentations: [
-      new IORedisInstrumentation(),
-      new PgInstrumentation(),
-    ]
+    // @ts-ignore
+    instrumentations: [new IORedisInstrumentation(), new PgInstrumentation(), new AmqplibInstrumentation()],
   });
 
   sdk.configureTracerProvider({}, spanProcessor);
-  sdk.addResource(new Resource({
-      [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME
-  }))
+  sdk.addResource(
+    new Resource({
+      [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,
+    })
+  );
 
   await sdk.start();
-  process.on("SIGTERM", () => {
+  process.on('SIGTERM', () => {
     sdk
       .shutdown()
       .then(
-        () => console.log("SDK shut down successfully"),
-        (err) => console.log("Error shutting down SDK", err)
+        () => console.log('SDK shut down successfully'),
+        err => console.log('Error shutting down SDK', err)
       )
       .finally(() => process.exit(0));
   });
-  
+
   const tracer = opentelemetry.trace.getTracer(SERVICE_NAME);
 
   globalTracer = tracer;
@@ -78,15 +79,12 @@ async function createSpan(
 ): Promise<opentelemetry.Span> {
   const tracer = await getTracer();
   if (parentSpan) {
-    const context = opentelemetry.trace.setSpan(
-      opentelemetry.context.active(),
-      parentSpan
-    );
+    const context = opentelemetry.trace.setSpan(opentelemetry.context.active(), parentSpan);
 
     return createSpanFromContext(name, context, options);
   }
 
-  return tracer.startSpan(name)
+  return tracer.startSpan(name);
 }
 
 async function createSpanFromContext(
@@ -103,10 +101,7 @@ async function createSpanFromContext(
 }
 
 async function runWithSpan<T>(parentSpan: opentelemetry.Span, fn: () => Promise<T>): Promise<T> {
-  const ctx = opentelemetry.trace.setSpan(
-    opentelemetry.context.active(),
-    parentSpan
-  );
+  const ctx = opentelemetry.trace.setSpan(opentelemetry.context.active(), parentSpan);
 
   try {
     return await opentelemetry.context.with(ctx, fn);

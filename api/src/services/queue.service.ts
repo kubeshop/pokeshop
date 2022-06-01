@@ -1,17 +1,20 @@
 import { context, Span, SpanStatusCode, trace, propagation } from '@opentelemetry/api';
+import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
 import { createSpanFromContext, runWithSpan } from '@pokemon/telemetry/tracing';
 import ampqlib from 'amqplib';
+import { snakeCase } from 'lodash';
+import { CustomTags } from '../constants/Tags';
 
 const { RABBITMQ_HOST = '' } = process.env;
 
-const parseMessage = (message) => {
+const parseMessage = message => {
   const messageCopy = JSON.parse(JSON.stringify(message));
   const string = String.fromCharCode(...messageCopy.content.data);
   messageCopy.content = JSON.parse(string);
 
   return messageCopy;
-}
+};
 
 export interface QueueService<T> {
   healthcheck(): Promise<boolean>;
@@ -25,7 +28,6 @@ function createQueueService<T>(messageGroup: string): QueueService<T> {
 }
 
 class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements QueueService<T> {
-
   private readonly messageGroup: string;
   private readonly queueService: QueueService<T>;
 
@@ -35,32 +37,50 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
     this.queueService = queueService;
   }
 
+  getBaseAttributes() {
+    return {
+      [SemanticAttributes.MESSAGING_SYSTEM]: 'rabbitmq',
+      [SemanticAttributes.MESSAGING_URL]: RABBITMQ_HOST,
+      [SemanticAttributes.MESSAGING_DESTINATION]: this.messageGroup,
+    };
+  }
+
   public async healthcheck(): Promise<boolean> {
     return this.instrumentMethod(`queue healthcheck`, async (span: Span) => {
-      span.setAttribute('messaging.destination', this.messageGroup);
-      return this.queueService.healthcheck()
+      span.setAttributes(this.getBaseAttributes());
+
+      return this.queueService.healthcheck();
     });
   }
 
   public async send(message: T): Promise<boolean> {
     return this.instrumentMethod(`send message to queue`, async (span: Span) => {
-      span.setAttribute('messaging.destination', this.messageGroup);
-      span.setAttribute('messaging.message.payload', JSON.stringify(message));
+      span.setAttributes({
+        ...this.getBaseAttributes(),
+        [CustomTags.MESSAGING_PAYLOAD]: JSON.stringify(message),
+      });
+
       const headers = {};
       propagation.inject(trace.setSpan(context.active(), span), headers);
-      span.setAttribute('messaging.message.headers', JSON.stringify(headers));
+      Object.entries(headers).forEach(([key, value]) => {
+        span.setAttribute(`${CustomTags.MESSAGING_HEADER}.${snakeCase(key)}`, JSON.stringify([value]));
+      });
+
       return this.queueService.send(message, headers);
     });
   }
 
   public async subscribe(callback: Function): Promise<void> {
-
-    const instrumentedCallback = async (message) => {
+    const instrumentedCallback = async message => {
       const headers = message.properties.headers ?? {};
       const parentContext = propagation.extract(context.active(), headers);
       const span = await createSpanFromContext(`consume message from queue`, parentContext);
-      span.setAttribute('messaging.destination', this.messageGroup);
-      span.setAttribute('messaging.message.payload', JSON.stringify(parseMessage(message)));
+
+      span.setAttributes({
+        ...this.getBaseAttributes(),
+        [CustomTags.MESSAGING_PAYLOAD]: JSON.stringify(message),
+      });
+
       try {
         return await runWithSpan(span, async () => callback(message));
       } catch (ex) {
@@ -69,12 +89,11 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
       } finally {
         span.end();
       }
-    }
+    };
 
     const response = await this.queueService.subscribe(instrumentedCallback);
     return response;
   }
-
 }
 
 class RabbitQueueService<T> implements QueueService<T> {
@@ -127,19 +146,19 @@ class RabbitQueueService<T> implements QueueService<T> {
 
   public async subscribe(callback: Function): Promise<void> {
     const channel = await this.connect();
-    const onConsume = async (message) => {
+    const onConsume = async message => {
       if (message) {
         try {
           await callback(message);
           channel.ack(message);
-        } catch(ex) {
+        } catch (ex) {
           channel.nack(message);
           throw ex;
         }
       }
-    }
-    channel.consume(this.messageGroup, onConsume)
+    };
+    channel.consume(this.messageGroup, onConsume);
   }
-};
+}
 
 export { createQueueService };

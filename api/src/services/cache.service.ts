@@ -1,6 +1,8 @@
 import { Span } from '@opentelemetry/sdk-trace-base';
+import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
 import Redis from 'ioredis';
+import { CustomTags } from '../constants/Tags';
 
 const { REDIS_URL = '' } = process.env;
 const defaultExpireTime = 20;
@@ -13,24 +15,39 @@ export interface CacheService<T> {
 
 function getCacheService<T>(): CacheService<T> {
   const redisCacheService = new RedisCacheService<T>(REDIS_URL);
-  return new InstrumentedCacheService(redisCacheService);
+  return new InstrumentedCacheService(redisCacheService, redisCacheService.redis);
 }
 
 class InstrumentedCacheService<T> extends InstrumentedComponent implements CacheService<T> {
-  
   private readonly cacheService: CacheService<T>;
+  readonly redis: Redis.Redis;
 
-  public constructor(cacheService: CacheService<T>) {
+  public constructor(cacheService: CacheService<T>, redis: Redis.Redis) {
     super();
     this.cacheService = cacheService;
+    this.redis = redis;
+  }
+
+  getBaseAttributes() {
+    const { username, db } = this.redis.options;
+
+    return {
+      [SemanticAttributes.DB_SYSTEM]: 'redis',
+      [SemanticAttributes.DB_USER]: username,
+      [SemanticAttributes.DB_CONNECTION_STRING]: REDIS_URL,
+      [SemanticAttributes.DB_REDIS_DATABASE_INDEX]: db,
+    };
   }
 
   async isAvailable(): Promise<boolean> {
     return this.instrumentMethod('cache is available', async (span: Span) => {
-      span.setAttribute('db.operation', 'healthcheck');
-      
       const result = await this.cacheService.isAvailable();
-      span.setAttribute('db.result', result);
+
+      span.setAttributes({
+        ...this.getBaseAttributes(),
+        [SemanticAttributes.DB_OPERATION]: 'healthcheck',
+        [CustomTags.DB_RESULT]: result,
+      });
 
       return result;
     });
@@ -38,11 +55,14 @@ class InstrumentedCacheService<T> extends InstrumentedComponent implements Cache
 
   async get(key: string): Promise<T | null> {
     return this.instrumentMethod('get value from cache', async (span: Span) => {
-      span.setAttribute('db.operation', 'get');
-      span.setAttribute('db.params.params', JSON.stringify({ key }));
-
       const result = await this.cacheService.get(key);
-      span.setAttribute('db.result', JSON.stringify(result));
+
+      span.setAttributes({
+        ...this.getBaseAttributes(),
+        [SemanticAttributes.DB_OPERATION]: 'get',
+        [CustomTags.DB_PAYLOAD]: JSON.stringify({ key }),
+        [CustomTags.DB_RESULT]: JSON.stringify(result),
+      });
 
       return result;
     });
@@ -50,20 +70,25 @@ class InstrumentedCacheService<T> extends InstrumentedComponent implements Cache
 
   async set(key: string, value: T): Promise<void> {
     return this.instrumentMethod('set value on cache', async (span: Span) => {
-      span.setAttribute('db.operation', 'set');
-      span.setAttribute('db.operation.params', JSON.stringify({key, value}));
-      return this.cacheService.set(key, value);
+      const result = this.cacheService.set(key, value);
+      span.setAttributes({
+        ...this.getBaseAttributes(),
+        [SemanticAttributes.DB_OPERATION]: 'set',
+        [CustomTags.DB_PAYLOAD]: JSON.stringify({ key, value }),
+        [CustomTags.DB_RESULT]: JSON.stringify(result),
+      });
+
+      return result;
     });
   }
 }
 
 class RedisCacheService<T> implements CacheService<T> {
-
-  private readonly redis: Redis.Redis;
+  readonly redis: Redis.Redis;
 
   public constructor(redisUrl: string) {
     this.redis = new Redis({
-      host: redisUrl
+      host: redisUrl,
     });
   }
 
@@ -79,7 +104,7 @@ class RedisCacheService<T> implements CacheService<T> {
   public async isAvailable(): Promise<boolean> {
     try {
       const response = await this.redis.ping();
-      return (response === "PONG")
+      return response === 'PONG';
     } catch (ex) {
       return false;
     }

@@ -1,3 +1,5 @@
+import { PokemonModel } from "./pokemon.sequelize.repository";
+
 export class Pokemon {
   public id?: number;
   public name: string;
@@ -17,16 +19,16 @@ export class Pokemon {
 }
 
 export type SearchOptions = {
-  where?: object | undefined,
-  skip?: number | undefined,
-  take?: number | undefined
-}
+  where?: object | undefined;
+  skip?: number | undefined;
+  take?: number | undefined;
+};
 
 export interface PokemonRepository {
   create(pokemon: Pokemon): Promise<Pokemon>;
   update(id: number, pokemon: Pokemon): Promise<Pokemon>;
   delete(pokemonId: number): Promise<number>;
-  findOne(id: number): Promise<Pokemon | null>
+  findOne(id: number): Promise<Pokemon | null>;
   findMany(options?: SearchOptions | undefined): Promise<Pokemon[]>;
   count(options?: SearchOptions | undefined): Promise<number>;
 }

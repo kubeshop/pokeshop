@@ -4,10 +4,10 @@ import { QueueService } from '@pokemon/services/queue.service';
 import ampqlib from 'amqplib';
 
 const pokemonSyncronizationHandler = async (message: ampqlib.ConsumeMessage) => {
-  const pokeApiService = new PokeAPIService()
+  const pokeApiService = new PokeAPIService();
   const pokemonSyncronizer = PokemonSyncronizer(pokeApiService);
   const { id }: TPokemonSyncMessage = JSON.parse(message.content.toString());
-  
+
   await pokemonSyncronizer.sync(id);
 };
 

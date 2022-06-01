@@ -1,6 +1,9 @@
 import fetch from 'node-fetch';
+import { snakeCase } from 'lodash';
 import { getParentSpan, createSpan, runWithSpan } from '@pokemon/telemetry/tracing';
 import { Span } from '@opentelemetry/api';
+import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
+import { CustomTags } from '../constants/Tags';
 
 const { POKE_API_BASE_URL = '' } = process.env;
 
@@ -17,14 +20,13 @@ type TRawPokemon = {
 };
 
 class PokeAPIService {
-  private readonly baseUrl: string = `${POKE_API_BASE_URL}/pokemon`;
+  private readonly baseRoute: string = '/pokemon';
+  private readonly baseUrl: string = `${POKE_API_BASE_URL}${this.baseRoute}`;
 
   async getPokemon(id: string) {
     const parentSpan = await getParentSpan();
     const span = await createSpan('get pokemon from pokeapi', parentSpan);
-    span.setAttribute('http.method', "GET");
-    span.setAttribute('http.url', `${this.baseUrl}/${id}`);
-    
+
     try {
       return await this.getPokemonFromAPi(id, span);
     } finally {
@@ -34,14 +36,28 @@ class PokeAPIService {
 
   private async getPokemonFromAPi(id: string, span: Span) {
     return await runWithSpan(span, async () => {
+      span.setAttributes({
+        [SemanticAttributes.HTTP_URL]: `${this.baseUrl}/${id}`,
+        [SemanticAttributes.HTTP_METHOD]: 'GET',
+        [SemanticAttributes.HTTP_ROUTE]: `${this.baseRoute}/${id}`,
+        [SemanticAttributes.HTTP_SCHEME]: 'https',
+      });
+
       const response = await fetch(`${this.baseUrl}/${id}`, {
-        method: "GET",
-      }); 
+        method: 'GET',
+      });
 
       const pokemon = (await response.json()) as TRawPokemon;
-      span.setAttribute('http.response.headers', JSON.stringify(response.headers));
-      span.setAttribute('http.response_content_length', JSON.stringify(pokemon).length);
-      span.setAttribute('http.status_code', response.status);
+
+      span.setAttributes({
+        [SemanticAttributes.HTTP_STATUS_CODE]: response.status,
+        [SemanticAttributes.HTTP_RESPONSE_CONTENT_LENGTH]: JSON.stringify(pokemon).length,
+        [CustomTags.HTTP_RESPONSE_BODY]: JSON.stringify({ name: pokemon.name }),
+      });
+
+      Object.entries(response.headers).forEach(([key, value]) => {
+        span.setAttribute(`${CustomTags.HTTP_RESPONSE_HEADER}.${snakeCase(key)}`, JSON.stringify([value]));
+      });
 
       const { name, types, sprites } = pokemon;
 
@@ -51,7 +67,6 @@ class PokeAPIService {
         imageUrl: sprites.front_default,
       };
     });
-
   }
 }
 
