@@ -16,35 +16,30 @@ import { instrumentRoute } from '@pokemon/middlewares/instrumentation';
 const { APP_PORT = 80 } = process.env;
 
 async function startApp() {
-    const app = new Koa();
-    const router = new Router();
+  const app = new Koa();
+  const router = new Router();
 
-    await setupSequelize();
+  await setupSequelize();
 
-    const routeSetupFunctions = [
-        createHandler,
-        getHandler,
-        featuredHandler,
-        importHandler,
-        removeHandler,
-        searchHandler,
-        updateHandler,
-        healthcheckHandler
-    ];
-    
-    for (const routeSetup of routeSetupFunctions) {
-        routeSetup(router);
-    }
-    
-    app
-        .use(instrumentRoute())
-        .use(bodyParse())
-        .use(KoaLogger())
-        .use(router.routes())
-        .use(router.allowedMethods())
-    
-    console.log(`Starting server on port ${APP_PORT}`);
-    app.listen(APP_PORT);
+  const routeSetupFunctions = [
+    createHandler,
+    getHandler,
+    featuredHandler,
+    importHandler,
+    removeHandler,
+    searchHandler,
+    updateHandler,
+    healthcheckHandler,
+  ];
+
+  for (const routeSetup of routeSetupFunctions) {
+    routeSetup(router);
+  }
+
+  app.use(instrumentRoute()).use(bodyParse()).use(KoaLogger()).use(router.routes()).use(router.allowedMethods());
+
+  console.log(`Starting server on port ${APP_PORT}`);
+  app.listen(APP_PORT);
 }
 
 startApp();

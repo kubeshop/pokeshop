@@ -1,15 +1,10 @@
-import { PokemonRepository } from '@pokemon/repositories//pokemon.repository';
-import { Pokemon } from '@pokemon/repositories/pokemon.repository';
+import { PokemonRepository, Pokemon } from '@pokemon/repositories/pokemon.repository';
 import { InstrumentedPokemonRepository } from './instrumented.repository';
-import { SequelizePokemonRepository } from './pokemon.sequelize.repository';
+import { PokemonModel, SequelizePokemonRepository } from './pokemon.sequelize.repository';
 
 function getPokemonRepository(): PokemonRepository {
-    const realPokemonRepository = new SequelizePokemonRepository();
-    return new InstrumentedPokemonRepository(realPokemonRepository);
+  const realPokemonRepository = new SequelizePokemonRepository();
+  return new InstrumentedPokemonRepository(realPokemonRepository, PokemonModel);
 }
 
-export {
-    Pokemon,
-    getPokemonRepository,
-    PokemonRepository
-}
+export { Pokemon, getPokemonRepository, PokemonRepository };

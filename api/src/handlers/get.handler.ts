@@ -16,9 +16,5 @@ const get = async (ctx, next) => {
 };
 
 export default function setupRoute(router) {
-  router.get(
-    '/pokemon',
-    jsonResponse(200),
-    get
-  );
+  router.get('/pokemon', jsonResponse(200), get);
 }

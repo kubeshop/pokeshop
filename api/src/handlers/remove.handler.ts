@@ -1,7 +1,7 @@
 import { jsonResponse } from '@pokemon/middlewares/response';
 import { getPokemonRepository } from '@pokemon/repositories';
 
-const remove = async (ctx) => {
+const remove = async ctx => {
   const { id = '0' } = ctx.params || {};
   const repository = getPokemonRepository();
 
@@ -10,15 +10,11 @@ const remove = async (ctx) => {
     ctx.status = 404;
     return;
   }
-  
+
   await repository.delete(+id);
   return pokemon;
 };
 
 export default function setupRoute(router) {
-  router.delete(
-    '/pokemon/:id',
-    jsonResponse(),
-    remove
-  )
-};
+  router.delete('/pokemon/:id', jsonResponse(), remove);
+}

@@ -12,7 +12,7 @@ const FeaturedService = () => {
 
       if (!!fromCache) return fromCache;
 
-      const pokemons = await repository.findMany({ where: { isFeatured: true }});
+      const pokemons = await repository.findMany({ where: { isFeatured: true } });
       await cacheService.set(key, pokemons);
 
       return pokemons;
