@@ -110,6 +110,13 @@ redis:
       clusterIP: None
 
 rabbitmq:
+  image:
+    registry: docker.io
+    repository: rabbitmq
+    tag: 3.10.5
+    debug: false
+    pullPolicy: IfNotPresent
+    pullSecrets: []
   auth:
     username: pokemon
     password: gottacatchemall
