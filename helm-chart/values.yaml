@@ -15,14 +15,8 @@ env:
     value: postgresql://ashketchum:squirtle123@demo-postgresql:5432/pokeshop?schema=public
   - name: REDIS_URL
     value: demo-redis-master
-  - name: RABBITMQ_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: demo-rabbitmq
-        key: rabbitmq-password
-        optional: false
   - name: RABBITMQ_HOST
-    value: guest:$(RABBITMQ_PASSWORD)@demo-rabbitmq-headless
+    value: guest:guest@demo-rabbitmq-headless
   - name: POKE_API_BASE_URL
     value: https://pokeapi.co/api/v2
   - name: JAEGER_HOST
