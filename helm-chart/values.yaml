@@ -12,9 +12,9 @@ image:
 
 env:
   - name: DATABASE_URL
-    value: postgresql://ashketchum:squirtle123@demo-postgresql.demo.svc.cluster.local:5432/pokeshop?schema=public
+    value: postgresql://ashketchum:squirtle123@demo-postgresql:5432/pokeshop?schema=public
   - name: REDIS_URL
-    value: demo-redis-master.demo.svc.cluster.local
+    value: demo-redis-master
   - name: RABBITMQ_PASSWORD
     valueFrom:
       secretKeyRef:
@@ -22,7 +22,7 @@ env:
         key: rabbitmq-password
         optional: false
   - name: RABBITMQ_HOST
-    value: pokemon:$(RABBITMQ_PASSWORD)@demo-rabbitmq-headless.demo.svc.cluster.local
+    value: guest:$(RABBITMQ_PASSWORD)@demo-rabbitmq-headless
   - name: POKE_API_BASE_URL
     value: https://pokeapi.co/api/v2
   - name: JAEGER_HOST
@@ -118,5 +118,5 @@ rabbitmq:
     pullPolicy: IfNotPresent
     pullSecrets: []
   auth:
-    username: pokemon
-    password: gottacatchemall
+    username: guest
+    password: guest
