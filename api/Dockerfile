@@ -11,8 +11,8 @@ RUN npm run build
 FROM node:alpine as app
 
 WORKDIR /app
-COPY package.json .
-RUN npm i --production
+COPY package.json package-lock.json ./
+RUN npm ci
 
 EXPOSE 80
 

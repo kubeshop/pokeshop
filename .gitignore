@@ -3,3 +3,4 @@ helm-chart/charts/
 
 node_modules/
 api/.build/
+.vscode/
