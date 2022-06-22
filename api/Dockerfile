@@ -1,13 +1,15 @@
+# build
 FROM node:alpine as build
 
 WORKDIR /build
-COPY package.json .
-RUN npm i
 RUN npm i -g typescript
+COPY package.json package-lock.json ./
+RUN npm ci
 
 COPY . .
 RUN npm run build
 
+# app
 FROM node:alpine as app
 
 WORKDIR /app
