@@ -22,5 +22,5 @@ jobs:
     - name: Build the Docker image
       run: |
         cd api
-        docker build . --file Dockerfile --tag kubeshop/pokeshop:latest
-        docker push kubeshop/pokeshop:latest
+        docker build . --file Dockerfile --tag kubeshop/demo-pokemon-api:latest
+        docker push kubeshop/demo-pokemon-api:latest
