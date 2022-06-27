@@ -35,7 +35,6 @@ class InstrumentedCacheService<T> extends InstrumentedComponent implements Cache
       [SemanticAttributes.DB_SYSTEM]: 'redis',
       [SemanticAttributes.DB_USER]: username,
       [SemanticAttributes.DB_CONNECTION_STRING]: REDIS_URL,
-      [SemanticAttributes.DB_REDIS_DATABASE_INDEX]: db,
     };
   }
 

@@ -4,10 +4,13 @@
   "description": "<!-- title: 'AWS Simple HTTP Endpoint example in NodeJS' description: 'This template demonstrates how to make a simple HTTP API with Node.js running on AWS Lambda and API Gateway using the Serverless Framework.' layout: Doc framework: v3 platform: AWS language: nodeJS authorLink: 'https://github.com/serverless' authorName: 'Serverless, inc.' authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4' -->",
   "main": "handler.js",
   "scripts": {
+    "generate:proto": "cd ./protos && protoc --plugin=../node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=../src/protos --ts_proto_opt=outputServices=grpc-js ./pokeshop.proto",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon --watch 'src/**' --exec 'ts-node -r tsconfig-paths/register -r ./src/telemetry/setup.ts ./src/api.ts'",
     "start:worker": "nodemon --watch 'src/**' --exec 'ts-node -r tsconfig-paths/register -r ./src/telemetry/setup.ts ./src/worker.ts'",
+    "start:rpc": "nodemon --watch 'src/**' --exec 'ts-node -r tsconfig-paths/register -r ./src/telemetry/setup.ts ./src/rpc.ts'",
     "build": "tsc --project tsconfig.json && tspath -f",
+    "rpc": "node --require ./telemetry/setup.js rpc.js",
     "api": "node --require ./telemetry/setup.js api.js",
     "worker": "node --require ./telemetry/setup.js worker.js"
   },
@@ -25,11 +28,13 @@
     "node-ts": "^5.1.2",
     "nodemon": "^1.3.3",
     "ts-node": "^10.7.0",
+    "ts-proto": "^1.115.5",
     "tsconfig-paths": "^3.14.1",
     "tspath": "^1.2.10",
     "typescript": "^4.6.3"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.6.7",
     "@koa/router": "^10.1.1",
     "@opentelemetry/api": "^1.0.4",
     "@opentelemetry/exporter-jaeger": "^1.0.1",

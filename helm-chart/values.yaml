@@ -53,6 +53,7 @@ securityContext: {}
 service:
   type: ClusterIP
   port: 80
+  rpcPort: 8082
 
 ingress:
   enabled: false
