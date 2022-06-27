@@ -1,4 +1,4 @@
-import { context, Span, SpanStatusCode, trace, propagation } from '@opentelemetry/api';
+import { context, propagation, Span, SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
 import { createSpanFromContext, runWithSpan } from '@pokemon/telemetry/tracing';
@@ -46,7 +46,7 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
   }
 
   public async healthcheck(): Promise<boolean> {
-    return this.instrumentMethod(`queue healthcheck`, async (span: Span) => {
+    return this.instrumentMethod(`${this.messageGroup}.healthCheck send`, SpanKind.INTERNAL, async (span: Span) => {
       span.setAttributes(this.getBaseAttributes());
 
       return this.queueService.healthcheck();
@@ -54,7 +54,7 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
   }
 
   public async send(message: T): Promise<boolean> {
-    return this.instrumentMethod(`send message to queue`, async (span: Span) => {
+    return this.instrumentMethod(`${this.messageGroup} send`, SpanKind.PRODUCER, async (span: Span) => {
       span.setAttributes({
         ...this.getBaseAttributes(),
         [CustomTags.MESSAGING_PAYLOAD]: JSON.stringify(message),
@@ -74,7 +74,9 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
     const instrumentedCallback = async message => {
       const headers = message.properties.headers ?? {};
       const parentContext = propagation.extract(context.active(), headers);
-      const span = await createSpanFromContext(`consume message from queue`, parentContext);
+      const span = await createSpanFromContext(`${this.messageGroup} receive`, parentContext, {
+        kind: SpanKind.CONSUMER,
+      });
 
       span.setAttributes({
         ...this.getBaseAttributes(),

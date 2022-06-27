@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { snakeCase } from 'lodash';
 import { getParentSpan, createSpan, runWithSpan } from '@pokemon/telemetry/tracing';
-import { Span } from '@opentelemetry/api';
+import { Span, SpanKind } from '@opentelemetry/api';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import { CustomTags } from '../constants/Tags';
 
@@ -25,7 +25,7 @@ class PokeAPIService {
 
   async getPokemon(id: string) {
     const parentSpan = await getParentSpan();
-    const span = await createSpan('get pokemon from pokeapi', parentSpan);
+    const span = await createSpan('HTTP GET pokeapi.pokemon', parentSpan, { kind: SpanKind.CLIENT });
 
     try {
       return await this.getPokemonFromAPi(id, span);

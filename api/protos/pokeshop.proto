@@ -6,9 +6,7 @@ option objc_class_prefix = "PKS";
 
 package pokeshop;
 
-// The greeting service definition.
 service Pokeshop {
-  // Sends a greeting
   rpc getPokemonList (GetPokemonRequest) returns (GetPokemonListResponse) {}
   rpc createPokemon (Pokemon) returns (Pokemon) {}
   rpc importPokemon (ImportPokemonRequest) returns (ImportPokemonRequest) {}
@@ -28,7 +26,6 @@ message GetPokemonListResponse {
   int32 totalCount = 2;
 }
 
-// The request message containing the user's name.
 message Pokemon {
   optional int32 id = 1;
   string name = 2;

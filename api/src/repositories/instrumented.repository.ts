@@ -1,4 +1,4 @@
-import { Span } from '@opentelemetry/api';
+import { Span, SpanKind } from '@opentelemetry/api';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import { Pokemon, PokemonRepository, SearchOptions } from '@pokemon/repositories/pokemon.repository';
 import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
@@ -61,7 +61,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
   }
 
   async create(pokemon: Pokemon): Promise<Pokemon> {
-    return this.instrumentMethod('save pokemon on database', async (span: Span) => {
+    return this.instrumentMethod('create pokeshop.pokemon', SpanKind.CLIENT, async (span: Span) => {
       const result = await this.repository.create(pokemon);
       const baseAttributes = this.getBaseAttributes();
 
@@ -76,7 +76,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
   }
 
   async update(id: number, pokemon: Pokemon): Promise<Pokemon> {
-    return this.instrumentMethod('update pokemon on database', async (span: Span) => {
+    return this.instrumentMethod('update pokeshop.pokemon', SpanKind.CLIENT, async (span: Span) => {
       const result = await this.repository.update(id, pokemon);
 
       const baseAttributes = this.getBaseAttributes();
@@ -92,7 +92,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
   }
 
   async delete(pokemonId: number): Promise<number> {
-    return this.instrumentMethod('delete pokemon from database', async (span: Span) => {
+    return this.instrumentMethod('delete pokeshop.pokemon', SpanKind.CLIENT, async (span: Span) => {
       const affectedRows = await this.repository.delete(pokemonId);
 
       const baseAttributes = this.getBaseAttributes();
@@ -108,7 +108,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
   }
 
   findOne(id: number): Promise<Pokemon | null> {
-    return this.instrumentMethod('find a pokemon from database', async (span: Span) => {
+    return this.instrumentMethod('findOne pokeshop.pokemon', SpanKind.CLIENT, async (span: Span) => {
       const result = await this.repository.findOne(id);
 
       const baseAttributes = this.getBaseAttributes();
@@ -124,7 +124,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
   }
 
   async findMany(options?: SearchOptions): Promise<Pokemon[]> {
-    return this.instrumentMethod('search pokemons from database', async (span: Span) => {
+    return this.instrumentMethod('findMany pokeshop.pokemon', SpanKind.CLIENT, async (span: Span) => {
       const result = await this.repository.findMany(options);
 
       const baseAttributes = this.getBaseAttributes();
@@ -140,7 +140,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
   }
 
   async count(options?: SearchOptions): Promise<number> {
-    return this.instrumentMethod('count pokemons from database', async (span: Span) => {
+    return this.instrumentMethod('count pokeshop.pokemon', SpanKind.CLIENT, async (span: Span) => {
       const baseAttributes = await this.getBaseAttributes();
 
       const result = await this.repository.count(options);
