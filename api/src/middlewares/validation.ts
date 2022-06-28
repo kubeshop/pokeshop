@@ -1,4 +1,4 @@
-import { SpanStatusCode } from '@opentelemetry/api';
+import { SpanKind, SpanStatusCode } from '@opentelemetry/api';
 import { createSpan, getParentSpan, runWithSpan } from '@pokemon/telemetry/tracing';
 import { transformAndValidate } from 'class-transformer-validator';
 import { CustomTags } from '../constants/Tags';
@@ -6,7 +6,7 @@ import { CustomTags } from '../constants/Tags';
 const validate = type => {
   return async function validate(ctx, next) {
     const parentSpan = await getParentSpan();
-    const span = await createSpan('validate request', parentSpan);
+    const span = await createSpan('validate request', parentSpan, { kind: SpanKind.INTERNAL });
 
     const body = ctx.request.body;
     try {

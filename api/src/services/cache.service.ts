@@ -1,3 +1,4 @@
+import { SpanKind } from '@opentelemetry/api';
 import { Span } from '@opentelemetry/sdk-trace-base';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
@@ -39,12 +40,12 @@ class InstrumentedCacheService<T> extends InstrumentedComponent implements Cache
   }
 
   async isAvailable(): Promise<boolean> {
-    return this.instrumentMethod('cache is available', async (span: Span) => {
+    return this.instrumentMethod('healthCheck', SpanKind.CLIENT, async (span: Span) => {
       const result = await this.cacheService.isAvailable();
 
       span.setAttributes({
         ...this.getBaseAttributes(),
-        [SemanticAttributes.DB_OPERATION]: 'healthcheck',
+        [SemanticAttributes.DB_OPERATION]: 'healthCheck',
         [CustomTags.DB_RESULT]: result,
       });
 
@@ -53,7 +54,7 @@ class InstrumentedCacheService<T> extends InstrumentedComponent implements Cache
   }
 
   async get(key: string): Promise<T | null> {
-    return this.instrumentMethod('get value from cache', async (span: Span) => {
+    return this.instrumentMethod(`get ${key}`, SpanKind.CLIENT, async (span: Span) => {
       const result = await this.cacheService.get(key);
 
       span.setAttributes({
@@ -68,8 +69,9 @@ class InstrumentedCacheService<T> extends InstrumentedComponent implements Cache
   }
 
   async set(key: string, value: T): Promise<void> {
-    return this.instrumentMethod('set value on cache', async (span: Span) => {
+    return this.instrumentMethod(`set ${key}`, SpanKind.CLIENT, async (span: Span) => {
       const result = this.cacheService.set(key, value);
+
       span.setAttributes({
         ...this.getBaseAttributes(),
         [SemanticAttributes.DB_OPERATION]: 'set',
