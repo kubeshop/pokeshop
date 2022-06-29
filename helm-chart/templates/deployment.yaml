@@ -1,3 +1,4 @@
+{{- $rpcPort := .Values.service.rpcPort -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -68,8 +69,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 8082
+            - name: grpc
+              containerPort: {{ $rpcPort }}
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
