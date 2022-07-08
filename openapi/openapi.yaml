@@ -3,8 +3,6 @@ info:
   title: Pokemon Api
   version: 0.0.8
   description: OpenAPI description for endpoints and and resources of the Pokemon API
-servers:
-  - url: /api
 paths:
   /pokemon:
     get:
