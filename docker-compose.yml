@@ -46,12 +46,15 @@ services:
       - 6831:6831/udp
       - 6832:6832/udp
       - 5778:5778
+      - 4317:4317
+      - 4318:4318
       - 16685:16685
       - 16686:16686
       - 14268:14268
       - 9411:9411
     environment:
       - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
     networks:
       - local
     healthcheck:
@@ -98,8 +101,8 @@ services:
       - 8082:8082
     networks:
       - local
-    volumes:
-      - ./:/app
+    # volumes:
+    #   - ./:/app
     depends_on:
       db:
         condition: service_healthy

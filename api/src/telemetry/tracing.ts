@@ -1,6 +1,6 @@
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import * as opentelemetry from '@opentelemetry/api';
-import { NodeSDK } from '@opentelemetry/sdk-node';
+import { api, NodeSDK } from '@opentelemetry/sdk-node';
 import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
 import { Resource } from '@opentelemetry/resources';
 import * as dotenv from 'dotenv';
@@ -9,9 +9,12 @@ import { IORedisInstrumentation } from '@opentelemetry/instrumentation-ioredis';
 import { PgInstrumentation } from '@opentelemetry/instrumentation-pg';
 import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib';
 import { SpanStatusCode } from '@opentelemetry/api';
+import { B3Propagator } from '@opentelemetry/propagator-b3';
 
 // Make sure all env variables are available in process.env
 dotenv.config();
+
+api.propagation.setGlobalPropagator(new B3Propagator());
 
 const { JAEGER_HOST = '', JAEGER_PORT = '6832', SERVICE_NAME = 'pokeshop' } = process.env;
 
