@@ -10,8 +10,9 @@
     "start:worker": "nodemon --watch 'src/**' --exec 'ts-node -r tsconfig-paths/register -r ./src/telemetry/setup.ts ./src/worker.ts'",
     "start:rpc": "nodemon --watch 'src/**' --exec 'ts-node -r tsconfig-paths/register -r ./src/telemetry/setup.ts ./src/rpc.ts'",
     "build": "tsc --project tsconfig.json && tspath -f",
+    "saveConfig": "node scripts/saveConfig.js",
     "rpc": "node --require ./telemetry/setup.js rpc.js",
-    "api": "node --require ./telemetry/setup.js api.js",
+    "api": "npm run saveConfig && node --require ./telemetry/setup.js api.js",
     "worker": "node --require ./telemetry/setup.js worker.js"
   },
   "author": "",
@@ -35,6 +36,7 @@
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.6.7",
+    "@koa/cors": "^3.3.0",
     "@koa/router": "^10.1.1",
     "@opentelemetry/api": "^1.0.4",
     "@opentelemetry/exporter-jaeger": "^1.0.1",
@@ -58,6 +60,8 @@
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
     "koa-logger": "^3.2.1",
+    "koa-mount": "^4.0.0",
+    "koa-static": "^5.0.0",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.7",
     "pg": "^8.7.3",

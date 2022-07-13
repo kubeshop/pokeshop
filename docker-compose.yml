@@ -46,12 +46,15 @@ services:
       - 6831:6831/udp
       - 6832:6832/udp
       - 5778:5778
+      - 4317:4317
+      - 4318:4318
       - 16685:16685
       - 16686:16686
       - 14268:14268
       - 9411:9411
     environment:
       - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
     networks:
       - local
     healthcheck:
@@ -69,6 +72,7 @@ services:
       POKE_API_BASE_URL: https://pokeapi.co/api/v2
       JAEGER_HOST: jaeger
       JAEGER_PORT: 6832
+      ZIPKIN_URL: http://jaeger:9411
     ports:
       - 3001:80
     networks:
@@ -93,6 +97,7 @@ services:
       POKE_API_BASE_URL: https://pokeapi.co/api/v2
       JAEGER_HOST: jaeger
       JAEGER_PORT: 6832
+      ZIPKIN_URL: http://localhost:9411
     ports:
       - 8081:8081
       - 8082:8082
