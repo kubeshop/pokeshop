@@ -7,39 +7,44 @@ import { B3Propagator } from '@opentelemetry/propagator-b3';
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
 import { Resource } from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import loadConfig from './loadConfig';
 
-const provider = new WebTracerProvider({
-  resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: 'pokeshop-ui',
-  }),
-});
+const createTracer = async () => {
+  const { ZIPKIN_URL = 'http://localhost:9411' } = await loadConfig();
 
-provider.addSpanProcessor(
-  new BatchSpanProcessor(
-    new ZipkinExporter({
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      serviceName: 'pokeshop-ui',
-      url: `${process.env.REACT_APP_ZIPKIN_URL}/api/v2/spans`,
-    })
-  )
-);
-
-provider.register({
-  contextManager: new ZoneContextManager(),
-  propagator: new B3Propagator(),
-});
-
-registerInstrumentations({
-  instrumentations: [
-    getWebAutoInstrumentations({
-      '@opentelemetry/instrumentation-fetch': {
-        propagateTraceHeaderCorsUrls: /.*/,
-        clearTimingResources: true,
-      },
+  const provider = new WebTracerProvider({
+    resource: new Resource({
+      [SemanticResourceAttributes.SERVICE_NAME]: 'pokeshop-ui',
     }),
-  ],
-});
+  });
 
-export default provider;
+  provider.addSpanProcessor(
+    new BatchSpanProcessor(
+      new ZipkinExporter({
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        serviceName: 'pokeshop-ui',
+        url: `${ZIPKIN_URL}/api/v2/spans`,
+      })
+    )
+  );
+
+  provider.register({
+    contextManager: new ZoneContextManager(),
+    propagator: new B3Propagator(),
+  });
+
+  registerInstrumentations({
+    instrumentations: [
+      getWebAutoInstrumentations({
+        '@opentelemetry/instrumentation-fetch': {
+          propagateTraceHeaderCorsUrls: /.*/,
+          clearTimingResources: true,
+        },
+      }),
+    ],
+  });
+};
+
+createTracer();

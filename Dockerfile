@@ -1,10 +1,13 @@
 FROM node:16.14.0-alpine as build-ui
+
 WORKDIR /ui
 ENV PATH /ui/node_modules/.bin:$PATH
 COPY ./web/package.json ./
 COPY ./web/package-lock.json ./
+
 RUN npm ci --silent
 COPY ./web ./
+
 RUN npm run build
 
 # build

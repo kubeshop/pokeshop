@@ -10,8 +10,9 @@
     "start:worker": "nodemon --watch 'src/**' --exec 'ts-node -r tsconfig-paths/register -r ./src/telemetry/setup.ts ./src/worker.ts'",
     "start:rpc": "nodemon --watch 'src/**' --exec 'ts-node -r tsconfig-paths/register -r ./src/telemetry/setup.ts ./src/rpc.ts'",
     "build": "tsc --project tsconfig.json && tspath -f",
+    "saveConfig": "node scripts/saveConfig.js",
     "rpc": "node --require ./telemetry/setup.js rpc.js",
-    "api": "node --require ./telemetry/setup.js api.js",
+    "api": "npm run saveConfig && node --require ./telemetry/setup.js api.js",
     "worker": "node --require ./telemetry/setup.js worker.js"
   },
   "author": "",
