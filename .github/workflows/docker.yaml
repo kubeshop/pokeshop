@@ -21,6 +21,5 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build the Docker image
       run: |
-        cd api
         docker build . --file Dockerfile --tag kubeshop/demo-pokemon-api:latest
         docker push kubeshop/demo-pokemon-api:latest
