@@ -1,4 +1,3 @@
-{{- $rpcPort := .Values.service.rpcPort -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -9,11 +8,11 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: 8081
       protocol: TCP
       name: http
-    - port: {{ $rpcPort }}
-      targetPort: {{ $rpcPort }}
+    - port: {{ .Values.service.rpcPort }}
+      targetPort: 8082
       protocol: TCP
       name: grpc
   selector:
