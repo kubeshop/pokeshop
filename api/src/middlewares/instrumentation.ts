@@ -45,7 +45,7 @@ type THandler = handleUnaryCall<unknown, unknown>;
 
 const instrumentRpcMethod = (name: string, method: THandler, serverName: string): THandler => {
   return async (call, finalCallback) => {
-    const parentContext = propagation.extract(context.active(), call.metadata);
+    const parentContext = propagation.extract(context.active(), call.metadata.getMap());
     const span = await createSpanFromContext(name, parentContext, { kind: SpanKind.SERVER });
 
     const callback: sendUnaryData<unknown> = (error, response) => {
