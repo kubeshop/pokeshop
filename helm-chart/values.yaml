@@ -6,9 +6,9 @@ replicaCount: 1
 
 image:
   repository: kubeshop/demo-pokemon-api
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: latest
 
 env:
   - name: DATABASE_URL
