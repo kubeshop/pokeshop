@@ -1,4 +1,5 @@
-version: "3"
+version: "3.5"
+name: pokeshop
 
 services:
   db:
@@ -9,8 +10,6 @@ services:
       POSTGRES_USER: ashketchum
       POSTGRES_PASSWORD: squirtle123
       POSTGRES_DB: pokeshop
-    networks:
-      - local
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 1s
@@ -20,8 +19,6 @@ services:
     image: redis:6
     ports:
       - 6379:6379
-    networks:
-      - local
     healthcheck:
       test: ["CMD", "redis-cli","ping"]
       interval: 1s
@@ -32,36 +29,12 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
-    networks:
-      - local
     healthcheck:
       test: rabbitmq-diagnostics -q check_running
       interval: 1s
       timeout: 5s
       retries: 60
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    ports:
-      - 5775:5775/udp
-      - 6831:6831/udp
-      - 6832:6832/udp
-      - 5778:5778
-      - 4317:4317
-      - 4318:4318
-      - 16685:16685
-      - 16686:16686
-      - 14268:14268
-      - 9411:9411
-    environment:
-      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
-      - COLLECTOR_OTLP_ENABLED=true
-    networks:
-      - local
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "localhost:16686"]
-      interval: 1s
-      timeout: 3s
-      retries: 60
+
 
   api-ci:
     image: kubeshop/demo-pokemon-api:0.0.10
@@ -75,8 +48,6 @@ services:
       ZIPKIN_URL: http://jaeger:9411
     ports:
       - 3001:80
-    networks:
-      - local
     depends_on:
       db:
         condition: service_healthy
@@ -86,10 +57,8 @@ services:
         condition: service_healthy
       jaeger:
         condition: service_healthy
-
   api:
-    build:
-      context: .
+    build: .
     environment:
       REDIS_URL: cache
       DATABASE_URL: postgresql://ashketchum:squirtle123@db:5432/pokeshop?schema=public
@@ -101,10 +70,6 @@ services:
     ports:
       - 8081:8081
       - 8082:8082
-    networks:
-      - local
-    volumes:
-      - ./:/app
     depends_on:
       db:
         condition: service_healthy
@@ -114,6 +79,5 @@ services:
         condition: service_healthy
       jaeger:
         condition: service_healthy
-
-networks:
-  local:
+      tracetest:
+        condition: service_started
