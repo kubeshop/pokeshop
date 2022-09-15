@@ -19,10 +19,8 @@ env:
     value: guest:guest@demo-rabbitmq-headless
   - name: POKE_API_BASE_URL
     value: https://pokeapi.co/api/v2
-  - name: JAEGER_HOST
-    value: jaeger-agent.tracetest.svc.cluster.local
-  - name: JAEGER_PORT
-    value: "6832"
+  - name: COLLECTOR_ENDPOINT
+    value: collector.tracetest.svc.cluster.local
   - name: ZIPKIN_URL
     value: http://jaeger-agent.tracetest.svc.cluster.local:9411
 
