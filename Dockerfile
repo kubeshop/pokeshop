@@ -15,8 +15,10 @@ FROM node:alpine as build
 
 WORKDIR /build
 RUN npm i -g typescript
-COPY ./api ./
+COPY ./api/package*.json ./
 RUN npm ci
+
+COPY ./api ./
 
 RUN npm run build
 
