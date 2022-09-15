@@ -103,8 +103,6 @@ services:
       - 8082:8082
     networks:
       - local
-    volumes:
-      - ./:/app
     depends_on:
       db:
         condition: service_healthy
