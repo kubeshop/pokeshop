@@ -12,11 +12,11 @@ image:
 
 env:
   - name: DATABASE_URL
-    value: postgresql://ashketchum:squirtle123@demo-postgresql:5432/pokeshop?schema=public
+    value: postgresql://ashketchum:squirtle123@postgresql:5432/pokeshop?schema=public
   - name: REDIS_URL
-    value: demo-redis-master
+    value: redis-master
   - name: RABBITMQ_HOST
-    value: guest:guest@demo-rabbitmq-headless
+    value: guest:guest@rabbitmq-headless
   - name: POKE_API_BASE_URL
     value: https://pokeapi.co/api/v2
   - name: COLLECTOR_ENDPOINT
@@ -91,6 +91,7 @@ affinity: {}
 
 # Dependencies configuration
 postgresql:
+  fullnameOverride: postgresql
   auth:
     username: ashketchum
     password: squirtle123
@@ -100,6 +101,7 @@ postgresql:
       clusterIP: None
 
 redis:
+  fullnameOverride: redis
   architecture: standalone
   auth:
     enabled: false
@@ -108,6 +110,7 @@ redis:
       clusterIP: None
 
 rabbitmq:
+  fullnameOverride: rabbitmq
   image:
     registry: docker.io
     repository: rabbitmq
