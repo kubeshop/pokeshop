@@ -2,7 +2,7 @@ import { jsonResponse } from '@pokemon/middlewares/response';
 import { getPokemonRepository } from '@pokemon/repositories';
 import { Op } from 'sequelize';
 
-const search = async ctx => {
+export const search = async ctx => {
   const { skip = '0', take = '20', s = '' } = ctx.request.query || {};
   const query = { skip: +skip, take: +take, where: { name: { [Op.iLike]: `%${s}%` } } };
 

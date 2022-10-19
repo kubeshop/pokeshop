@@ -1,9 +1,9 @@
-import UpdatePokemon from '@pokemon/validators/updatePokemon';
-import { validate } from '@pokemon/middlewares/validation';
 import { jsonResponse } from '@pokemon/middlewares/response';
+import { validate } from '@pokemon/middlewares/validation';
 import { getPokemonRepository, Pokemon } from '@pokemon/repositories';
+import UpdatePokemon from '@pokemon/validators/updatePokemon';
 
-const update = async (ctx: { status; body; params }) => {
+export const update = async (ctx: { status; body; params }) => {
   const { id = '0' } = ctx.params || {};
   const repository = getPokemonRepository();
 
@@ -13,9 +13,7 @@ const update = async (ctx: { status; body; params }) => {
     return;
   }
 
-  const updatedPokemon = await repository.update(+id, new Pokemon({ ...ctx.body }));
-
-  return updatedPokemon;
+  return await repository.update(+id, new Pokemon({ ...ctx.body }));
 };
 
 export default function setupRoute(router) {

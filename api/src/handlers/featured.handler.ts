@@ -2,7 +2,7 @@ import { jsonResponse } from '@pokemon/middlewares/response';
 import FeaturedService from '@pokemon/services/fetured.service';
 const featuredService = FeaturedService();
 
-const featured = async () => {
+export const featured = async () => {
   const items = await featuredService.get();
 
   return items;

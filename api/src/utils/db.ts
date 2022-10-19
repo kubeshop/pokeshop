@@ -1,6 +1,8 @@
-import { PokemonModel } from '@pokemon/repositories/pokemon.sequelize.repository';
+import * as pg from 'pg';
 import { Sequelize } from 'sequelize-typescript';
 import { SequelizeStorage, Umzug } from 'umzug';
+import { PokemonModel } from '@pokemon/repositories/pokemon.sequelize.repository';
+
 
 export let sequelize: Sequelize | undefined = undefined;
 
@@ -9,6 +11,11 @@ export async function setupSequelize() {
 
   sequelize = new Sequelize(DATABASE_URL, {
     dialect: 'postgres',
+    dialectModule: pg,
+    define: {
+      timestamps: true,
+      freezeTableName: true,
+    },
   });
 
   sequelize.addModels([PokemonModel]);

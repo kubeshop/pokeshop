@@ -1,10 +1,12 @@
+/* eslint-disable no-unused-vars */
 import { context, propagation, Span, SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
-import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
-import { createSpanFromContext, runWithSpan } from '@pokemon/telemetry/tracing';
 import ampqlib from 'amqplib';
+import AWS from 'aws-sdk';
 import { snakeCase } from 'lodash';
 import { CustomTags } from '../constants/Tags';
+import { InstrumentedComponent } from '../telemetry/instrumented.component';
+import { createSpanFromContext, runWithSpan } from '../telemetry/tracing';
 
 const { RABBITMQ_HOST = '' } = process.env;
 
@@ -18,11 +20,14 @@ const parseMessage = message => {
 
 export interface QueueService<T> {
   healthcheck(): Promise<boolean>;
-  send(message: T, headers?: any): Promise<boolean>;
+  send(message: T, headers?: Record<string, string>): Promise<boolean>;
   subscribe(callback: Function): Promise<void>;
 }
 
 function createQueueService<T>(messageGroup: string): QueueService<T> {
+  if(process.env.IS_SERVERLESS){
+    return new SqsService(messageGroup);
+  }
   const rabbitQueue = new RabbitQueueService(messageGroup);
   return new InstrumentedRabbitQueueService(messageGroup, rabbitQueue);
 }
@@ -134,7 +139,7 @@ class RabbitQueueService<T> implements QueueService<T> {
     }
   }
 
-  public async send(message: T, headers?: any): Promise<boolean> {
+  public async send(message: T, headers?: Record<string, string>): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       try {
         const channel = await this.connect();
@@ -160,6 +165,33 @@ class RabbitQueueService<T> implements QueueService<T> {
       }
     };
     channel.consume(this.messageGroup, onConsume);
+  }
+}
+
+class SqsService<T> implements QueueService<T>{
+  private messageGroup: string;
+
+  constructor(messageGroup: string) {
+    this.messageGroup = messageGroup
+  }
+  healthcheck(): Promise<boolean> {
+    return Promise.resolve(true);
+  }
+
+  send(message: T): Promise<boolean> {
+    AWS.config.update({ region: process.env.AWS_REGION });
+    const sqs = new AWS.SQS();
+    return sqs.sendMessage({
+      MessageBody: JSON.stringify(message),
+      QueueUrl: `${process.env.SQS_QUEUE_URL}`,
+      MessageGroupId: this.messageGroup,
+      MessageAttributes:{
+      }
+    }).promise().then(()=>true);
+  }
+
+  subscribe(): Promise<void> {
+    return Promise.resolve(undefined);
   }
 }
 
