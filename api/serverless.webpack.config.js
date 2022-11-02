@@ -5,9 +5,10 @@ const nodeExternals = require('webpack-node-externals')
 const CopyPlugin = require("copy-webpack-plugin");
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
+console.log(slsw.lib.entries);
 module.exports = {
   mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
-  entry: slsw.lib.entries,
+  entry: { './handler': '././handler.ts', './lambda-wrapper': '././lambda-wrapper.js' },
   target: 'node',
   resolve: {
     extensions: ['.mjs', '.ts', '.js'],

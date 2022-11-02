@@ -1,15 +1,14 @@
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import * as opentelemetry from '@opentelemetry/api';
-import { api, NodeSDK } from '@opentelemetry/sdk-node';
+import { SpanStatusCode } from '@opentelemetry/api';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
-import { Resource } from '@opentelemetry/resources';
-import * as dotenv from 'dotenv';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib';
 import { IORedisInstrumentation } from '@opentelemetry/instrumentation-ioredis';
 import { PgInstrumentation } from '@opentelemetry/instrumentation-pg';
-import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib';
-import { SpanStatusCode } from '@opentelemetry/api';
 import { B3Propagator } from '@opentelemetry/propagator-b3';
+import { Resource } from '@opentelemetry/resources';
+import { api, NodeSDK } from '@opentelemetry/sdk-node';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import * as dotenv from 'dotenv';
 
 // Make sure all env variables are available in process.env
 dotenv.config();
@@ -25,14 +24,14 @@ async function createTracer(): Promise<opentelemetry.Tracer> {
     url: COLLECTOR_ENDPOINT,
   });
 
-  const spanProcessor = new BatchSpanProcessor(collectorExporter);
   const sdk = new NodeSDK({
     traceExporter: collectorExporter,
-    // @ts-ignore
-    instrumentations: [new IORedisInstrumentation(), new PgInstrumentation(), new AmqplibInstrumentation()],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    instrumentations: [new IORedisInstrumentation(), new PgInstrumentation(), new AmqplibInstrumentation() as any],
   });
 
-  sdk.configureTracerProvider({}, spanProcessor);
+  // const spanProcessor = new BatchSpanProcessor(collectorExporter);
+  // sdk.configureTracerProvider({}, spanProcessor);
   sdk.addResource(
     new Resource({
       [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,
@@ -50,9 +49,7 @@ async function createTracer(): Promise<opentelemetry.Tracer> {
       .finally(() => process.exit(0));
   });
 
-  const tracer = opentelemetry.trace.getTracer(SERVICE_NAME);
-
-  globalTracer = tracer;
+  globalTracer = opentelemetry.trace.getTracer(SERVICE_NAME);
 
   return globalTracer;
 }

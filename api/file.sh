@@ -31,6 +31,12 @@ echo "$OPEN_SEARCH_URL"
 # Build Tracetest
 sudo git clone https://github.com/kubeshop/tracetest.git /tmp/tracetest
 sudo git -C /tmp/tracetest checkout --track origin/serverless-example
+
 sudo sed -i "s/opensearch:9200/$OPEN_SEARCH_URL/" /tmp/tracetest/examples/tracetest-opensearch-aws/opensearch/opensearch-analytics.yaml
+sudo sed -i "s/http/https/" /tmp/tracetest/examples/tracetest-opensearch-aws/opensearch/opensearch-analytics.yaml
+
+sudo sed -i "s/opensearch:9200/$OPEN_SEARCH_URL/" /tmp/tracetest/examples/tracetest-opensearch-aws/tracetest-config.yaml
+sudo sed -i "s/http/https/" /tmp/tracetest/examples/tracetest-opensearch-aws/tracetest-config.yaml
+
 sudo /usr/local/bin/docker-compose -f /tmp/tracetest/examples/tracetest-opensearch-aws/docker-compose.yml build
 sudo /usr/local/bin/docker-compose -f /tmp/tracetest/examples/tracetest-opensearch-aws/docker-compose.yml up -d

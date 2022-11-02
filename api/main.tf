@@ -86,22 +86,6 @@ resource "aws_iam_instance_profile" "test_profile" {
   role = aws_iam_role.aws_ec2_iam_role.name
 }
 
-resource "aws_instance" "shared_infra" {
-  ami                    = "ami-089a545a9ed9893b6"
-  instance_type          = "t2.large"
-  key_name               = "pokemon-infra"
-  vpc_security_group_ids = [aws_security_group.main.id]
-  user_data              = file("./file.sh")
-  iam_instance_profile = aws_iam_instance_profile.test_profile.name
-  tags                   = {
-    Name       = "PokemonInfraStructure"
-    OpenSearch = aws_opensearch_domain.open_search.endpoint
-  }
-  root_block_device {
-    volume_size = 20
-  }
-  depends_on = [aws_opensearch_domain.open_search]
-}
 
 variable "domain" {
   default = "serverless-open-search"
@@ -139,7 +123,7 @@ resource "aws_opensearch_domain" "open_search" {
     internal_user_database_enabled = true
     master_user_options {
       master_user_name     = "example"
-      master_user_password = "Example1!"
+      master_user_password = "Example1#"
     }
   }
 
@@ -171,6 +155,23 @@ POLICY
 }
 
 
+# Ec2
+resource "aws_instance" "shared_infra" {
+  ami                    = "ami-089a545a9ed9893b6"
+  instance_type          = "t2.large"
+  key_name               = "pokemon-infra"
+  vpc_security_group_ids = [aws_security_group.main.id]
+  user_data              = file("./file.sh")
+  iam_instance_profile = aws_iam_instance_profile.test_profile.name
+  tags                   = {
+    Name       = "PokemonInfraStructure"
+    OpenSearch = aws_opensearch_domain.open_search.endpoint
+  }
+  root_block_device {
+    volume_size = 20
+  }
+  depends_on = [aws_opensearch_domain.open_search]
+}
 ## parameters.tf
 resource "aws_ssm_parameter" "endpoint" {
   name        = "/ec2/public_ip"

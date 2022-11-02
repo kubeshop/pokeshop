@@ -36,16 +36,18 @@ provider:
   name: aws
   region: us-east-2
   runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
 #  layers:
 #    - arn:aws:lambda:us-east-2:901920570463:layer:aws-otel-nodejs-amd64-ver-1-7-0:1
   httpApi:
     cors: true
     payload: "1.0"
   environment:
+    NODE_OPTIONS: --require lambda-wrapper
     IS_SERVERLESS: true
-#    OPENTELEMETRY_COLLECTOR_CONFIG_FILE: /var/task/collector.yaml
 #    AWS_LAMBDA_EXEC_WRAPPER: /opt/otel-handler
-    COLLECTOR_ENDPOINT: http://${ssm:/ec2/public_ip}:55679
+    COLLECTOR_ENDPOINT: http://${ssm:/ec2/public_ip}:4317
+    COLLECTOR_ENDPOINT_HTTP: http://${ssm:/ec2/public_ip}:4318
     DATABASE_URL:
       Fn::Join:
         - ""
@@ -90,64 +92,13 @@ provider:
                   - "/*"
 
 functions:
-  sync_pokemon:
-    handler: ./src/serverless.worker.startWorker
-    events:
-      - sqs:
-          arn:
-            Fn::GetAtt:
-              - AssetsQueue
-              - Arn
   get:
     handler: ./handler.get
     events:
       - httpApi:
           path: /pokemon
           method: get
-  create:
-    handler: ./handler.create
-    events:
-      - httpApi:
-          path: /pokemon
-          method: post
-  update:
-    handler: ./handler.update
-    events:
-      - httpApi:
-          path: /pokemon/{id}
-          method: patch
-  remove:
-    handler: ./handler.remove
-    events:
-      - httpApi:
-          path: /pokemon/{id}
-          method: delete
-  import:
-    handler: ./handler.importPokemon
-    events:
-      - httpApi:
-          path: /pokemon/import
-          method: post
-  search:
-    handler: ./handler.search
-    events:
-      - httpApi:
-          path: /pokemon/search
-          method: get
-  featured:
-    handler: ./handler.featured
-    events:
-      - httpApi:
-          path: /pokemon/featured
-          method: get
-  imageDownloader:
-    handler: ./handler.imageDownloader
-    events:
-      - sqs:
-          arn:
-            Fn::GetAtt:
-              - AssetsQueue
-              - Arn
+
 
 resources:
   - ${file(./infra/rds.yml)}

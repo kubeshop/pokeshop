@@ -5,13 +5,7 @@ import { JSONObject } from '@lambda-middleware/json-serializer/lib/types/JSONObj
 import { PromiseHandler } from '@lambda-middleware/utils';
 import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import debugFactory, { IDebugger } from 'debug';
-import {create as createHandler }from './src/handlers/create.handler';
-import {featured as featuredHandler }from './src/handlers/featured.handler';
-import {get as getHandler}from './src/handlers/get.handler';
-import {importPokemon as importPokemonHandler }from './src/handlers/import.handler';
-import {remove as removeHandler }from './src/handlers/remove.handler';
-import {search as searchHandler }from './src/handlers/search.handler';
-import {update as updateHandler }from './src/handlers/update.handler';
+import { get as getHandler } from './src/handlers/get.handler';
 
 const logger: IDebugger = debugFactory('@lambda-middleware/error-handler');
 
@@ -91,12 +85,12 @@ export const composeHandlers = (handlerMap: THandlerMap) =>
   );
 
 export const { create, get, update, remove, importPokemon, search, featured } = composeHandlers({
-  create: createHandler(true),
-  get: getHandler(true),
-  update: updateHandler ,
-  remove: removeHandler ,
-  importPokemon: importPokemonHandler ,
-  search: searchHandler ,
-  featured: featuredHandler ,
+  // create: createHandler(true),
+  get: getHandler,
+  // update: updateHandler ,
+  // remove: removeHandler ,
+  // importPokemon: importPokemonHandler ,
+  // search: searchHandler ,
+  // featured: featuredHandler ,
 });
 

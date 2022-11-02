@@ -1,23 +1,22 @@
 import { logError } from '@pokemon/handlers/logError';
-import { getPokemonRepository } from '@pokemon/repositories';
-import { getTracer } from '@pokemon/telemetry/tracing';
-import { setupSequelize } from '@pokemon/utils/db';
 import { jsonResponse } from '../middlewares/response';
+import axios from "axios"
 
-export const get = (runMigration= false) => async (ctx) => {
-  const { skip = '0', take = '20' } = ctx?.request?.query || {};
-  const query = { skip: +skip, take: +take };
+export const get =  async () => {
+  // const { skip = '0', take = '20' } = ctx?.request?.query || {};
+  // const query = { skip: +skip, take: +take };
 
   try {
-    if (runMigration) {
-      await getTracer();
-      await setupSequelize();
-    }
-    const repository = getPokemonRepository();
-    const [items, totalCount] = await Promise.all([repository.findMany(query), repository.count()]);
+    const todoItem = await axios('https://jsonplaceholder.typicode.com/todos/1');
+    console.log(todoItem);
+    // if (runMigration) {
+    //   await setupSequelize();
+    // }
+    // const repository = getPokemonRepository();
+    // const [items, totalCount] = await Promise.all([repository.findMany(query), repository.count()]);
     return {
-      totalCount,
-      items,
+      totalCount: 0,
+      items: [],
     };
   } catch (e) {
     logError(e);
@@ -29,5 +28,5 @@ export const get = (runMigration= false) => async (ctx) => {
 };
 
 export default function setupRoute(router) {
-  router.get('/pokemon', jsonResponse(200), get());
+  router.get('/pokemon', jsonResponse(200), get);
 }
