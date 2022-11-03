@@ -45,7 +45,7 @@ resource "aws_iam_policy" "policy" {
   name        = "test_policy"
   path        = "/"
   description = "My test policy"
-  policy = jsonencode({
+  policy      = jsonencode({
     Version   = "2012-10-17"
     Statement = [
       {
@@ -82,7 +82,7 @@ resource "aws_iam_policy_attachment" "test-attach" {
 }
 
 resource "aws_iam_instance_profile" "test_profile" {
-  name  = "test_profile"
+  name = "test_profile"
   role = aws_iam_role.aws_ec2_iam_role.name
 }
 
@@ -114,7 +114,7 @@ resource "aws_opensearch_domain" "open_search" {
   }
 
   domain_endpoint_options {
-    enforce_https = true
+    enforce_https       = true
     tls_security_policy = "Policy-Min-TLS-1-2-2019-07"
   }
 
@@ -162,7 +162,7 @@ resource "aws_instance" "shared_infra" {
   key_name               = "pokemon-infra"
   vpc_security_group_ids = [aws_security_group.main.id]
   user_data              = file("./file.sh")
-  iam_instance_profile = aws_iam_instance_profile.test_profile.name
+  iam_instance_profile   = aws_iam_instance_profile.test_profile.name
   tags                   = {
     Name       = "PokemonInfraStructure"
     OpenSearch = aws_opensearch_domain.open_search.endpoint
@@ -178,4 +178,45 @@ resource "aws_ssm_parameter" "endpoint" {
   description = "Ec2 instance public IP"
   type        = "String"
   value       = aws_instance.shared_infra.public_ip
+}
+
+data "archive_file" "my_function_archive" {
+  type        = "zip"
+  output_path = "${path.module}/my_function.zip"
+  source_dir  = "${path.module}/my_function/dist"
+}
+
+# code from iam.tf
+resource "aws_iam_role" "example_role" {
+  name               = "LambdaRole"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Resource": "*",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_lambda_function" "my_function_lambda" {
+  filename         = data.archive_file.my_function_archive.output_path
+  function_name    = "get"
+  handler          = ".webpack/handler.get"
+  source_code_hash = data.archive_file.my_function_archive.output_base64sha256
+  role             = aws_iam_role.example_role.arn
+  runtime          = "nodejs14.x"
+  environment {
+    variables = {
+      Hello : "kdfd"
+    }
+  }
 }

@@ -3,51 +3,41 @@ frameworkVersion: "3"
 
 plugins:
   - serverless-webpack
-  - serverless-vpc-plugin
+#  - serverless-vpc-plugin
 
 custom:
-  webpack:
-    webpackConfig: 'serverless.webpack.config.js'
-    includeModules: true
   databaseName: "pokeshop"
   databaseUsername: "ashketchum"
   databasePassword: "squirtle123"
+  webpack:
+    webpackConfig: 'webpack.config.js'
+    includeModules: true
   databaseEndpoint:
     Fn::GetAtt: [PokeDatabase, "Endpoint.Address"]
-  s3BucketArn:
-    Fn::GetAtt: [ImageBucket, Arn]
-  # this needs to be created beforehand
-  keyPairName: "pokemon-micro-app"
-  vpcConfig:
-    cidrBlock: "10.0.0.0/16"
-    createNetworkAcl: false
-    createDbSubnet: true
-    createNatInstance: true
-    createBastionHost: true
-    bastionHostKeyName: ${self:custom.keyPairName}
-    zones:
-      - us-east-2a
-      - us-east-2b
-    subnetGroups:
-      - rds
-      - elasticache
+#  s3BucketArn:
+#    Fn::GetAtt: [ImageBucket, Arn]
+#  # this needs to be created beforehand
+#  keyPairName: "pokemon-micro-app"
+#  vpcConfig:
+#    cidrBlock: "10.0.0.0/16"
+#    createNetworkAcl: false
+#    createDbSubnet: true
+#    createNatInstance: true
+#    createBastionHost: true
+#    bastionHostKeyName: ${self:custom.keyPairName}
+#    zones:
+#      - us-east-2a
+#      - us-east-2b
+#    subnetGroups:
+#      - rds
+#      - elasticache
 
 provider:
   name: aws
-  region: us-east-2
   runtime: nodejs14.x
   lambdaHashingVersion: 20201221
-#  layers:
-#    - arn:aws:lambda:us-east-2:901920570463:layer:aws-otel-nodejs-amd64-ver-1-7-0:1
-  httpApi:
-    cors: true
-    payload: "1.0"
+  region: us-east-2
   environment:
-    NODE_OPTIONS: --require lambda-wrapper
-    IS_SERVERLESS: true
-#    AWS_LAMBDA_EXEC_WRAPPER: /opt/otel-handler
-    COLLECTOR_ENDPOINT: http://${ssm:/ec2/public_ip}:4317
-    COLLECTOR_ENDPOINT_HTTP: http://${ssm:/ec2/public_ip}:4318
     DATABASE_URL:
       Fn::Join:
         - ""
@@ -60,40 +50,50 @@ provider:
           - "/"
           - ${self:custom.databaseName}
           - "?schema=public"
+    NODE_OPTIONS: --require lambda-wrapper
+    COLLECTOR_ENDPOINT: http://${ssm:/ec2/public_ip}:4317
     SQS_QUEUE_URL: { Ref: AssetsQueue }
     S3_ARN: { Ref: ImageBucket }
     POKE_API_BASE_URL: "https://pokeapi.co/api/v2"
-    REDIS_URL:
-      Fn::GetAtt: [PokeCache, "RedisEndpoint.Address"]
-  iam:
-    role:
-      statements:
-        - Effect: Allow
-          Action:
-            - sqs:*
-          Resource:
-            Fn::GetAtt: [AssetsQueue, Arn]
-        - Effect: Allow
-          Action:
-            - s3:PutObject
-            - s3:GetObject
-            - s3:DeleteObject
-          Resource:
-            Fn::GetAtt: [ImageBucket, Arn]
-        - Effect: Allow
-          Action:
-            - s3:PutObject
-            - s3:GetObject
-            - s3:DeleteObject
-          Resource:
-            - Fn::Join:
-                - ""
-                - - ${self:custom.s3BucketArn}
-                  - "/*"
+##  layers:
+##    - arn:aws:lambda:us-east-2:901920570463:layer:aws-otel-nodejs-amd64-ver-1-7-0:1
+#  httpApi:
+#    cors: true
+#    payload: "1.0"
+#  environment:
+#    NODE_OPTIONS: --require lambda-wrapper
+#    IS_SERVERLESS: true
+##    AWS_LAMBDA_EXEC_WRAPPER: /opt/otel-handler
+#    REDIS_URL:
+#      Fn::GetAtt: [PokeCache, "RedisEndpoint.Address"]
+#  iam:
+#    role:
+#      statements:
+#        - Effect: Allow
+#          Action: #            - sqs:*
+#          Resource:
+#            Fn::GetAtt: [AssetsQueue, Arn]
+#        - Effect: Allow
+#          Action:
+#            - s3:PutObject
+#            - s3:GetObject
+#            - s3:DeleteObject
+#          Resource:
+#            Fn::GetAtt: [ImageBucket, Arn]
+#        - Effect: Allow
+#          Action:
+#            - s3:PutObject
+#            - s3:GetObject
+#            - s3:DeleteObject
+#          Resource:
+#            - Fn::Join:
+#                - ""
+#                - - ${self:custom.s3BucketArn}
+#                  - "/*"
 
 functions:
   get:
-    handler: ./handler.get
+    handler: handler.get
     events:
       - httpApi:
           path: /pokemon
@@ -101,7 +101,58 @@ functions:
 
 
 resources:
-  - ${file(./infra/rds.yml)}
-  - ${file(./infra/queue.yml)}
-  - ${file(./infra/s3.yml)}
-  - ${file(./infra/elasticache.yml)}
+  Resources:
+    PokeDatabase:
+      Type: "AWS::RDS::DBInstance"
+      Properties:
+        DBName: ${self:custom.databaseName}
+        AllocatedStorage: "5"
+        PubliclyAccessible: true
+        DBInstanceClass: "db.t3.micro"
+        Engine: "Postgres"
+        MasterUsername: ${self:custom.databaseUsername}
+        MasterUserPassword: ${self:custom.databasePassword}
+    AssetsQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: pma-queue-${opt:stage, 'local'}.fifo
+        FifoQueue: true
+        ContentBasedDeduplication: true
+    ImageBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        AccessControl: PublicRead
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - "*"
+              AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
+    ImageBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref ImageBucket
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Action:
+                - "s3:GetObject"
+              Effect: Allow
+              Resource: !Join
+                - ""
+                - - "arn:aws:s3:::"
+                  - !Ref ImageBucket
+                  - /*
+              Principal: "*"

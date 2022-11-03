@@ -5,17 +5,16 @@ const {AwsLambdaInstrumentation} = require('@opentelemetry/instrumentation-aws-l
 const {registerInstrumentations} = require('@opentelemetry/instrumentation');
 const {getNodeAutoInstrumentations} = require("@opentelemetry/auto-instrumentations-node");
 const {OTLPTraceExporter} = require('@opentelemetry/exporter-trace-otlp-grpc');
+const { setupSequelize } = require('./src/utils/db');
 
-
-const collectorOptions = {
-    url: 'http://13.59.115.190:4317',
-};
-
+void setupSequelize()
 
 const provider = new NodeTracerProvider();
 provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()))
 
-const exporter = new OTLPTraceExporter(collectorOptions);
+const exporter = new OTLPTraceExporter({
+    url: 'http://52.15.144.221:4317',
+});
 provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
 
 provider.register();
