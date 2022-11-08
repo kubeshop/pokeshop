@@ -1,3 +1,4 @@
+---
 Resources:
   AppSecurityGroupEgressRDS:
     Type: "AWS::EC2::SecurityGroupEgress"
@@ -32,7 +33,6 @@ Resources:
     Properties:
       DBName: ${self:custom.databaseName}
       AllocatedStorage: "5"
-      PubliclyAccessible: true
       DBInstanceClass: "db.t3.micro"
       Engine: "Postgres"
       MasterUsername: ${self:custom.databaseUsername}

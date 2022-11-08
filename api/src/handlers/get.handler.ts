@@ -1,8 +1,9 @@
 import { PromiseHandler } from '@lambda-middleware/utils';
 import { prisma } from '../utils/db';
-import { APIGatewayEvent } from 'aws-lambda';
 
-const get: PromiseHandler = async ({ queryStringParameters }: APIGatewayEvent) => {
+const get: PromiseHandler = async ({ queryStringParameters }, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
   const { skip = '0', take = '20' } = queryStringParameters || {};
   const query = { skip: +skip, take: +take };
 

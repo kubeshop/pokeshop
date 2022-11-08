@@ -1,9 +1,8 @@
 import { PromiseHandler } from '@lambda-middleware/utils';
 import { prisma } from '../utils/db';
-import { APIGatewayEvent } from 'aws-lambda';
 import { Prisma } from '@prisma/client';
 
-const search: PromiseHandler = async ({ queryStringParameters }: APIGatewayEvent) => {
+const search: PromiseHandler = async ({ queryStringParameters }) => {
   const { skip = '0', take = '20', s = '' } = queryStringParameters || {};
   const query: Prisma.PokemonFindManyArgs = { skip: +skip, take: +take, where: { name: { contains: s } } };
 

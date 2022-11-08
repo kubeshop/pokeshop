@@ -58,90 +58,18 @@ Resources:
         - - ECSLogGroup
           - !Ref "AWS::StackName"
       RetentionInDays: 14
-  ECSTaskExecutionRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - ecs-tasks.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Policies:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-  TaskDefinition:
-    Type: "AWS::ECS::TaskDefinition"
-    Properties:
-      ExecutionRoleArn: !Ref ECSTaskExecutionRole
-      TaskRoleArn: !Ref ECSTaskExecutionRole
-      Family: !Join ["-", [!Ref "AWS::StackName", tom-jeager]]
-      Memory: 2048
-      Cpu: 2048
-      RequiresCompatibilities:
-        - "EC2"
-      ContainerDefinitions:
-        - Name: !Join ["-", [!Ref "AWS::StackName", tom-jeager]]
-          Environment:
-            - Name: ES_SERVER_URLS
-              Value: !GetAtt PokeElasticsearchDomain.DomainEndpoint
-            - Name: SPAN_STORAGE_TYPE
-              Value: elasticsearch
-          Cpu: 1024
-          Essential: "true"
-          Image: "jaegertracing/all-in-one:1.25.0"
-          Memory: "300"
-          Command:
-            - "--collector.zipkin.host-port"
-            - "9411"
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: !Ref CloudwatchLogsGroup
-              awslogs-region: !Ref "AWS::Region"
-              awslogs-stream-prefix: !Ref "AWS::StackName"
-          PortMappings:
-            - ContainerPort: 14269
-              Protocol: "tcp"
-              HostPort: 14269
-            - ContainerPort: 14268
-              Protocol: "tcp"
-              HostPort: 14268
-            - ContainerPort: 6832
-              Protocol: "udp"
-              HostPort: 6832
-            - ContainerPort: 6831
-              Protocol: "udp"
-              HostPort: 6831
-            - ContainerPort: 5775
-              Protocol: "udp"
-              HostPort: 5775
-            - ContainerPort: 14250
-              Protocol: "tcp"
-              HostPort: 5775
-            - ContainerPort: 16685
-              Protocol: "tcp"
-              HostPort: 16685
-            - ContainerPort: 5778
-              Protocol: "tcp"
-              HostPort: 5778
-            - ContainerPort: 16686
-              Protocol: "tcp"
-              HostPort: 16686
-            - ContainerPort: 9411
-              Protocol: "tcp"
-              HostPort: 9411
   ECSALB:
     Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
     Properties:
-      Name: ECSALB
+      Name: !Join
+        - "-"
+        - - ECSALB
+          - !Ref "AWS::StackName"
       Scheme: internet-facing
       LoadBalancerAttributes:
         - Key: idle_timeout.timeout_seconds
           Value: "30"
-      Subnets: 
+      Subnets:
         - !Ref PublicSubnet1
         - !Ref PublicSubnet2
       SecurityGroups:
@@ -178,11 +106,15 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: ECSTG
+      Name: !Join
+        - "-"
+        - - ECSTG
+          - !Ref "AWS::StackName"
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
       VpcId: !Ref VPC
+
   ECSAutoScalingGroup:
     Type: "AWS::AutoScaling::AutoScalingGroup"
     Properties:
@@ -195,6 +127,7 @@ Resources:
       DesiredCapacity: "1"
     CreationPolicy:
       ResourceSignal:
+        Count: "1"
         Timeout: PT15M
     UpdatePolicy:
       AutoScalingReplacingUpdate:
@@ -202,15 +135,16 @@ Resources:
   ContainerInstances:
     Type: "AWS::AutoScaling::LaunchConfiguration"
     Properties:
+      AssociatePublicIpAddress: true
       ImageId: !FindInMap
         - AWSRegionToAMI
         - !Ref "AWS::Region"
         - AMIID
+      KeyName: pokeshop-api
       SecurityGroups:
         - !Ref EcsSecurityGroup
-      InstanceType: "t2.small"
+      InstanceType: t2.medium
       IamInstanceProfile: !Ref EC2InstanceProfile
-      KeyName: ${self:custom.keyPairName}
       UserData: !Base64
         "Fn::Join":
           - ""
@@ -230,18 +164,6 @@ Resources:
             - !Ref "AWS::Region"
             - |+
 
-  service:
-    Type: "AWS::ECS::Service"
-    DependsOn: ALBListener
-    Properties:
-      Cluster: !Ref ECSCluster
-      DesiredCount: "1"
-      LoadBalancers:
-        - ContainerName: simple-app
-          ContainerPort: "80"
-          TargetGroupArn: !Ref ECSTG
-      Role: !Ref ECSServiceRole
-      TaskDefinition: !Ref TaskDefinition
   ECSServiceRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -268,56 +190,6 @@ Resources:
                   - "ec2:Describe*"
                   - "ec2:AuthorizeSecurityGroupIngress"
                 Resource: "*"
-  ServiceScalingTarget:
-    Type: "AWS::ApplicationAutoScaling::ScalableTarget"
-    DependsOn: service
-    Properties:
-      MaxCapacity: 2
-      MinCapacity: 1
-      ResourceId: !Join
-        - ""
-        - - service/
-          - !Ref ECSCluster
-          - /
-          - !GetAtt
-            - service
-            - Name
-      RoleARN: !GetAtt
-        - AutoscalingRole
-        - Arn
-      ScalableDimension: "ecs:service:DesiredCount"
-      ServiceNamespace: ecs
-  ServiceScalingPolicy:
-    Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
-    Properties:
-      PolicyName: AStepPolicy
-      PolicyType: StepScaling
-      ScalingTargetId: !Ref ServiceScalingTarget
-      StepScalingPolicyConfiguration:
-        AdjustmentType: PercentChangeInCapacity
-        Cooldown: 60
-        MetricAggregationType: Average
-        StepAdjustments:
-          - MetricIntervalLowerBound: 0
-            ScalingAdjustment: 200
-  ALB500sAlarmScaleUp:
-    Type: "AWS::CloudWatch::Alarm"
-    Properties:
-      EvaluationPeriods: "1"
-      Statistic: Average
-      Threshold: "10"
-      AlarmDescription: Alarm if our ALB generates too many HTTP 500s.
-      Period: "60"
-      AlarmActions:
-        - !Ref ServiceScalingPolicy
-      Namespace: AWS/ApplicationELB
-      Dimensions:
-        - Name: LoadBalancer
-          Value: !GetAtt
-            - ECSALB
-            - LoadBalancerFullName
-      ComparisonOperator: GreaterThanThreshold
-      MetricName: HTTPCode_ELB_5XX_Count
   EC2Role:
     Type: "AWS::IAM::Role"
     Properties:
