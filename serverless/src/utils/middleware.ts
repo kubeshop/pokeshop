@@ -3,9 +3,11 @@ import { PromiseHandler } from '@lambda-middleware/utils';
 import { cors } from '@lambda-middleware/cors';
 import { jsonSerializer } from '@lambda-middleware/json-serializer';
 import errorHandler from './errorHandler';
+import instrumentation from './instrumentation';
 
 export const composeMiddleware = (handler: PromiseHandler) =>
   composeHandler(
+    instrumentation(),
     errorHandler(),
     cors({
       allowedHeaders: [],

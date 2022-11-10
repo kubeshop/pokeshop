@@ -1,8 +1,41 @@
 Resources:
+  OtelConfigParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: pokeshop-otel-config
+      Type: String
+      Tier: Standard
+      DataType: text
+      Value: |
+        receivers:
+          otlp:
+            protocols:
+              grpc:
+              http:
+        processors:
+          batch:
+            timeout: 100ms
+          probabilistic_sampler:
+            hash_seed: 22
+            sampling_percentage: 100
+        exporters:
+          otlp/data-prepper:
+            endpoint: localhost:21890
+            tls:
+              insecure: true
+              insecure_skip_verify: true
+        service:
+          pipelines:
+            traces:
+              receivers: [otlp]
+              processors: [probabilistic_sampler, batch]
+              exporters: [otlp/data-prepper]
+
   ECSTaskDefinition:
     Type: "AWS::ECS::TaskDefinition"
+    DependsOn: [OtelConfigParameter]
     Properties:
-      Family: ecs-aws-otel-sidecar-service
+      Family: otel-sidecar-service
       TaskRoleArn: !Ref ECSTaskRole
       ExecutionRoleArn: !Ref ECSExecutionRole
       NetworkMode: host
@@ -10,6 +43,9 @@ Resources:
         - Command: ["--config=/etc/ecs/ecs-default-config.yaml"]
           Image: "amazon/aws-otel-collector:latest"
           Name: aws-collector
+          Secrets:
+            - Name: AOT_CONFIG_CONTENT
+              ValueFrom: !Ref OtelConfigParameter
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -27,62 +63,11 @@ Resources:
             - HostPort: 8125
               Protocol: udp
               ContainerPort: 8125
-        - LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-create-group: "True"
-              awslogs-group: /ecs/ecs-aws-otel-sidecar-service
-              awslogs-region: !Ref "AWS::Region"
-              awslogs-stream-prefix: ecs
-          PortMappings:
-            - HostPort: 8000
-              Protocol: tcp
-              ContainerPort: 8000
-          Environment:
-            - Name: AWS_XRAY_DAEMON_ADDRESS
-              Value: "aws-collector:2000"
-          DependsOn:
-            - ContainerName: aws-collector
-              Condition: START
-          Image: >-
-            public.ecr.aws/aws-otel-test/aws-otel-goxray-sample-app:latest
-          Essential: false
-          Name: aws-xray-data-emitter
-        - Name: nginx
-          Image: "nginx:latest"
-          Essential: false
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-create-group: "True"
-              awslogs-group: /ecs/nginx
-              awslogs-region: !Ref "AWS::Region"
-              awslogs-stream-prefix: ecs
-          DependsOn:
-            - ContainerName: aws-collector
-              Condition: START
-        - Name: aoc-statsd-emitter
-          Image: "alpine/socat:latest"
-          Essential: false
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-create-group: "True"
-              awslogs-group: /ecs/statsd-emitter
-              awslogs-region: !Ref "AWS::Region"
-              awslogs-stream-prefix: ecs
-          DependsOn:
-            - ContainerName: aws-collector
-              Condition: START
-          EntryPoint:
-            - "/bin/sh"
-            - "-c"
-            - "while true; do echo 'statsdTestMetric:1|c' | socat -v -t 0 - UDP:127.0.0.1:8125; sleep 1; done"
       Memory: "2048"
       RequiresCompatibilities:
         - EC2
-      Cpu: "1024"
-  ECSReplicaService:
+      Cpu: "512"
+  OtelECSReplicaService:
     Type: "AWS::ECS::Service"
     Properties:
       TaskDefinition: !Ref ECSTaskDefinition
@@ -90,7 +75,7 @@ Resources:
       LaunchType: EC2
       SchedulingStrategy: REPLICA
       DesiredCount: 1
-      ServiceName: aws-otel-sidecar-service
+      ServiceName: otel-sidecar-service
   ECSTaskRole:
     Type: "AWS::IAM::Role"
     Properties:

@@ -1,0 +1,40 @@
+---
+postgresConnString: "host=pokeshop-api-demo-dev-pokedatabase-r8gmbig5mqfw.clgqs9ncfxnr.us-east-1.rds.amazonaws.com user=ashketchum password=squirtle123 port=5432 database=postgres sslmode=disable"
+
+poolingConfig:
+  maxWaitTimeForTrace: 10m
+  retryDelay: 5s
+
+googleAnalytics:
+  enabled: false
+
+demo:
+  enabled: []
+
+experimentalFeatures: []
+
+telemetry:
+  dataStores:
+    opensearch:
+      type: opensearch
+      opensearch:
+        addresses:
+          - https://vpc-pokeshop-api-demo-dev2-et34kbtpltmtg545qyeylmlur4.us-east-1.es.amazonaws.com
+        index: otel-v1-apm-span-000001
+        username: ashketchum
+        password: Squirtle123@
+
+  exporters:
+    collector:
+      serviceName: tracetest
+      sampling: 100
+      exporter:
+        type: collector
+        collector:
+          endpoint: localhost:4317
+
+server:
+  telemetry:
+    dataStore: opensearch
+    exporter: collector
+    applicationExporter: collector

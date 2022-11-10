@@ -1,0 +1,45 @@
+Resources:
+  TracetestTask:
+    Type: "AWS::ECS::TaskDefinition"
+    Properties:
+      Family: ecs-tracetest
+      TaskRoleArn: !Ref ECSTaskRole
+      ExecutionRoleArn: !Ref ECSExecutionRole
+      NetworkMode: host
+      Memory: "256"
+      RequiresCompatibilities:
+        - EC2
+      Cpu: "512"
+      Volumes:
+        - Name: tracetest-config
+          DockerVolumeConfiguration:
+            Scope: shared
+            Autoprovision: true
+            Driver: local
+      ContainerDefinitions:
+        - Image: "public.ecr.aws/n6u9v0x8/tracetest:v0.7.6"
+          Name: tracetest
+          MountPoints:
+            - SourceVolume: tracetest-config
+              ContainerPath: /app
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: "True"
+              awslogs-group: /ecs/tracetest
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: ecs
+          PortMappings:
+            - HostPort: 11633
+              Protocol: tcp
+              ContainerPort: 11633
+
+  ECSTracetestService:
+    Type: "AWS::ECS::Service"
+    Properties:
+      TaskDefinition: !Ref TracetestTask
+      Cluster: !Ref ECSCluster
+      LaunchType: EC2
+      SchedulingStrategy: REPLICA
+      DesiredCount: 1
+      ServiceName: tracetest

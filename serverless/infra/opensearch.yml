@@ -1,0 +1,89 @@
+Resources:
+  DataPrepperTask:
+    Type: "AWS::ECS::TaskDefinition"
+    Properties:
+      Family: ecs-aws-otel-opensearch
+      TaskRoleArn: !Ref ECSTaskRole
+      ExecutionRoleArn: !Ref ECSExecutionRole
+      NetworkMode: host
+      Memory: "1080"
+      RequiresCompatibilities:
+        - EC2
+      Cpu: "256"
+      Volumes:
+        - Name: config
+          DockerVolumeConfiguration:
+            Scope: shared
+            Autoprovision: true
+            Driver: local
+      ContainerDefinitions:
+        - Image: "public.ecr.aws/opensearchproject/data-prepper:latest"
+          Name: data-prepper
+          MountPoints:
+            - SourceVolume: config
+              ContainerPath: /usr/share/data-prepper
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: "True"
+              awslogs-group: /ecs/data-prepper
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: ecs
+          PortMappings:
+            - HostPort: 4900
+              Protocol: tcp
+              ContainerPort: 4900
+            - HostPort: 21890
+              Protocol: tcp
+              ContainerPort: 21890
+
+  ECSReplicaService:
+    Type: "AWS::ECS::Service"
+    Properties:
+      TaskDefinition: !Ref DataPrepperTask
+      Cluster: !Ref ECSCluster
+      LaunchType: EC2
+      SchedulingStrategy: REPLICA
+      DesiredCount: 1
+      ServiceName: aws-otel-opensearch
+
+  OpenSearchLinkedRole:
+    Type: AWS::IAM::ServiceLinkedRole
+    Properties:
+      AWSServiceName: opensearchservice.amazonaws.com
+      Description: pokeshop linked role
+
+  OpenSearchServiceDomain:
+    Type: "AWS::OpenSearchService::Domain"
+    DependsOn: [OpenSearchLinkedRole]
+    Properties:
+      DomainName: !Join
+        - ""
+        - - !Ref "AWS::StackName"
+          - "2"
+      EngineVersion: Elasticsearch_7.10
+      DomainEndpointOptions:
+        EnforceHTTPS: true
+      AdvancedSecurityOptions:
+        Enabled: true
+        InternalUserDatabaseEnabled: true
+        MasterUserOptions:
+          MasterUserName: ${self:custom.databaseUsername}
+          MasterUserPassword: ${self:custom.openSearchPassword}
+      EncryptionAtRestOptions:
+        Enabled: true
+      NodeToNodeEncryptionOptions:
+        Enabled: true
+      ClusterConfig:
+        InstanceCount: "1"
+        InstanceType: m4.large.search
+      EBSOptions:
+        EBSEnabled: true
+        Iops: "0"
+        VolumeSize: "10"
+        VolumeType: "standard"
+      VPCOptions:
+        SubnetIds:
+          - !Ref AppSubnet2
+        SecurityGroupIds:
+          - !Ref DBSecurityGroup

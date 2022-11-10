@@ -26,6 +26,7 @@ custom:
   databaseName: "pokeshop3"
   databaseUsername: "ashketchum"
   databasePassword: "squirtle123"
+  openSearchPassword: "Squirtle123@"
   databaseEndpoint:
     Fn::GetAtt: [PokeDatabase, "Endpoint.Address"]
   s3BucketArn:
@@ -48,13 +49,14 @@ custom:
 provider:
   name: aws
   runtime: nodejs14.x
+  timeout: 30
   region: us-east-1
   httpApi:
     cors: true
     payload: "1.0"
   environment:
     NODE_OPTIONS: --require ./src/utils/tracer.js
-    COLLECTOR_ENDPOINT: 44.197.188.104:4317
+    COLLECTOR_ENDPOINT: http://3.239.213.203:4317
     DATABASE_URL:
       Fn::Join:
         - ""
@@ -157,3 +159,5 @@ resources:
   - ${file(./infra/elasticache.yml)}
   - ${file(./infra/ecs-cluster.yml)}
   - ${file(./infra/ecs-aws-otel-collector.yml)}
+  - ${file(./infra/opensearch.yml)}
+  - ${file(./infra/tracetest.yml)}
