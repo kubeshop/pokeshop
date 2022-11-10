@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant API as POST /pokemon/import
+    participant Validator as Validation middleware
+    participant Handler as API Handler
+    participant Queue
+
+    API->>Validator: request
+    alt request is invalid
+        Validator-->>API: 400 Bad request<br><List of errors>
+    end
+    Validator->>Handler: valid request
+    Handler->>Queue: enqueue "import" task
+    Queue-->>Handler: ok
+    Handler-->>Validator: ok
+    Validator-->>API: ok
