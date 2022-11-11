@@ -42,6 +42,15 @@ Resources:
       FromPort: 22
       ToPort: 22
       CidrIp: 0.0.0.0/0
+  EcsSecurityGroupTracetestInbound:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref EcsSecurityGroup
+      IpProtocol: tcp
+      FromPort: 11633
+      ToPort: 11633
+      CidrIp: 0.0.0.0/0
+      Description: Permit Tractest port access
   EcsSecurityGroupALBports:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
@@ -132,8 +141,15 @@ Resources:
     UpdatePolicy:
       AutoScalingReplacingUpdate:
         WillReplace: "true"
+
+  ECSEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
   ContainerInstances:
     Type: "AWS::AutoScaling::LaunchConfiguration"
+    DependsOn: [ECSEIP]
     Properties:
       AssociatePublicIpAddress: true
       ImageId: !FindInMap
@@ -156,7 +172,16 @@ Resources:
                >> /etc/ecs/ecs.config
             - |
               yum install -y aws-cfn-bootstrap
-            - "/opt/aws/bin/cfn-signal -e $? "
+              yum install -y aws-cli
+            - EIP_ALLOCATION_ID=
+            - !GetAtt "ECSEIP.AllocationId"
+            - " && "
+            - |
+              INSTANCE_ID=`/usr/bin/curl -sq http://169.254.169.254/latest/meta-data/instance-id`
+            - "/usr/bin/aws ec2 associate-address --instance-id ${INSTANCE_ID} --allocation-id ${EIP_ALLOCATION_ID} --region "
+            - !Ref "AWS::Region"
+            - " && "
+            - "/opt/aws/bin/cfn-signal -e $?"
             - "         --stack "
             - !Ref "AWS::StackName"
             - "         --resource ECSAutoScalingGroup "
@@ -203,6 +228,12 @@ Resources:
               - "sts:AssumeRole"
       Path: /
       Policies:
+        - PolicyName: AllowEIPAssociation
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: ec2:AssociateAddress
+                Resource: "*"
         - PolicyName: ecs-service
           PolicyDocument:
             Statement:
@@ -248,3 +279,8 @@ Resources:
       Path: /
       Roles:
         - !Ref EC2Role
+
+Outputs:
+  ECSContainerInstanceIP:
+    Description: The Public IP from the Container Instance
+    Value: !Ref ECSEIP

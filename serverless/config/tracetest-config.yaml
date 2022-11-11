@@ -1,5 +1,5 @@
 ---
-postgresConnString: "host=pokeshop-api-demo-dev-pokedatabase-r8gmbig5mqfw.clgqs9ncfxnr.us-east-1.rds.amazonaws.com user=ashketchum password=squirtle123 port=5432 database=postgres sslmode=disable"
+postgresConnString: "host=pokeshop-api-demo-dev-pokedatabase-r8gmbig5mqfw.clgqs9ncfxnr.us-east-1.rds.amazonaws.com user=ashketchum password=squirtle123 port=5432 database=tracetest sslmode=disable"
 
 poolingConfig:
   maxWaitTimeForTrace: 10m

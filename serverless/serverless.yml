@@ -49,14 +49,19 @@ custom:
 provider:
   name: aws
   runtime: nodejs14.x
-  timeout: 30
+  timeout: 25
   region: us-east-1
   httpApi:
     cors: true
     payload: "1.0"
   environment:
     NODE_OPTIONS: --require ./src/utils/tracer.js
-    COLLECTOR_ENDPOINT: http://3.239.213.203:4317
+    COLLECTOR_ENDPOINT:
+      Fn::Join:
+        - ""
+        - - "http://"
+          - { Ref: ECSEIP }
+          - ":4317"
     DATABASE_URL:
       Fn::Join:
         - ""
@@ -158,6 +163,6 @@ resources:
   - ${file(./infra/s3.yml)}
   - ${file(./infra/elasticache.yml)}
   - ${file(./infra/ecs-cluster.yml)}
-  - ${file(./infra/ecs-aws-otel-collector.yml)}
+  - ${file(./infra/security-groups.yml)}
   - ${file(./infra/opensearch.yml)}
-  - ${file(./infra/tracetest.yml)}
+  - ${file(./infra/task-definition.yml)}

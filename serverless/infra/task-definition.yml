@@ -31,17 +31,50 @@ Resources:
               processors: [probabilistic_sampler, batch]
               exporters: [otlp/data-prepper]
 
-  ECSTaskDefinition:
+  TracetestTaskDefinition:
     Type: "AWS::ECS::TaskDefinition"
-    DependsOn: [OtelConfigParameter]
     Properties:
-      Family: otel-sidecar-service
+      Family: tracetest
       TaskRoleArn: !Ref ECSTaskRole
       ExecutionRoleArn: !Ref ECSExecutionRole
       NetworkMode: host
+      Memory: "3040"
+      RequiresCompatibilities:
+        - EC2
+      Cpu: "2000"
+      Volumes:
+        - Name: config
+          DockerVolumeConfiguration:
+            Scope: shared
+            Autoprovision: true
+            Driver: local
+        - Name: tracetest-config
+          DockerVolumeConfiguration:
+            Scope: shared
+            Autoprovision: true
+            Driver: local
       ContainerDefinitions:
-        - Command: ["--config=/etc/ecs/ecs-default-config.yaml"]
-          Image: "amazon/aws-otel-collector:latest"
+        - Image: "public.ecr.aws/opensearchproject/data-prepper:latest"
+          Name: data-prepper
+          MountPoints:
+            - SourceVolume: config
+              ContainerPath: /usr/share/data-prepper
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: "True"
+              awslogs-group: /ecs/data-prepper
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: ecs
+          PortMappings:
+            - HostPort: 4900
+              Protocol: tcp
+              ContainerPort: 4900
+            - HostPort: 21890
+              Protocol: tcp
+              ContainerPort: 21890
+        - Image: "amazon/aws-otel-collector:latest"
+          Command: ["--config=/etc/ecs/ecs-default-config.yaml"]
           Name: aws-collector
           Secrets:
             - Name: AOT_CONFIG_CONTENT
@@ -63,19 +96,39 @@ Resources:
             - HostPort: 8125
               Protocol: udp
               ContainerPort: 8125
-      Memory: "2048"
-      RequiresCompatibilities:
-        - EC2
-      Cpu: "512"
-  OtelECSReplicaService:
+          DependsOn:
+            - ContainerName: data-prepper
+              Condition: START
+        - Image: "public.ecr.aws/n6u9v0x8/tracetest:v0.7.6"
+          Name: tracetest
+          MountPoints:
+            - SourceVolume: tracetest-config
+              ContainerPath: /app
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: "True"
+              awslogs-group: /ecs/tracetest
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: ecs
+          PortMappings:
+            - HostPort: 11633
+              Protocol: tcp
+              ContainerPort: 11633
+          DependsOn:
+            - ContainerName: aws-collector
+              Condition: START
+
+  TracetestService:
     Type: "AWS::ECS::Service"
     Properties:
-      TaskDefinition: !Ref ECSTaskDefinition
+      TaskDefinition: !Ref TracetestTaskDefinition
       Cluster: !Ref ECSCluster
       LaunchType: EC2
       SchedulingStrategy: REPLICA
       DesiredCount: 1
-      ServiceName: otel-sidecar-service
+      ServiceName: traceetest
+
   ECSTaskRole:
     Type: "AWS::IAM::Role"
     Properties:
