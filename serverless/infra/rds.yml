@@ -40,3 +40,8 @@ Resources:
       DBSubnetGroupName: !Ref RDSSubnetGroup
       VPCSecurityGroups:
         - !Ref DBSecurityGroup
+
+Outputs:
+  PokeDatabaseEndpoint:
+    Description: The Poke Database Endpoint
+    Value: !GetAtt "PokeDatabase.Endpoint.Address"

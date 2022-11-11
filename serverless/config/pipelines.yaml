@@ -25,7 +25,7 @@ raw-pipeline:
   sink:
     - opensearch:
         hosts:
-          - "https://vpc-pokeshop-api-demo-dev2-et34kbtpltmtg545qyeylmlur4.us-east-1.es.amazonaws.com"
+          - "https://{{openSearchDomain}}"
         username: ashketchum
         password: Squirtle123@
         index_type: trace-analytics-raw
@@ -43,7 +43,7 @@ service-map-pipeline:
   sink:
     - opensearch:
         hosts:
-          - "https://vpc-pokeshop-api-demo-dev2-et34kbtpltmtg545qyeylmlur4.us-east-1.es.amazonaws.com"
+          - "https://{{openSearchDomain}}"
         username: ashketchum
         password: Squirtle123@
         index_type: trace-analytics-service-map

@@ -284,3 +284,6 @@ Outputs:
   ECSContainerInstanceIP:
     Description: The Public IP from the Container Instance
     Value: !Ref ECSEIP
+  ECSClusterName:
+    Description: The ECS Cluster Name
+    Value: !Ref ECSCluster

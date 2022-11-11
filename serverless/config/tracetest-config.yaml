@@ -1,5 +1,5 @@
 ---
-postgresConnString: "host=pokeshop-api-demo-dev-pokedatabase-r8gmbig5mqfw.clgqs9ncfxnr.us-east-1.rds.amazonaws.com user=ashketchum password=squirtle123 port=5432 database=tracetest sslmode=disable"
+postgresConnString: "host={{databaseEndpoint}} user=ashketchum password=squirtle123 port=5432 database=tracetest sslmode=disable"
 
 poolingConfig:
   maxWaitTimeForTrace: 10m
@@ -19,7 +19,7 @@ telemetry:
       type: opensearch
       opensearch:
         addresses:
-          - https://vpc-pokeshop-api-demo-dev2-et34kbtpltmtg545qyeylmlur4.us-east-1.es.amazonaws.com
+          - https://{{openSearchDomain}}
         index: otel-v1-apm-span-000001
         username: ashketchum
         password: Squirtle123@

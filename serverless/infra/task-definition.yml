@@ -185,3 +185,8 @@ Resources:
         - "-"
         - - OtelExecutionRole
           - !Ref "AWS::StackName"
+
+Outputs:
+  TracetestServiceName:
+    Description: The Public IP from the Container Instance
+    Value: !GetAtt "TracetestService.Name"
