@@ -1,7 +1,7 @@
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import * as opentelemetry from '@opentelemetry/api';
 import { api, NodeSDK } from '@opentelemetry/sdk-node';
-import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { Resource } from '@opentelemetry/resources';
 import * as dotenv from 'dotenv';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
@@ -16,19 +16,18 @@ dotenv.config();
 
 api.propagation.setGlobalPropagator(new B3Propagator());
 
-const { JAEGER_HOST = '', JAEGER_PORT = '6832', SERVICE_NAME = 'pokeshop' } = process.env;
+const { COLLECTOR_ENDPOINT = '', SERVICE_NAME = 'pokeshop' } = process.env;
 
 let globalTracer: opentelemetry.Tracer | null = null;
 
 async function createTracer(): Promise<opentelemetry.Tracer> {
-  const jaegerExporter = new JaegerExporter({
-    host: JAEGER_HOST,
-    port: +JAEGER_PORT,
+  const collectorExporter = new OTLPTraceExporter({
+    url: COLLECTOR_ENDPOINT,
   });
 
-  const spanProcessor = new BatchSpanProcessor(jaegerExporter);
+  const spanProcessor = new BatchSpanProcessor(collectorExporter);
   const sdk = new NodeSDK({
-    traceExporter: jaegerExporter,
+    traceExporter: collectorExporter,
     // @ts-ignore
     instrumentations: [new IORedisInstrumentation(), new PgInstrumentation(), new AmqplibInstrumentation()],
   });
