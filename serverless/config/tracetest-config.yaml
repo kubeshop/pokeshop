@@ -1,5 +1,5 @@
 ---
-postgresConnString: "host={{databaseEndpoint}} user=ashketchum password=squirtle123 port=5432 database=tracetest sslmode=disable"
+postgresConnString: "host={{databaseEndpoint}} user=ashketchum password=squirtle123 port=5432 database=postgres sslmode=disable"
 
 poolingConfig:
   maxWaitTimeForTrace: 10m
