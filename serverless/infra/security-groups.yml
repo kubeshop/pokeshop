@@ -42,3 +42,23 @@ Resources:
       FromPort: 4317
       ToPort: 4317
       Description: Permit Otel GRP outbound
+
+  NatToOtelCollectorSecurityGroupOutbound:
+    Type: "AWS::EC2::SecurityGroupEgress"
+    Properties:
+      GroupId: !Ref NatSecurityGroup
+      IpProtocol: tcp
+      CidrIp: 0.0.0.0/0
+      FromPort: 4317
+      ToPort: 4317
+      Description: Permit Otel GRP outbound
+
+  NatToOtelCollectorSecurityGroupInbound:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref NatSecurityGroup
+      IpProtocol: tcp
+      CidrIp: 0.0.0.0/0
+      FromPort: 0
+      ToPort: 65535
+      Description: Permit Otel GRP inbound

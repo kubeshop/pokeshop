@@ -17,9 +17,6 @@ package:
 
 plugins:
   - serverless-plugin-typescript
-  - serverless-offline
-  - serverless-offline-sqs
-  - serverless-offline-s3
   - serverless-vpc-plugin
 
 custom:

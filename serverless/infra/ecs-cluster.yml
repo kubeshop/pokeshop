@@ -51,6 +51,15 @@ Resources:
       ToPort: 11633
       CidrIp: 0.0.0.0/0
       Description: Permit Tractest port access
+  EcsSecurityGroupOtelCollectorInbound:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref EcsSecurityGroup
+      IpProtocol: tcp
+      FromPort: 4317
+      ToPort: 4317
+      CidrIp: 0.0.0.0/0
+      Description: Permit Otel Collector port access
   EcsSecurityGroupALBports:
     Type: "AWS::EC2::SecurityGroupIngress"
     Properties:

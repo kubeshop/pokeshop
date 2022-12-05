@@ -9,6 +9,7 @@ const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventi
 const { B3Propagator, B3InjectEncoding } = require('@opentelemetry/propagator-b3');
 const api = require('@opentelemetry/api');
 
+api.diag.setLogger(new api.DiagConsoleLogger(), api.DiagLogLevel.ALL);
 api.propagation.setGlobalPropagator(new B3Propagator({ injectEncoding: B3InjectEncoding.MULTI_HEADER }));
 
 const collectorOptions = {

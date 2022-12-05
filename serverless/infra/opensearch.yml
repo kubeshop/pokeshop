@@ -9,10 +9,7 @@ Resources:
     Type: "AWS::OpenSearchService::Domain"
     DependsOn: [OpenSearchLinkedRole]
     Properties:
-      DomainName: !Join
-        - ""
-        - - !Ref "AWS::StackName"
-          - "2"
+      DomainName: !Ref "AWS::StackName"
       EngineVersion: Elasticsearch_7.10
       DomainEndpointOptions:
         EnforceHTTPS: true
@@ -39,6 +36,14 @@ Resources:
           - !Ref AppSubnet2
         SecurityGroupIds:
           - !Ref DBSecurityGroup
+      AccessPolicies:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: "*"
+            Action: "es:*"
+            Resource: "arn:aws:es:us-east-1:*:domain/pokeshop-api-demo-dev/*"
 
 Outputs:
   OpenSearchDomainEndpoint:

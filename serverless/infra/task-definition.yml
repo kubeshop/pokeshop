@@ -127,7 +127,7 @@ Resources:
       LaunchType: EC2
       SchedulingStrategy: REPLICA
       DesiredCount: 1
-      ServiceName: traceetest
+      ServiceName: tracetest
 
   ECSTaskRole:
     Type: "AWS::IAM::Role"
