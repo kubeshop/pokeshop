@@ -1,7 +1,8 @@
+node_modules
+.vscode
 # Downloaded charts
 helm-chart/charts/
 
 node_modules/
 api/.build/
-.vscode/
 .idea/

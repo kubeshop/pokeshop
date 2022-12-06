@@ -1,0 +1,64 @@
+Resources:
+  BastionToRDSSecurityGroupInbound:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref DBSecurityGroup
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      SourceSecurityGroupId: !Ref BastionSecurityGroup
+  BastionToOpenSearchSecurityGroupInbound:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref DBSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: !Ref BastionSecurityGroup
+
+  ECSToOpenSearchSecurityGroupInbound:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref DBSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: !Ref EcsSecurityGroup
+  ECSToRDSSecurityGroupInbound:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref DBSecurityGroup
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      SourceSecurityGroupId: !Ref EcsSecurityGroup
+
+  LambdaToOtelCollectorSecurityGroupOutbound:
+    Type: "AWS::EC2::SecurityGroupEgress"
+    Properties:
+      GroupId: !Ref AppSecurityGroup
+      IpProtocol: tcp
+      CidrIp: 0.0.0.0/0
+      FromPort: 4317
+      ToPort: 4317
+      Description: Permit Otel GRP outbound
+
+  NatToOtelCollectorSecurityGroupOutbound:
+    Type: "AWS::EC2::SecurityGroupEgress"
+    Properties:
+      GroupId: !Ref NatSecurityGroup
+      IpProtocol: tcp
+      CidrIp: 0.0.0.0/0
+      FromPort: 4317
+      ToPort: 4317
+      Description: Permit Otel GRP outbound
+
+  NatToOtelCollectorSecurityGroupInbound:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref NatSecurityGroup
+      IpProtocol: tcp
+      CidrIp: 0.0.0.0/0
+      FromPort: 0
+      ToPort: 65535
+      Description: Permit Otel GRP inbound

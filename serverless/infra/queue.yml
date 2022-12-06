@@ -1,0 +1,10 @@
+Resources:
+  AssetsQueue:
+    Type: "AWS::SQS::Queue"
+    Properties:
+      QueueName: !Join
+        - "-"
+        - - !Ref "AWS::StackName"
+          - queue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true

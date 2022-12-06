@@ -1,0 +1,51 @@
+Resources:
+  OpenSearchLinkedRole:
+    Type: AWS::IAM::ServiceLinkedRole
+    Properties:
+      AWSServiceName: opensearchservice.amazonaws.com
+      Description: pokeshop linked role
+
+  OpenSearchServiceDomain:
+    Type: "AWS::OpenSearchService::Domain"
+    DependsOn: [OpenSearchLinkedRole]
+    Properties:
+      DomainName: !Ref "AWS::StackName"
+      EngineVersion: Elasticsearch_7.10
+      DomainEndpointOptions:
+        EnforceHTTPS: true
+      AdvancedSecurityOptions:
+        Enabled: true
+        InternalUserDatabaseEnabled: true
+        MasterUserOptions:
+          MasterUserName: ${self:custom.databaseUsername}
+          MasterUserPassword: ${self:custom.openSearchPassword}
+      EncryptionAtRestOptions:
+        Enabled: true
+      NodeToNodeEncryptionOptions:
+        Enabled: true
+      ClusterConfig:
+        InstanceCount: "1"
+        InstanceType: m4.large.search
+      EBSOptions:
+        EBSEnabled: true
+        Iops: "0"
+        VolumeSize: "10"
+        VolumeType: "standard"
+      VPCOptions:
+        SubnetIds:
+          - !Ref AppSubnet2
+        SecurityGroupIds:
+          - !Ref DBSecurityGroup
+      AccessPolicies:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: "*"
+            Action: "es:*"
+            Resource: "arn:aws:es:us-east-1:*:domain/pokeshop-api-demo-dev/*"
+
+Outputs:
+  OpenSearchDomainEndpoint:
+    Description: The VPC endpoint from the open search domain
+    Value: !GetAtt "OpenSearchServiceDomain.DomainEndpoint"

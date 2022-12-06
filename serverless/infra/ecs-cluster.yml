@@ -1,0 +1,298 @@
+Mappings:
+  AWSRegionToAMI:
+    us-east-1:
+      AMIID: ami-09bee01cc997a78a6
+    us-east-2:
+      AMIID: ami-0a9e12068cb98a01d
+    us-west-1:
+      AMIID: ami-0fa6c8d131a220017
+    us-west-2:
+      AMIID: ami-078c97cf1cefd1b38
+    eu-west-1:
+      AMIID: ami-0c9ef930279337028
+    eu-central-1:
+      AMIID: ami-065c1e34da68f2b02
+    ap-northeast-1:
+      AMIID: ami-02265963d1614d04d
+    ap-southeast-1:
+      AMIID: ami-0b68661b29b9e058c
+    ap-southeast-2:
+      AMIID: ami-00e4b147599c13588
+Resources:
+  ECSCluster:
+    Type: "AWS::ECS::Cluster"
+  EcsSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: ECS Security Group
+      VpcId: !Ref VPC
+  EcsSecurityGroupHTTPinbound:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref EcsSecurityGroup
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      CidrIp: 0.0.0.0/0
+  EcsSecurityGroupSSHinbound:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref EcsSecurityGroup
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: 0.0.0.0/0
+  EcsSecurityGroupTracetestInbound:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref EcsSecurityGroup
+      IpProtocol: tcp
+      FromPort: 11633
+      ToPort: 11633
+      CidrIp: 0.0.0.0/0
+      Description: Permit Tractest port access
+  EcsSecurityGroupOtelCollectorInbound:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref EcsSecurityGroup
+      IpProtocol: tcp
+      FromPort: 4317
+      ToPort: 4317
+      CidrIp: 0.0.0.0/0
+      Description: Permit Otel Collector port access
+  EcsSecurityGroupALBports:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !Ref EcsSecurityGroup
+      IpProtocol: tcp
+      FromPort: 31000
+      ToPort: 61000
+      SourceSecurityGroupId: !Ref EcsSecurityGroup
+  CloudwatchLogsGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: !Join
+        - "-"
+        - - ECSLogGroup
+          - !Ref "AWS::StackName"
+      RetentionInDays: 14
+  ECSALB:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      Name: !Join
+        - "-"
+        - - ECSALB
+          - !Ref "AWS::StackName"
+      Scheme: internet-facing
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: "30"
+      Subnets:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+      SecurityGroups:
+        - !Ref EcsSecurityGroup
+  ALBListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    DependsOn: ECSServiceRole
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ECSTG
+      LoadBalancerArn: !Ref ECSALB
+      Port: "80"
+      Protocol: HTTP
+  ECSALBListenerRule:
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
+    DependsOn: ALBListener
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref ECSTG
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - /
+      ListenerArn: !Ref ALBListener
+      Priority: 1
+  ECSTG:
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    DependsOn: ECSALB
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Name: !Join
+        - "-"
+        - - ECSTG
+          - !Ref "AWS::StackName"
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VPC
+
+  ECSAutoScalingGroup:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+      LaunchConfigurationName: !Ref ContainerInstances
+      MinSize: "1"
+      MaxSize: "1"
+      DesiredCapacity: "1"
+    CreationPolicy:
+      ResourceSignal:
+        Count: "1"
+        Timeout: PT15M
+    UpdatePolicy:
+      AutoScalingReplacingUpdate:
+        WillReplace: "true"
+
+  ECSEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  ContainerInstances:
+    Type: "AWS::AutoScaling::LaunchConfiguration"
+    DependsOn: [ECSEIP]
+    Properties:
+      AssociatePublicIpAddress: true
+      ImageId: !FindInMap
+        - AWSRegionToAMI
+        - !Ref "AWS::Region"
+        - AMIID
+      KeyName: pokeshop-api
+      SecurityGroups:
+        - !Ref EcsSecurityGroup
+      InstanceType: t2.medium
+      IamInstanceProfile: !Ref EC2InstanceProfile
+      UserData: !Base64
+        "Fn::Join":
+          - ""
+          - - |
+              #!/bin/bash -xe
+            - echo ECS_CLUSTER=
+            - !Ref ECSCluster
+            - |2
+               >> /etc/ecs/ecs.config
+            - |
+              yum install -y aws-cfn-bootstrap
+              yum install -y aws-cli
+            - EIP_ALLOCATION_ID=
+            - !GetAtt "ECSEIP.AllocationId"
+            - " && "
+            - |
+              INSTANCE_ID=`/usr/bin/curl -sq http://169.254.169.254/latest/meta-data/instance-id`
+            - "/usr/bin/aws ec2 associate-address --instance-id ${INSTANCE_ID} --allocation-id ${EIP_ALLOCATION_ID} --region "
+            - !Ref "AWS::Region"
+            - " && "
+            - "/opt/aws/bin/cfn-signal -e $?"
+            - "         --stack "
+            - !Ref "AWS::StackName"
+            - "         --resource ECSAutoScalingGroup "
+            - "         --region "
+            - !Ref "AWS::Region"
+            - |+
+
+  ECSServiceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: /
+      Policies:
+        - PolicyName: ecs-service
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "elasticloadbalancing:DeregisterInstancesFromLoadBalancer"
+                  - "elasticloadbalancing:DeregisterTargets"
+                  - "elasticloadbalancing:Describe*"
+                  - "elasticloadbalancing:RegisterInstancesWithLoadBalancer"
+                  - "elasticloadbalancing:RegisterTargets"
+                  - "ec2:Describe*"
+                  - "ec2:AuthorizeSecurityGroupIngress"
+                Resource: "*"
+  EC2Role:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: /
+      Policies:
+        - PolicyName: AllowEIPAssociation
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: ec2:AssociateAddress
+                Resource: "*"
+        - PolicyName: ecs-service
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ecs:CreateCluster"
+                  - "ecs:DeregisterContainerInstance"
+                  - "ecs:DiscoverPollEndpoint"
+                  - "ecs:Poll"
+                  - "ecs:RegisterContainerInstance"
+                  - "ecs:StartTelemetrySession"
+                  - "ecs:Submit*"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+  AutoscalingRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - application-autoscaling.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: /
+      Policies:
+        - PolicyName: service-autoscaling
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "application-autoscaling:*"
+                  - "cloudwatch:DescribeAlarms"
+                  - "cloudwatch:PutMetricAlarm"
+                  - "ecs:DescribeServices"
+                  - "ecs:UpdateService"
+                Resource: "*"
+  EC2InstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: /
+      Roles:
+        - !Ref EC2Role
+
+Outputs:
+  ECSContainerInstanceIP:
+    Description: The Public IP from the Container Instance
+    Value: !Ref ECSEIP
+  ECSClusterName:
+    Description: The ECS Cluster Name
+    Value: !Ref ECSCluster
