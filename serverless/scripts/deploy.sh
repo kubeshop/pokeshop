@@ -33,3 +33,4 @@ cat ./config/tracetest-config.yaml | ssh -i "pokeshop-api.pem" ec2-user@${ecs_ip
 ssh -i "pokeshop-api.pem" -N -f -L 5432:${database_endpoint}:5432 ec2-user@${ecs_ip}
 npx prisma migrate dev
 pkill -f "ssh -i "pokeshop-api.pem" -N -f -L 5432:${database_endpoint}:5432 ec2-user@${ecs_ip}"
+sls info
