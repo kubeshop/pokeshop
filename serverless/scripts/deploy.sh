@@ -9,6 +9,9 @@ ecs_ip=`aws cloudformation --region us-east-1 describe-stacks --stack-name pokes
 cluster_name=`aws cloudformation --region us-east-1 describe-stacks --stack-name pokeshop-api-demo-dev --query "Stacks[0].Outputs[?OutputKey=='ECSClusterName'].OutputValue" --output text --no-paginate`
 service_name=`aws cloudformation --region us-east-1 describe-stacks --stack-name pokeshop-api-demo-dev --query "Stacks[0].Outputs[?OutputKey=='TracetestServiceName'].OutputValue" --output text --no-paginate`
 
+# add checkout
+git checkout -- ./config
+
 # replace values
 sed -i '' -e 's|{{openSearchDomain}}|'${opensearch_endpoint}'|g' ./config/pipelines.yaml
 
