@@ -25,11 +25,11 @@ appVersion: "0.0.14"
 
 dependencies:
   - name: postgresql
-    version: 11.1.19
+    version: 12.1.6
     repository: https://charts.bitnami.com/bitnami
   - name: rabbitmq
-    version: 8.30.0
+    version: 11.2.2
     repository: https://charts.bitnami.com/bitnami
   - name: redis
-    version: 16.8.5
+    version: 17.3.17
     repository: https://charts.bitnami.com/bitnami
