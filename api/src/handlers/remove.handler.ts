@@ -14,7 +14,7 @@ const remove = async ctx => {
     return;
   }
 
-  cache.set(`pokemon-${id}`, null)
+  cache.invalidate(`pokemon-${id}`)
 
   await repository.delete(+id);
   return pokemon;

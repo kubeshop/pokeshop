@@ -28,6 +28,7 @@ async function startApp() {
   await setupSequelize();
 
   const routeSetupFunctions = [
+    healthcheckHandler, // should be first than getByIdHandler since both paths could collide
     createHandler,
     getHandler,
     getByIdHandler,
@@ -36,7 +37,6 @@ async function startApp() {
     removeHandler,
     searchHandler,
     updateHandler,
-    healthcheckHandler,
   ];
 
   for (const routeSetup of routeSetupFunctions) {
@@ -53,10 +53,6 @@ async function startApp() {
 
   ui.use(serve(resolve(__dirname, './ui')));
   app.use(mount('/', ui));
-
-  app.on('error', (err, ctx) => {
-    console.log(err);
-  });
 
   console.log(`Starting server on port ${APP_PORT}`);
   app.listen(APP_PORT);

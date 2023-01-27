@@ -3,6 +3,7 @@ import { getPokemonRepository } from '@pokemon/repositories';
 import { getCacheService } from '@pokemon/services/cache.service';
 
 const cache = getCacheService();
+const repository = getPokemonRepository();
 
 const getById = async (ctx, next) => {
   const { id = '0' } = ctx.params || {};
@@ -11,8 +12,6 @@ const getById = async (ctx, next) => {
   if (!!cachedPokemon) {
     return cachedPokemon; // cache hit
   }
-
-  const repository = getPokemonRepository();
 
   const databasePokemon = await repository.findOne(id);
 
