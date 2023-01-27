@@ -8,6 +8,7 @@ import cors from '@koa/cors';
 import { resolve } from 'path';
 import createHandler from '@pokemon/handlers/create.handler';
 import getHandler from '@pokemon/handlers/get.handler';
+import getByIdHandler from '@pokemon/handlers/getbyid.handler';
 import featuredHandler from '@pokemon/handlers/featured.handler';
 import importHandler from '@pokemon/handlers/import.handler';
 import removeHandler from '@pokemon/handlers/remove.handler';
@@ -29,6 +30,7 @@ async function startApp() {
   const routeSetupFunctions = [
     createHandler,
     getHandler,
+    getByIdHandler,
     featuredHandler,
     importHandler,
     removeHandler,
@@ -51,6 +53,10 @@ async function startApp() {
 
   ui.use(serve(resolve(__dirname, './ui')));
   app.use(mount('/', ui));
+
+  app.on('error', (err, ctx) => {
+    console.log(err);
+  });
 
   console.log(`Starting server on port ${APP_PORT}`);
   app.listen(APP_PORT);
