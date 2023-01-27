@@ -76,6 +76,28 @@ paths:
                 items:
                   $ref: "#/components/schemas/Pokemon"
   /pokemon/{id}:
+    get:
+      tags:
+        - api
+      summary: get a specific pokemon
+      description: get the pokemon identified by the provided id
+      operationId: getPokemonById
+      parameters:
+        - in: path
+          name: id
+          description: id of the pokemon that will be retrieved
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pokemon"
+        404:
+          description: specified pokemon doesn't exist
     delete:
       tags:
         - api

@@ -1,5 +1,8 @@
 import { jsonResponse } from '@pokemon/middlewares/response';
 import { getPokemonRepository } from '@pokemon/repositories';
+import { getCacheService } from '@pokemon/services/cache.service';
+
+const cache = getCacheService();
 
 const remove = async ctx => {
   const { id = '0' } = ctx.params || {};
@@ -10,6 +13,8 @@ const remove = async ctx => {
     ctx.status = 404;
     return;
   }
+
+  cache.invalidate(`pokemon-${id}`)
 
   await repository.delete(+id);
   return pokemon;

@@ -1,4 +1,5 @@
 # API overview
+
 The primary goal of this API is not to provide functionality for its users, it was built to be used by the [Tracetest] team as an API to be used in our demo. It's secondary goal is to act as an example of how to instrument REST APIs using OpenTelemetry. So, if you want to understand how to instrument an API using OpenTelemetry, this API might be a good starting point.
 
 ## Endpoints
@@ -115,7 +116,6 @@ Failed response:
 ```js
 // POST /pokemon/import
 ```
-
 
 ```json
 {

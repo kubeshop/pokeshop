@@ -15,6 +15,7 @@ services:
       interval: 1s
       timeout: 5s
       retries: 60
+
   cache:
     image: redis:6
     ports:
@@ -24,6 +25,7 @@ services:
       interval: 1s
       timeout: 3s
       retries: 60
+
   queue:
     image: rabbitmq:3.9
     ports:
@@ -34,6 +36,7 @@ services:
       interval: 1s
       timeout: 5s
       retries: 60
+
   jaeger:
     image: jaegertracing/all-in-one:latest
     ports:

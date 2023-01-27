@@ -8,6 +8,7 @@ import cors from '@koa/cors';
 import { resolve } from 'path';
 import createHandler from '@pokemon/handlers/create.handler';
 import getHandler from '@pokemon/handlers/get.handler';
+import getByIdHandler from '@pokemon/handlers/getbyid.handler';
 import featuredHandler from '@pokemon/handlers/featured.handler';
 import importHandler from '@pokemon/handlers/import.handler';
 import removeHandler from '@pokemon/handlers/remove.handler';
@@ -27,14 +28,15 @@ async function startApp() {
   await setupSequelize();
 
   const routeSetupFunctions = [
+    healthcheckHandler, // should be first than getByIdHandler since both paths could collide
     createHandler,
     getHandler,
+    getByIdHandler,
     featuredHandler,
     importHandler,
     removeHandler,
     searchHandler,
     updateHandler,
-    healthcheckHandler,
   ];
 
   for (const routeSetup of routeSetupFunctions) {
