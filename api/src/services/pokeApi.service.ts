@@ -19,11 +19,17 @@ type TRawPokemon = {
   };
 };
 
+export type TPokemon = {
+  name: string;
+  type: string;
+  imageUrl: string;
+}
+
 class PokeAPIService {
   private readonly baseRoute: string = '/pokemon';
   private readonly baseUrl: string = `${POKE_API_BASE_URL}${this.baseRoute}`;
 
-  async getPokemon(id: string) {
+  async getPokemon(id: string): Promise<TPokemon> {
     const parentSpan = await getParentSpan();
     const span = await createSpan('HTTP GET pokeapi.pokemon', parentSpan, { kind: SpanKind.CLIENT });
 
@@ -34,7 +40,7 @@ class PokeAPIService {
     }
   }
 
-  private async getPokemonFromAPi(id: string, span: Span) {
+  private async getPokemonFromAPi(id: string, span: Span): Promise<TPokemon> {
     return await runWithSpan(span, async () => {
       span.setAttributes({
         [SemanticAttributes.HTTP_URL]: `${this.baseUrl}/${id}`,

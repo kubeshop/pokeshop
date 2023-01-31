@@ -11,4 +11,5 @@ export enum CustomTags {
   DB_RESULT = 'db.result',
   MESSAGING_PAYLOAD = 'messaging.payload',
   MESSAGING_HEADER = 'messaging.header',
+  CACHE_HIT = `cache.hit`,
 }
