@@ -61,6 +61,7 @@ class InstrumentedCacheService<T> extends InstrumentedComponent implements Cache
       span.setAttributes({
         ...this.getBaseAttributes(),
         [SemanticAttributes.DB_OPERATION]: 'get',
+        [CustomTags.CACHE_HIT]: !!result,
         [CustomTags.DB_PAYLOAD]: JSON.stringify({ key }),
         [CustomTags.DB_RESULT]: JSON.stringify(result),
       });
