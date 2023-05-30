@@ -3,7 +3,7 @@
 This is a demo application instrumented with Open Telemetry to generate traces. 
 It was created to be used in our demo page of [Tracetest](https://github.com/kubeshop/tracetest).
 
-You can see a detailed explanation of Tracetest documentation: https://docs.tracetest.io/live-examples/pokeshop/
+You can see a detailed explanation of Tracetest documentation: https://docs.tracetest.io/live-examples/pokeshop/overview
 
 ## Additional information
 
