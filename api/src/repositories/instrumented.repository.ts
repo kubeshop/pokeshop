@@ -60,8 +60,14 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
     };
   }
 
+  getSpanName(operation: string): string {
+    const { database } = sequelize?.config ?? {};
+
+    return `${operation} ${database}.${this.model.tableName}`;
+  }
+
   async create(pokemon: Pokemon): Promise<Pokemon> {
-    return this.instrumentMethod('create pokeshop.pokemon', SpanKind.CLIENT, async (span: Span) => {
+    return this.instrumentMethod(this.getSpanName('create'), SpanKind.CLIENT, async (span: Span) => {
       const result = await this.repository.create(pokemon);
       const baseAttributes = this.getBaseAttributes();
 
@@ -76,7 +82,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
   }
 
   async update(id: number, pokemon: Pokemon): Promise<Pokemon> {
-    return this.instrumentMethod('update pokeshop.pokemon', SpanKind.CLIENT, async (span: Span) => {
+    return this.instrumentMethod(this.getSpanName('update'), SpanKind.CLIENT, async (span: Span) => {
       const result = await this.repository.update(id, pokemon);
 
       const baseAttributes = this.getBaseAttributes();
@@ -92,7 +98,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
   }
 
   async delete(pokemonId: number): Promise<number> {
-    return this.instrumentMethod('delete pokeshop.pokemon', SpanKind.CLIENT, async (span: Span) => {
+    return this.instrumentMethod(this.getSpanName('delete'), SpanKind.CLIENT, async (span: Span) => {
       const affectedRows = await this.repository.delete(pokemonId);
 
       const baseAttributes = this.getBaseAttributes();
@@ -108,7 +114,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
   }
 
   findOne(id: number): Promise<Pokemon | null> {
-    return this.instrumentMethod('findOne pokeshop.pokemon', SpanKind.CLIENT, async (span: Span) => {
+    return this.instrumentMethod(this.getSpanName('findOne'), SpanKind.CLIENT, async (span: Span) => {
       const result = await this.repository.findOne(id);
 
       const baseAttributes = this.getBaseAttributes();
@@ -124,7 +130,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
   }
 
   async findMany(options?: SearchOptions): Promise<Pokemon[]> {
-    return this.instrumentMethod('findMany pokeshop.pokemon', SpanKind.CLIENT, async (span: Span) => {
+    return this.instrumentMethod(this.getSpanName('findMany'), SpanKind.CLIENT, async (span: Span) => {
       const result = await this.repository.findMany(options);
 
       const baseAttributes = this.getBaseAttributes();
@@ -140,7 +146,7 @@ export class InstrumentedPokemonRepository extends InstrumentedComponent impleme
   }
 
   async count(options?: SearchOptions): Promise<number> {
-    return this.instrumentMethod('count pokeshop.pokemon', SpanKind.CLIENT, async (span: Span) => {
+    return this.instrumentMethod(this.getSpanName('count'), SpanKind.CLIENT, async (span: Span) => {
       const baseAttributes = await this.getBaseAttributes();
 
       const result = await this.repository.count(options);

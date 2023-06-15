@@ -23,7 +23,7 @@ export type TPokemon = {
   name: string;
   type: string;
   imageUrl: string;
-}
+};
 
 class PokeAPIService {
   private readonly baseRoute: string = '/pokemon';
@@ -31,7 +31,7 @@ class PokeAPIService {
 
   async getPokemon(id: string): Promise<TPokemon> {
     const parentSpan = await getParentSpan();
-    const span = await createSpan('HTTP GET pokeapi.pokemon', parentSpan, { kind: SpanKind.CLIENT });
+    const span = await createSpan('GET', parentSpan, { kind: SpanKind.CLIENT });
 
     try {
       return await this.getPokemonFromAPi(id, span);
@@ -42,11 +42,14 @@ class PokeAPIService {
 
   private async getPokemonFromAPi(id: string, span: Span): Promise<TPokemon> {
     return await runWithSpan(span, async () => {
+      const {hostname, protocol, pathname} = new URL(`${this.baseUrl}/${id}`);
+
       span.setAttributes({
         [SemanticAttributes.HTTP_URL]: `${this.baseUrl}/${id}`,
         [SemanticAttributes.HTTP_METHOD]: 'GET',
-        [SemanticAttributes.HTTP_ROUTE]: `${this.baseRoute}/${id}`,
-        [SemanticAttributes.HTTP_SCHEME]: 'https',
+        [SemanticAttributes.HTTP_ROUTE]: pathname,
+        [SemanticAttributes.HTTP_SCHEME]: protocol,
+        [SemanticAttributes.NET_PEER_NAME]: hostname,
       });
 
       const response = await fetch(`${this.baseUrl}/${id}`, {

@@ -1,20 +1,13 @@
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import * as opentelemetry from '@opentelemetry/api';
-import { api, NodeSDK } from '@opentelemetry/sdk-node';
+import { NodeSDK } from '@opentelemetry/sdk-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { Resource } from '@opentelemetry/resources';
 import * as dotenv from 'dotenv';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import { IORedisInstrumentation } from '@opentelemetry/instrumentation-ioredis';
-import { PgInstrumentation } from '@opentelemetry/instrumentation-pg';
-import { AmqplibInstrumentation } from '@opentelemetry/instrumentation-amqplib';
 import { SpanStatusCode } from '@opentelemetry/api';
-import { B3Propagator } from '@opentelemetry/propagator-b3';
 
 // Make sure all env variables are available in process.env
 dotenv.config();
-
-api.propagation.setGlobalPropagator(new B3Propagator());
 
 const { COLLECTOR_ENDPOINT = '', SERVICE_NAME = 'pokeshop' } = process.env;
 
@@ -25,14 +18,11 @@ async function createTracer(): Promise<opentelemetry.Tracer> {
     url: COLLECTOR_ENDPOINT,
   });
 
-  const spanProcessor = new BatchSpanProcessor(collectorExporter);
   const sdk = new NodeSDK({
     traceExporter: collectorExporter,
-    // @ts-ignore
-    instrumentations: [new IORedisInstrumentation(), new PgInstrumentation(), new AmqplibInstrumentation()],
+    instrumentations: [],
   });
 
-  sdk.configureTracerProvider({}, spanProcessor);
   sdk.addResource(
     new Resource({
       [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,

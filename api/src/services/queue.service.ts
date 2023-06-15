@@ -1,5 +1,5 @@
 import { context, propagation, Span, SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
-import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
+import { SemanticAttributes, MessagingOperationValues } from '@opentelemetry/semantic-conventions';
 import { InstrumentedComponent } from '@pokemon/telemetry/instrumented.component';
 import { createSpanFromContext, runWithSpan } from '@pokemon/telemetry/tracing';
 import ampqlib from 'amqplib';
@@ -7,14 +7,6 @@ import { snakeCase } from 'lodash';
 import { CustomTags } from '../constants/Tags';
 
 const { RABBITMQ_HOST = '' } = process.env;
-
-const parseMessage = message => {
-  const messageCopy = JSON.parse(JSON.stringify(message));
-  const string = String.fromCharCode(...messageCopy.content.data);
-  messageCopy.content = JSON.parse(string);
-
-  return messageCopy;
-};
 
 export interface QueueService<T> {
   healthcheck(): Promise<boolean>;
@@ -41,12 +33,13 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
     return {
       [SemanticAttributes.MESSAGING_SYSTEM]: 'rabbitmq',
       [SemanticAttributes.MESSAGING_URL]: RABBITMQ_HOST,
+      [SemanticAttributes.NET_PEER_NAME]: RABBITMQ_HOST,
       [SemanticAttributes.MESSAGING_DESTINATION]: this.messageGroup,
     };
   }
 
   public async healthcheck(): Promise<boolean> {
-    return this.instrumentMethod(`${this.messageGroup}.healthCheck send`, SpanKind.INTERNAL, async (span: Span) => {
+    return this.instrumentMethod(`${this.messageGroup} publish`, SpanKind.INTERNAL, async (span: Span) => {
       span.setAttributes(this.getBaseAttributes());
 
       return this.queueService.healthcheck();
@@ -54,9 +47,10 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
   }
 
   public async send(message: T): Promise<boolean> {
-    return this.instrumentMethod(`${this.messageGroup} send`, SpanKind.PRODUCER, async (span: Span) => {
+    return this.instrumentMethod(`${this.messageGroup} publish`, SpanKind.PRODUCER, async (span: Span) => {
       span.setAttributes({
         ...this.getBaseAttributes(),
+        [SemanticAttributes.MESSAGING_OPERATION]: 'publish',
         [CustomTags.MESSAGING_PAYLOAD]: JSON.stringify(message),
       });
 
@@ -71,15 +65,21 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
   }
 
   public async subscribe(callback: Function): Promise<void> {
-    const instrumentedCallback = async message => {
+    const instrumentedCallback = async (message: ampqlib.ConsumeMessage) => {
       const headers = message.properties.headers ?? {};
       const parentContext = propagation.extract(context.active(), headers);
-      const span = await createSpanFromContext(`${this.messageGroup} receive`, parentContext, {
-        kind: SpanKind.CONSUMER,
-      });
+      const span = await createSpanFromContext(
+        `${this.messageGroup} ${MessagingOperationValues.PROCESS}`,
+        parentContext,
+        {
+          kind: SpanKind.CONSUMER,
+        }
+      );
 
       span.setAttributes({
         ...this.getBaseAttributes(),
+        [SemanticAttributes.MESSAGING_OPERATION]: MessagingOperationValues.PROCESS,
+        [SemanticAttributes.MESSAGE_ID]: message.properties.messageId,
         [CustomTags.MESSAGING_PAYLOAD]: JSON.stringify(message),
       });
 
