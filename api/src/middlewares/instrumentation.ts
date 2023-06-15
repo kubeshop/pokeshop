@@ -8,7 +8,8 @@ import { handleUnaryCall, sendUnaryData, UntypedServiceImplementation } from '@g
 
 const instrumentRoute = () => {
   return async (ctx: Koa.BaseContext, next) => {
-    const { method, ip, url: route, headers, body, host, protocol } = ctx;
+    const { method, ip, url: route, headers, body, host, protocol, query } = ctx;
+    const isFixed = query.isFixed === 'true';
 
     const parentContext = propagation.extract(context.active(), headers);
     const span = await createSpanFromContext(`${method} ${route}`, parentContext, { kind: SpanKind.SERVER });
@@ -28,12 +29,23 @@ const instrumentRoute = () => {
         [SemanticAttributes.HTTP_STATUS_CODE]: ctx.status,
         [CustomTags.HTTP_RESPONSE_BODY]: JSON.stringify(ctx.body),
         [CustomTags.HTTP_REQUEST_BODY]: JSON.stringify(body),
+
         [SemanticAttributes.HTTP_ROUTE]: route,
         [SemanticAttributes.HTTP_CLIENT_IP]: ip,
         [SemanticAttributes.HTTP_METHOD]: method,
         [SemanticAttributes.HTTP_HOST]: host,
         [SemanticAttributes.HTTP_SCHEME]: protocol,
         [SemanticAttributes.HTTP_USER_AGENT]: headers['user-agent'] || '',
+
+        ...(isFixed
+          ? {
+              [SemanticAttributes.NET_HOST_NAME]: host,
+              [SemanticAttributes.HTTP_TARGET]: route,
+              [SemanticAttributes.HTTP_SCHEME]: 'https',
+            }
+          : {
+              [SemanticAttributes.HTTP_SCHEME]: protocol,
+            }),
       });
 
       span.end();
@@ -45,8 +57,9 @@ type THandler = handleUnaryCall<unknown, unknown>;
 
 const instrumentRpcMethod = (name: string, method: THandler, serverName: string): THandler => {
   return async (call, finalCallback) => {
+    const [, serviceName, methodName] = call.getPath().split('/');
     const parentContext = propagation.extract(context.active(), call.metadata.getMap());
-    const span = await createSpanFromContext(name, parentContext, { kind: SpanKind.SERVER });
+    const span = await createSpanFromContext(`${serviceName}/${methodName}`, parentContext, { kind: SpanKind.SERVER });
 
     const callback: sendUnaryData<unknown> = (error, response) => {
       span.setAttributes({
@@ -64,11 +77,21 @@ const instrumentRpcMethod = (name: string, method: THandler, serverName: string)
       span.setStatus({ code: SpanStatusCode.ERROR });
       throw ex;
     } finally {
+      const [hostname, port] = call.getPeer().split(':');
+      const isFixed = !!(call?.request as Record<string, string>).isFixed;
+
       span.setAttributes({
-        [SemanticAttributes.RPC_SYSTEM]: 'grpc',
-        [SemanticAttributes.RPC_SERVICE]: `${serverName}.${name}`,
-        [SemanticAttributes.RPC_METHOD]: name,
         [CustomTags.RPC_REQUEST_BODY]: JSON.stringify(call.request),
+        [SemanticAttributes.RPC_SYSTEM]: 'grpc',
+        [SemanticAttributes.RPC_SERVICE]: serviceName,
+        [SemanticAttributes.RPC_METHOD]: methodName,
+        ...(isFixed
+          ? {
+              [SemanticAttributes.NET_HOST_NAME]: serverName,
+              [SemanticAttributes.NET_PEER_NAME]: hostname,
+              [SemanticAttributes.NET_PEER_PORT]: port,
+            }
+          : {}),
       });
 
       span.end();

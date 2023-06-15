@@ -3,7 +3,7 @@ export enum CustomTags {
   RPC_RESPONSE_BODY = 'rpc.response.body',
   RPC_REQUEST_BODY = 'rpc.request.body',
   HTTP_REQUEST_BODY = 'http.request.body',
-  VALIDATION_IS_VALID = 'validation.isValid',
+  VALIDATION_IS_VALID = 'validation.is_valid',
   VALIDATION_ERRORS = 'validation.errors',
   HTTP_REQUEST_HEADER = 'http.request.header',
   HTTP_RESPONSE_HEADER = 'http.response.header',
