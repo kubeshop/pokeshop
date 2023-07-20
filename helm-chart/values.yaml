@@ -74,7 +74,10 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-resources: {}
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
 
 autoscaling:
   enabled: false
@@ -108,6 +111,10 @@ redis:
   master:
     service:
       clusterIP: None
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
 
 rabbitmq:
   fullnameOverride: rabbitmq
@@ -121,3 +128,7 @@ rabbitmq:
   auth:
     username: guest
     password: guest
+  resources:
+    requests:
+      cpu: 400m
+      memory: 512Mi
