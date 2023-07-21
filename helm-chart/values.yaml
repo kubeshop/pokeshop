@@ -20,7 +20,7 @@ env:
   - name: POKE_API_BASE_URL
     value: https://pokeapi.co/api/v2
   - name: COLLECTOR_ENDPOINT
-    value: collector.tracetest.svc.cluster.local
+    value: http://otel-collector.tracetest.svc.cluster.local:4317
   - name: ZIPKIN_URL
     value: http://jaeger-agent.tracetest.svc.cluster.local:9411
 
