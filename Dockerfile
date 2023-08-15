@@ -1,4 +1,4 @@
-FROM node:16.14.0-alpine as build-ui
+FROM node:20.5.1-alpine as build-ui
 
 WORKDIR /ui
 ENV PATH /ui/node_modules/.bin:$PATH
@@ -27,7 +27,7 @@ FROM node:alpine as app
 
 WORKDIR /app
 COPY ./api/package.json ./api/package-lock.json ./
-RUN npm ci
+RUN npm clean-install
 
 EXPOSE 80
 
