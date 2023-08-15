@@ -14,7 +14,10 @@ $(SRCDIR)/%.$(OUTPUT_FORMAT): $(SRCDIR)/%.mdd
 	npm run generate-diagram -- --input $< --output $@
 
 run: ## run Pokeshop API on docker compose
-	docker compose -f docker-compose.yml -f ./tracetest/docker-compose.tracetest.yaml up
+	docker compose -f docker-compose.yml -f ./docker-compose.stream.yml up
 
 down: ## stop Pokeshop API running on docker compose
-	docker compose -f docker-compose.yml -f ./tracetest/docker-compose.tracetest.yaml down
+	docker compose -f docker-compose.yml -f ./docker-compose.stream.yml  down
+
+run/tracetests: ## run Trace-based tests on Pokeshop API with Tracetest
+	docker compose -f docker-compose.yml -f ./docker-compose.stream.yml -f ./tracetest/docker-compose.yml run tracebased-tests

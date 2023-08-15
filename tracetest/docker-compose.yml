@@ -1,0 +1,70 @@
+version: '3'
+
+services:
+    tracebased-tests:
+        image: kubeshop/tracetest:${TAG:-latest}
+        platform: linux/amd64
+        volumes:
+            - type: bind
+              source: ./tracetest/tests
+              target: /app/tracebased-tests
+            - type: bind
+              source: ./tracetest/config/tracetest-cli.yaml
+              target: /app/tracetest-cli.yaml
+        entrypoint: 
+            - tracetest
+        command: 
+            - run
+            - transaction
+            - --config
+            - /app/tracetest-cli.yaml
+            - --file
+            - /app/tracebased-tests/testsuite.yaml
+        depends_on:
+            tracetest:
+                condition: service_healthy
+    
+    tracetest:
+        image: kubeshop/tracetest:${TAG:-latest}
+        platform: linux/amd64
+        volumes:
+            - type: bind
+              source: ./tracetest/config/tracetest-config.yaml
+              target: /app/tracetest.yaml
+            - type: bind
+              source: ./tracetest/config/tracetest-provision.yaml
+              target: /app/provision.yaml
+        command: --provisioning-file /app/provision.yaml
+        ports:
+            - 11633:11633
+        extra_hosts:
+          - "host.docker.internal:host-gateway"
+        depends_on:
+            tracetest-postgres:
+                condition: service_healthy
+            otel-collector:
+                condition: service_started
+            api:
+                condition: service_started
+            worker:
+                condition: service_started
+            streaming-worker:
+                condition: service_started
+        healthcheck:
+            test: ["CMD", "wget", "--spider", "localhost:11633"]
+            interval: 1s
+            timeout: 3s
+            retries: 60
+        environment:
+            TRACETEST_DEV: ${TRACETEST_DEV}
+
+    tracetest-postgres:
+        image: postgres:14
+        environment:
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_USER: postgres
+        healthcheck:
+            test: pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"
+            interval: 1s
+            timeout: 5s
+            retries: 60

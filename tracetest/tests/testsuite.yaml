@@ -1,0 +1,9 @@
+type: Transaction
+spec:
+  id: ILYjqDQ4g
+  name: Running all tests
+  description: Runs all tests in PokeAPI in sequence
+  steps:
+    - ./add.yaml
+    - ./import.yaml
+    - ./list.yaml
