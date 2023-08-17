@@ -41,12 +41,15 @@ services:
       KAFKA_BROKER: 'stream:9092'
       KAFKA_TOPIC: 'pokemon'
       KAFKA_CLIENT_ID: 'streaming-worker'
+      REDIS_URL: cache
     depends_on:
       db:
         condition: service_healthy
       stream:
         condition: service_healthy
       jaeger:
+        condition: service_healthy
+      cache:
         condition: service_healthy
       otel-collector:
         condition: service_started

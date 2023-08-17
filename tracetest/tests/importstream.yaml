@@ -1,0 +1,13 @@
+type: Test
+spec:
+  id: a97syfdkjad
+  name: Import a Pokemon reading a Stream
+  description: Import a Pokemon via Stream
+  trigger:
+    type: kafka
+    kafka:
+      brokerUrls:
+      - stream:9092
+      topic: pokemon
+      messageKey: "snorlax-key"
+      messageValue: "{\"id\":143}"

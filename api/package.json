@@ -15,7 +15,8 @@
     "rpc": "node --require ./telemetry/setup.js rpc.js",
     "api": "npm run saveConfig && node --require ./telemetry/setup.js api.js",
     "worker": "node --require ./telemetry/setup.js worker.js",
-    "stream-worker": "node --require ./telemetry/setup.js streamWorker.js"
+    "stream-worker": "node --require ./telemetry/setup.js streamWorker.js",
+    "test:produce-stream-message": "ts-node -r tsconfig-paths/register -r ./src/scripts/produceStreamMessage.ts"
   },
   "author": "",
   "license": "ISC",

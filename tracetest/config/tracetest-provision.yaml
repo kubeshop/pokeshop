@@ -6,7 +6,7 @@ spec:
   default: true
   periodic:
     retryDelay: 5s
-    timeout: 10m
+    timeout: 1m
 
 ---
 type: DataStore

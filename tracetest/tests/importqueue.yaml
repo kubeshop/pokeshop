@@ -1,7 +1,7 @@
 type: Test
 spec:
   id: biH13ee4g
-  name: Pokeshop - Import
+  name: Import a Pokemon using API and MQ Worker
   description: Import a Pokemon
   trigger:
     type: http

@@ -2,7 +2,7 @@ version: '3'
 
 services:
     tracebased-tests:
-        image: kubeshop/tracetest:dev
+        image: kubeshop/tracetest:${TAG:-latest}
         platform: linux/amd64
         volumes:
             - type: bind
@@ -15,17 +15,17 @@ services:
             - tracetest
         command: 
             - run
-            - transaction
+            - testsuite
             - --config
             - /app/tracetest-cli.yaml
             - --file
             - /app/tracebased-tests/testsuite.yaml
         depends_on:
-            tracetest:
+            tracetest-server:
                 condition: service_healthy
     
-    tracetest:
-        image: kubeshop/tracetest:dev
+    tracetest-server:
+        image: kubeshop/tracetest:${TAG:-latest}
         platform: linux/amd64
         volumes:
             - type: bind
