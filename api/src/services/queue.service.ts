@@ -68,6 +68,11 @@ class InstrumentedRabbitQueueService<T> extends InstrumentedComponent implements
     const instrumentedCallback = async (message: ampqlib.ConsumeMessage) => {
       const headers = message.properties.headers ?? {};
       const parentContext = propagation.extract(context.active(), headers);
+
+      console.log('Extracting headers from message to get OTel data...')
+      console.log('Message headers: ', headers)
+      console.log('Context: ', parentContext)
+
       const span = await createSpanFromContext(
         `${this.messageGroup} ${MessagingOperationValues.PROCESS}`,
         parentContext,

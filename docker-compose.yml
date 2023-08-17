@@ -52,35 +52,15 @@ services:
       timeout: 3s
       retries: 60
 
-  api-ci:
-    image: kubeshop/demo-pokemon-api:0.0.10
-    environment:
-      REDIS_URL: cache
-      DATABASE_URL: postgresql://ashketchum:squirtle123@db:5432/pokeshop?schema=public
-      RABBITMQ_HOST: queue
-      POKE_API_BASE_URL: https://pokeapi.co/api/v2
-      ZIPKIN_URL: http://jaeger:9411
-    ports:
-      - 3001:80
-    depends_on:
-      db:
-        condition: service_healthy
-      cache:
-        condition: service_healthy
-      queue:
-        condition: service_healthy
-      jaeger:
-        condition: service_healthy
-
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.59.0
     restart: unless-stopped
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     ports:
-      - '55679:55679'
-      - '4317:4317'
-      - '8888:8888'
+      - 55679:55679
+      - 4317:4317
+      - 8888:8888
     command:
       - '--config'
       - '/otel-local-config.yaml'
@@ -101,6 +81,11 @@ services:
       POKE_API_BASE_URL: https://pokeapi.co/api/v2
       COLLECTOR_ENDPOINT: http://otel-collector:4317
       ZIPKIN_URL: http://localhost:9411
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', 'localhost:8081/pokemon/healthcheck']
+      interval: 1s
+      timeout: 3s
+      retries: 60
     ports:
       - 8081:8081
       - 8082:8082
