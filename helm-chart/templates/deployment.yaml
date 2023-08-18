@@ -80,6 +80,23 @@ spec:
             - name: SERVICE_NAME
               value: pokeshop
             {{- toYaml .Values.env | nindent 12 }}
+        - name: {{ .Chart.Name }}-stream-worker
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: NPM_RUN_COMMAND
+              value: stream-worker
+            - name: SERVICE_NAME
+              value: pokeshop-stream-worker
+            {{- toYaml .Values.env | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
