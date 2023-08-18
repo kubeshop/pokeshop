@@ -23,6 +23,12 @@ env:
     value: http://otel-collector.tracetest.svc.cluster.local:4317
   - name: ZIPKIN_URL
     value: http://jaeger-agent.tracetest.svc.cluster.local:9411
+  - name: KAFKA_BROKER
+    value: stream:9092
+  - name: KAFKA_TOPIC
+    value: pokemon
+  - name: KAFKA_CLIENT_ID
+    value: streaming-worker
 
 imagePullSecrets: []
 nameOverride: ""
@@ -93,6 +99,12 @@ tolerations: []
 affinity: {}
 
 # Dependencies configuration
+kafka:
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
 postgresql:
   fullnameOverride: postgresql
   auth:

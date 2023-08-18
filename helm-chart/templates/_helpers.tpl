@@ -51,6 +51,14 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Selector labels (stream)
+*/}}
+{{- define "pokemon-api.selectorLabelsStream" -}}
+app.kubernetes.io/name: {{ include "pokemon-api.name" . }}-stream
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "pokemon-api.serviceAccountName" -}}
