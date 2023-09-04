@@ -20,10 +20,14 @@ const HomePage = () => {
         <PokemonList
           pokemonList={featuredPokemonList}
           totalCount={featuredPokemonList.length}
-          title="Featured"
+          title="Featured Pokémon"
           isFeaturedList
         />
-        <PokemonList pokemonList={pokemonList} totalCount={totalCount} title="All Pokemons" />
+        <PokemonList
+          pokemonList={pokemonList}
+          totalCount={totalCount}
+          title="All Pokémon"
+        />
       </S.Wrapper>
     </Layout>
   );

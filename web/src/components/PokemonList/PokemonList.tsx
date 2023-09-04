@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { TPokemon } from '../../types/pokemon';
 import PokemonCard from '../PokemonCard';
 import * as S from './PokemonList.styled';
@@ -16,7 +17,7 @@ const PokemonList = ({ pokemonList, totalCount, title, isFeaturedList = false }:
         {title} - {totalCount}
       </S.TitleText>
       <S.PokemonList>
-        {pokemonList.map(pokemon => (
+        {_.map(pokemonList, pokemon => (
           <PokemonCard key={pokemon.id} pokemon={pokemon} isFeaturedList={isFeaturedList} />
         ))}
       </S.PokemonList>
