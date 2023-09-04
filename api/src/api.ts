@@ -31,11 +31,11 @@ async function startApp() {
     healthcheckHandler, // should be first than getByIdHandler since both paths could collide
     createHandler,
     getHandler,
-    getByIdHandler,
     featuredHandler,
+    searchHandler,
+    getByIdHandler,
     importHandler,
     removeHandler,
-    searchHandler,
     updateHandler,
   ];
 
