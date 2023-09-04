@@ -13,12 +13,14 @@ const usePokemonCrud = () => {
   const createPokemon = useMutation(PokemonGateway.create, {
     onSuccess: () => {
       queryClient.invalidateQueries(CACHE_KEY);
+      queryClient.invalidateQueries(FEATURED_CACHE_KEY);
     },
   });
 
   const importPokemon = useMutation(PokemonGateway.import, {
     onSuccess: () => {
       queryClient.invalidateQueries(CACHE_KEY);
+      queryClient.invalidateQueries(FEATURED_CACHE_KEY);
     },
   });
 
