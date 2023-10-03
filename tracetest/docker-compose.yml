@@ -3,7 +3,6 @@ version: '3'
 services:
     tracebased-tests:
         image: kubeshop/tracetest:${TAG:-latest}
-        platform: linux/amd64
         volumes:
             - type: bind
               source: ./tracetest/tests
@@ -26,7 +25,6 @@ services:
     
     tracetest-server:
         image: kubeshop/tracetest:${TAG:-latest}
-        platform: linux/amd64
         volumes:
             - type: bind
               source: ./tracetest/config/tracetest-config.yaml
