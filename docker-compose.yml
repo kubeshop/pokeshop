@@ -27,7 +27,7 @@ services:
       retries: 60
 
   queue:
-    image: rabbitmq:3.9
+    image: rabbitmq:3.12
     restart: unless-stopped
     ports:
       - 5672:5672
