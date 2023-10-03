@@ -18,7 +18,7 @@ const PokemonGateway = () => ({
 
     return pokemonList;
   },
-  async create({ imageUrl, name, type, isFeatured }: TCreatePokemon) {
+  async create({ imageUrl, name, type, isFeatured = false }: TCreatePokemon) {
     const pokemon = await request<TPokemon>({
       url: `${BASE_API}`,
       method: 'POST',
