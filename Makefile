@@ -4,16 +4,20 @@ SRC           = $(wildcard $(SRCDIR)/*.mdd)
 OUT           = ${SRC:.mdd=.$(OUTPUT_FORMAT)}
 DETACHED      ?= false
 BUILD         ?= false
-FLAGS          = ""
+export FLAGS
 
 help: Makefile ## show list of commands
 	@echo "Choose a command run:"
 	@echo ""
 	@awk 'BEGIN {FS = ":.*?## "} /[a-zA-Z_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf "\033[36m%-40s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
 
-generate-flags:
-if ${DETACHED}; then FLAGS += " --detach"; fi
-if ${BUILD}; then FLAGS += " --build"; fi
+ifeq ($(DETACHED),true)
+  FLAGS+= --detach
+endif
+
+ifeq ($(BUILD),true)
+  FLAGS+= --build
+endif
 
 generate-diagrams: $(OUT)
 
