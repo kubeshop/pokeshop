@@ -33,3 +33,31 @@ jobs:
         cache-to: type=gha,mode=max
         tags: |
           kubeshop/demo-pokemon-api:latest
+
+  tracet-tests:
+    needs: [build]
+    name: Tracetests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Tracetest
+        uses: kubeshop/tracetest-agent-action@main
+        with:
+          apiKey: ${{ secrets.TRACETEST_API_KEY }}
+
+      - name: Start pokeshop services
+        uses: isbang/compose-action@v1.5.1
+        with:
+          compose-file:  |
+            docker-compose.yml
+            docker-compose.stream.yml
+      - name: Run tracetests
+        run: |
+          tracetest \
+            --config ./tracetest/config/tracetest-cli.yaml \
+            --file  ./tracetest/teests/testsuite.yaml
+
+
