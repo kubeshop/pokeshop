@@ -1,4 +1,4 @@
-FROM node:21-alpine as build-ui
+FROM node:20.5.1-alpine as build-ui
 
 WORKDIR /ui
 ENV PATH /ui/node_modules/.bin:$PATH
@@ -10,7 +10,7 @@ COPY ./web ./
 RUN npm run build
 
 # build
-FROM node:21-alpine as build
+FROM node:alpine as build
 
 WORKDIR /build
 RUN npm i -g typescript
@@ -22,7 +22,7 @@ COPY ./api ./
 RUN npm run build
 
 # app
-FROM node:21-alpine as app
+FROM node:alpine as app
 
 WORKDIR /app
 COPY ./api/package.json ./api/package-lock.json ./
