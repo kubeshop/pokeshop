@@ -27,7 +27,7 @@ FROM node:alpine as app
 
 WORKDIR /app
 COPY ./api/package.json ./api/package-lock.json ./
-RUN npm clean-install
+RUN npm clean-install --maxsocket 1
 
 EXPOSE 80
 
