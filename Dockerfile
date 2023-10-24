@@ -4,7 +4,7 @@ WORKDIR /ui
 ENV PATH /ui/node_modules/.bin:$PATH
 COPY ./web/package*.json ./
 
-RUN npm ci --maxsocket --silent
+RUN npm ci --maxsockets 1  --silent
 COPY ./web ./
 
 RUN npm run build
@@ -15,7 +15,7 @@ FROM node:alpine as build
 WORKDIR /build
 RUN npm i -g typescript
 COPY ./api/package*.json ./
-RUN npm ci --maxsocket --silent
+RUN npm ci --maxsockets 1  --silent
 
 COPY ./api ./
 
