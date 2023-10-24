@@ -30,7 +30,7 @@ EXPOSE 80
 
 ENV NPM_RUN_COMMAND=api
 
-COPY --from=build /build/node_modules ./
+COPY --from=build /build/node_modules ./node_modules
 COPY --from=build /build/.build/* ./
 COPY --from=build /build/migrations/* ./migrations/
 COPY --from=build-ui /ui/build ./ui
