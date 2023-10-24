@@ -51,7 +51,7 @@ jobs:
 
       - name: Start pokeshop services
         run: |
-          DETACH=true BUILD=false make run/pokeshop
+          DETACHED=true BUILD=false make run/pokeshop
       - name: Run tracetests
         run: |
           tracetest \
