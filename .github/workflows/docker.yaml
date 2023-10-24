@@ -50,8 +50,9 @@ jobs:
           apiKey: ${{ secrets.TRACETEST_API_KEY }}
 
       - name: Start pokeshop services
-        run: |
-          DETACHED=true BUILD=false make run/pokeshop
+        uses: isbang/compose-action@v1.5.1
+        with:
+          compose-file: docker-compose.agent.yml
       - name: Run tracetests
         run: |
           tracetest \

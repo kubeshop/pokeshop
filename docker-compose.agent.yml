@@ -1,0 +1,130 @@
+services:
+  db:
+    image: postgres:14
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: ashketchum
+      POSTGRES_PASSWORD: squirtle123
+      POSTGRES_DB: pokeshop
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 1s
+      timeout: 5s
+      retries: 60
+
+  cache:
+    image: redis:6
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 1s
+      timeout: 3s
+      retries: 60
+
+  queue:
+    image: rabbitmq:3.12
+    restart: unless-stopped
+    ports:
+      - 5672:5672
+      - 15672:15672
+    healthcheck:
+      test: rabbitmq-diagnostics -q check_running
+      interval: 1s
+      timeout: 5s
+      retries: 60
+
+  api:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      REDIS_URL: cache
+      DATABASE_URL: postgresql://ashketchum:squirtle123@db:5432/pokeshop?schema=public
+      RABBITMQ_HOST: queue
+      POKE_API_BASE_URL: https://pokeapi.co/api/v2
+      COLLECTOR_ENDPOINT: http://host.docker.internal:4317
+      ZIPKIN_URL: http://localhost:9411
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', 'localhost:8081/pokemon/healthcheck']
+      interval: 1s
+      timeout: 3s
+      retries: 60
+    ports:
+      - 8081:8081
+      - 8082:8082
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+      queue:
+        condition: service_healthy
+
+  worker:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      REDIS_URL: cache
+      DATABASE_URL: postgresql://ashketchum:squirtle123@db:5432/pokeshop?schema=public
+      RABBITMQ_HOST: queue
+      POKE_API_BASE_URL: https://pokeapi.co/api/v2
+      COLLECTOR_ENDPOINT: http://host.docker.internal:4317
+      ZIPKIN_URL: http://localhost:9411
+      NPM_RUN_COMMAND: worker
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+      queue:
+        condition: service_healthy
+
+  stream:
+    image: confluentinc/cp-kafka:latest-ubi8
+    ports:
+      - 29092:29092
+    environment:
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://stream:9092,PLAINTEXT_HOST://127.0.0.1:29092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://:29092
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@0.0.0.0:9093
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+      - KAFKA_PROCESS_ROLES=controller,broker
+      - KAFKA_NODE_ID=1
+      - KAFKA_METADATA_LOG_SEGMENT_MS=15000
+      - KAFKA_METADATA_MAX_RETENTION_MS=60000
+      - KAFKA_METADATA_LOG_MAX_RECORD_BYTES_BETWEEN_SNAPSHOTS=2800
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      - KAFKA_HEAP_OPTS=-Xmx200m -Xms200m
+      - CLUSTER_ID=ckjPoprWQzOf0-FuNkGfFQ
+    healthcheck:
+      test: nc -z stream 9092
+      start_period: 10s
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  streaming-worker:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      DATABASE_URL: postgresql://ashketchum:squirtle123@db:5432/pokeshop?schema=public
+      POKE_API_BASE_URL: https://pokeapi.co/api/v2
+      COLLECTOR_ENDPOINT: http://host.docker.internal:4317
+      ZIPKIN_URL: http://localhost:9411
+      NPM_RUN_COMMAND: stream-worker
+      KAFKA_BROKER: 'stream:9092'
+      KAFKA_TOPIC: 'pokemon'
+      KAFKA_CLIENT_ID: 'streaming-worker'
+      REDIS_URL: cache
+    depends_on:
+      db:
+        condition: service_healthy
+      stream:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
