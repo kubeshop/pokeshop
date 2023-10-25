@@ -56,7 +56,7 @@ jobs:
       - name: Run tracetests
         run: |
           tracetest run \
-            --config ./tracetest/config/tracetest-cli.yaml \
+            --config ./tracetest/config/tracetest-cloud.yaml \
             --file  ./tracetest/teests/testsuite.yaml
 
 
