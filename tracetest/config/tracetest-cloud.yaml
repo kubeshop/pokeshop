@@ -1,3 +1,5 @@
 scheme: https
-endpoint: app.tracetest.io:11633
+endpoint: api.tracetest.io
+serverPath: /api
+uiEndpoint: https://app.tracetest.io
 analyticsEnabled: false
