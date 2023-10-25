@@ -1,8 +1,6 @@
 services:
   db:
     image: postgres:14
-    ports:
-      - 5434:5432
     environment:
       POSTGRES_USER: ashketchum
       POSTGRES_PASSWORD: squirtle123
@@ -15,8 +13,6 @@ services:
 
   cache:
     image: redis:6
-    ports:
-      - 6379:6379
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 1s
@@ -26,9 +22,6 @@ services:
   queue:
     image: rabbitmq:3.12
     restart: unless-stopped
-    ports:
-      - 5672:5672
-      - 15672:15672
     healthcheck:
       test: rabbitmq-diagnostics -q check_running
       interval: 1s
@@ -36,8 +29,6 @@ services:
       retries: 60
   # stream:
   #   image: confluentinc/cp-kafka:latest-ubi8
-  #   ports:
-  #     - 29092:29092
   #   environment:
   #     - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://stream:9092,PLAINTEXT_HOST://127.0.0.1:29092
   #     - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://:29092
