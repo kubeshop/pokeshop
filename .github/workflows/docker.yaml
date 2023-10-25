@@ -55,6 +55,7 @@ jobs:
           compose-file: docker-compose.agent.yml
       - name: Run tracetests
         run: |
+          export TRACETEST_TOKEN=${{ secrets.TRACETEST_TOKEN }}
           tracetest run \
             --config ./tracetest/config/tracetest-cloud.yaml \
             --file  ./tracetest/teests/testsuite.yaml

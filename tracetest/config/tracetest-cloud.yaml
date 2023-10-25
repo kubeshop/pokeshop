@@ -3,3 +3,5 @@ endpoint: api.tracetest.io
 serverPath: /api
 uiEndpoint: https://app.tracetest.io
 analyticsEnabled: false
+organizationID: ttorg_d93f8634acf22530
+environmentID: ttenv_82d7c803788157a6
