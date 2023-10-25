@@ -55,7 +55,7 @@ jobs:
           compose-file: docker-compose.agent.yml
       - name: Run tracetests
         run: |
-          tracetest \
+          tracetest run \
             --config ./tracetest/config/tracetest-cli.yaml \
             --file  ./tracetest/teests/testsuite.yaml
 
