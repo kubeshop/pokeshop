@@ -46,7 +46,7 @@ jobs:
       - name: Setup Tracetest
         uses: kubeshop/tracetest-agent-action@main
         with:
-          version: v0.14.4-rc.1
+          version: v0.14.4
           apiKey: ${{ secrets.TRACETEST_API_KEY }}
 
       - name: Start pokeshop services
