@@ -58,6 +58,6 @@ jobs:
           export TRACETEST_TOKEN=${{ secrets.TRACETEST_TOKEN }}
           tracetest run \
             --config ./tracetest/config/tracetest-cloud.yaml \
-            --file  ./tracetest/teests/testsuite.yaml
+            --file  ./tracetest/tests/testsuite.yaml
 
 
