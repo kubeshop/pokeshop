@@ -5,6 +5,9 @@ import { Resource } from '@opentelemetry/resources';
 import * as dotenv from 'dotenv';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { SpanStatusCode } from '@opentelemetry/api';
+import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
+
+diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 
 // Make sure all env variables are available in process.env
 dotenv.config();
