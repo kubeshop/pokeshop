@@ -7,7 +7,7 @@ spec:
     type: kafka
     kafka:
       brokerUrls:
-      - stream:9092
+      - ${env:KAFKA_HOST}
       topic: pokemon
       headers: []
       messageKey: snorlax-key

@@ -1,4 +1,4 @@
-type: Transaction
+type: TestSuite
 spec:
   id: ILYjqDQ4g
   name: Running all tests

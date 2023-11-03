@@ -1,0 +1,9 @@
+type: VariableSet
+spec:
+  id: docker
+  name: Docker Values
+  values:
+  - key: API_HOST
+    value: api:8081
+  - key: KAFKA_HOST
+    value: stream:9092

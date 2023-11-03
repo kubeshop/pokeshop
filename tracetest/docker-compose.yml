@@ -10,19 +10,21 @@ services:
             - type: bind
               source: ./tracetest/config/tracetest-cli.yaml
               target: /app/tracetest-cli.yaml
-        entrypoint: 
+        entrypoint:
             - tracetest
-        command: 
+        command:
             - run
             - testsuite
             - --config
             - /app/tracetest-cli.yaml
             - --file
             - /app/tracebased-tests/testsuite.yaml
+            - --vars
+            - /app/tracebased-tests/vars.docker.yaml
         depends_on:
             tracetest-server:
                 condition: service_healthy
-    
+
     tracetest-server:
         image: kubeshop/tracetest:${TAG:-latest}
         volumes:

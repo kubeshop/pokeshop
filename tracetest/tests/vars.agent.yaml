@@ -1,0 +1,9 @@
+type: VariableSet
+spec:
+  id: agent
+  name: Agent Values
+  values:
+  - key: API_HOST
+    value: localhost:8081
+  - key: KAFKA_HOST
+    value: localhost:9092
