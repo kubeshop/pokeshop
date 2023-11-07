@@ -54,6 +54,9 @@ jobs:
         uses: isbang/compose-action@v1.5.1
         with:
           compose-file: docker-compose.agent.yml
+      - name: Wait for pokeshop services
+        run: |
+          timeout 60 bash -c 'until echo > /dev/tcp/localhost/8081; do sleep 1; done; echo "pokeshop http api ready"'
       - name: Run tracetests
         run: |
           export TRACETEST_TOKEN=${{ secrets.TRACETEST_TOKEN }}
