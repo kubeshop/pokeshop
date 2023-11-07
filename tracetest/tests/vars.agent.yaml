@@ -6,4 +6,4 @@ spec:
   - key: API_HOST
     value: localhost:8081
   - key: KAFKA_HOST
-    value: localhost:9092
+    value: localhost:29092
