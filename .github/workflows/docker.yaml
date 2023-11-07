@@ -65,4 +65,3 @@ jobs:
             --file  ./tracetest/tests/testsuite.yaml \
             --vars ./tracetest/tests/vars.agent.yaml
 
-
