@@ -51,9 +51,9 @@ jobs:
           params: -e https://app-stage.tracetest.io
 
       - name: Start pokeshop services
-        uses: isbang/compose-action@v1.5.1
-        with:
-          compose-file: docker-compose.agent.yml
+        run: |
+          docker compos -f docker-compose.agent.yaml up -d \
+            || (docker compos -f docker-compose.agent.yaml logs; exit 1)
       - name: Wait for pokeshop services
         run: |
           timeout 60 bash -c 'until echo > /dev/tcp/localhost/8081; do sleep 1; done; echo "pokeshop http api ready"'
