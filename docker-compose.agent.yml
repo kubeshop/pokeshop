@@ -22,8 +22,6 @@ services:
   queue:
     image: cloudamqp/lavinmq:1.2.5
     restart: unless-stopped
-    ports:
-      - 15672:15672
 
   stream:
     image: confluentinc/cp-kafka:latest-ubi8

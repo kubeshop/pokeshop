@@ -27,16 +27,11 @@ services:
       retries: 60
 
   queue:
-    image: rabbitmq:3.12
+    image: cloudamqp/lavinmq:1.2.5
     restart: unless-stopped
     ports:
       - 5672:5672
       - 15672:15672
-    healthcheck:
-      test: rabbitmq-diagnostics -q check_running
-      interval: 1s
-      timeout: 5s
-      retries: 60
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -78,7 +73,7 @@ services:
     environment:
       REDIS_URL: cache
       DATABASE_URL: postgresql://ashketchum:squirtle123@db:5432/pokeshop?schema=public
-      RABBITMQ_HOST: queue
+      RABBITMQ_HOST: guest:guest@queue
       POKE_API_BASE_URL: https://pokeapi.co/api/v2
       COLLECTOR_ENDPOINT: http://otel-collector:4317
       ZIPKIN_URL: http://localhost:9411
@@ -100,13 +95,13 @@ services:
         condition: service_healthy
       otel-collector:
         condition: service_started
-  
+
   rpc:
     build: .
     environment:
       REDIS_URL: cache
       DATABASE_URL: postgresql://ashketchum:squirtle123@db:5432/pokeshop?schema=public
-      RABBITMQ_HOST: queue
+      RABBITMQ_HOST: guest:guest@queue
       POKE_API_BASE_URL: https://pokeapi.co/api/v2
       COLLECTOR_ENDPOINT: http://otel-collector:4317
       ZIPKIN_URL: http://localhost:9411
@@ -135,7 +130,7 @@ services:
     environment:
       REDIS_URL: cache
       DATABASE_URL: postgresql://ashketchum:squirtle123@db:5432/pokeshop?schema=public
-      RABBITMQ_HOST: queue
+      RABBITMQ_HOST: guest:guest@queue
       POKE_API_BASE_URL: https://pokeapi.co/api/v2
       COLLECTOR_ENDPOINT: http://otel-collector:4317
       ZIPKIN_URL: http://localhost:9411
