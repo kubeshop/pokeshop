@@ -56,7 +56,8 @@ jobs:
             || (docker compose -f docker-compose.agent.yml logs; exit 1)
       - name: Wait for pokeshop services
         run: |
-          timeout 60 bash -c 'until echo > /dev/tcp/localhost/8081; do sleep 1; done; echo "pokeshop http api ready"'
+          sleep 15 # it might take some time for docker compose to start up
+          timeout 60 bash -c 'until nc -z -w 1 localhost '8081' > /dev/null 2>&1; do sleep 1; done; echo "pokeshop http api ready"'
       - name: Run tracetests
         run: |
           export TRACETEST_TOKEN=${{ secrets.TRACETEST_TOKEN }}
