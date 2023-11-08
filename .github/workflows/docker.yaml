@@ -57,10 +57,6 @@ jobs:
       - name: Wait for pokeshop services
         run: |
           sleep 15 # it might take some time for docker compose to start up
-          docker compose -f docker-compose.agent.yml restart queue
-          sleep 15
-          docker compose -f docker-compose.agent.yml restart worker
-          sleep 15
           timeout 60 bash -c 'until nc -z -w 1 localhost '8081' > /dev/null 2>&1; do sleep 1; done; echo "pokeshop http api ready"'
       - name: Run tracetests
         run: |
