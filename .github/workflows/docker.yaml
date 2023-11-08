@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Tracetest
-        uses: kubeshop/tracetest-agent-action@main
+        uses: kubeshop/tracetest-agent-action@v1
         with:
           apiKey: ${{ secrets.TRACETEST_API_KEY }}
           token: ${{ secrets.TRACETEST_TOKEN}}
