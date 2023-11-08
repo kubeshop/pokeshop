@@ -60,7 +60,6 @@ jobs:
       - name: Run tracetests
         run: |
           tracetest run \
-              --config ./tracetest/config/tracetest-cloud.yaml \
               --file  ./tracetest/tests/testsuite.yaml \
               --vars ./tracetest/tests/vars.agent.yaml \
             || (docker compose -f docker-compose.agent.yml logs; exit 1)
