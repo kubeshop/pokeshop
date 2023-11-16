@@ -130,8 +130,6 @@ class RabbitQueueService<T> implements QueueService<T> {
       return this.channel;
     }
 
-    this.channel?.recover
-
     try {
       const connection = await ampqlib.connect(`amqp://${RABBITMQ_HOST}`);
       const channel = await connection.createChannel();
