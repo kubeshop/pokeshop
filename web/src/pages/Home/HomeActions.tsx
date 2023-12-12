@@ -12,10 +12,10 @@ const HomeActions = () => {
   return (
     <>
       <S.ActionContainer>
-        <S.CreateTestButton type="primary" onClick={() => setCreateModalOpen(true)}>
+        <S.CreateTestButton data-cy="create-pokemon-button" type="primary" onClick={() => setCreateModalOpen(true)}>
           Add Pokemon
         </S.CreateTestButton>
-        <S.CreateTestButton type="primary" onClick={() => setImportModalOpen(true)}>
+        <S.CreateTestButton data-cy="import-pokemon-button" type="primary" onClick={() => setImportModalOpen(true)}>
           Import Pokemon
         </S.CreateTestButton>
       </S.ActionContainer>

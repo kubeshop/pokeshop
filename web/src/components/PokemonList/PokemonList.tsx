@@ -16,7 +16,7 @@ const PokemonList = ({ pokemonList, totalCount, title, isFeaturedList = false }:
       <S.TitleText>
         {title} - {totalCount}
       </S.TitleText>
-      <S.PokemonList>
+      <S.PokemonList data-cy="pokemon-list">
         {_.map(pokemonList, pokemon => (
           <PokemonCard key={pokemon.id} pokemon={pokemon} isFeaturedList={isFeaturedList} />
         ))}
