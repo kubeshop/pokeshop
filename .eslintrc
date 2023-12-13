@@ -4,7 +4,9 @@
   "root": true,
   "globals": {},
   "rules": {
-    "no-unused-vars": "error",
+    "quotes": ["error", "single", { "avoidEscape": true }],
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-explicit-any": "off",
     "max-len": [
       "error",
       {
@@ -15,7 +17,16 @@
         "ignoreStrings": true,
         "ignoreTemplateLiterals": true
       }
-    ]
+    ],
+    "@typescript-eslint/ban-types": [
+      "warn",
+      {
+        "types": {
+          "Function": null
+        }
+      }
+    ],
+    "@typescript-eslint/no-this-alias": "off"
   },
   "parser": "@typescript-eslint/parser",
   "env": {},

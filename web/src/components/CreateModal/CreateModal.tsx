@@ -18,7 +18,7 @@ const CreateModal = ({ isOpen, onCreate, onClose }: IProps) => {
 
   return (
     <Modal title="Create Pokemon" visible={isOpen} onOk={() => form.submit()} onCancel={onClose}>
-      <Form form={form} onFinish={handleSubmit}>
+      <Form form={form} onFinish={handleSubmit} data-cy="create-pokemon-modal">
         <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please input a Name' }]}>
           <Input />
         </Form.Item>

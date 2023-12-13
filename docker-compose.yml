@@ -60,8 +60,9 @@ services:
       - 'host.docker.internal:host-gateway'
     ports:
       - 55679:55679
-      - 4317:4317
       - 8888:8888
+      - 4317:4317
+      - 4318:4318
     command:
       - '--config'
       - '/otel-local-config.yaml'
@@ -100,7 +101,6 @@ services:
         condition: service_healthy
       otel-collector:
         condition: service_started
-  
   rpc:
     build: .
     environment:

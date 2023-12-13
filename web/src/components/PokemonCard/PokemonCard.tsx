@@ -16,6 +16,7 @@ const PokemonCard = ({ pokemon: { id = 0, name = '', type = '', imageUrl = '' },
     <Card
       hoverable
       style={{ width: 240 }}
+      data-cy="pokemon-card"
       cover={
         <S.CardCover>
           {!isFeaturedList && (
@@ -26,6 +27,7 @@ const PokemonCard = ({ pokemon: { id = 0, name = '', type = '', imageUrl = '' },
                 type="primary"
                 size="small"
                 shape="circle"
+                data-cy="delete-pokemon-button"
                 icon={<CloseOutlined />}
               />
             </S.DeleteContainer>

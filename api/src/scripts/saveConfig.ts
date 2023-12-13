@@ -2,13 +2,14 @@ import { resolve } from 'path';
 import { writeFileSync } from 'fs';
 
 const PATH = '../ui/config.json';
-const { ZIPKIN_URL = '' } = process.env;
+const { SERVICE_NAME = '', HTTP_COLLECTOR_ENDPOINT = '' } = process.env;
 
 const saveConfig = () => {
   writeFileSync(
     resolve(__dirname, PATH),
     JSON.stringify({
-      ZIPKIN_URL,
+      HTTP_COLLECTOR_ENDPOINT,
+      SERVICE_NAME,
     })
   );
 };

@@ -6,3 +6,7 @@ helm-chart/charts/
 node_modules/
 api/.build/
 .idea/
+.DS_Store
+.env
+
+cypress/screenshots

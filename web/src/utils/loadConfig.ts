@@ -1,7 +1,8 @@
 import request from './request';
 
 interface IConfig {
-  ZIPKIN_URL: string;
+  SERVICE_NAME: string;
+  HTTP_COLLECTOR_ENDPOINT: string;
 }
 
 export let config: IConfig | undefined = undefined;
