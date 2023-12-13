@@ -6,7 +6,7 @@ import { Resource } from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
-import { UserInteractionInstrumentation } from 'tracetest-instrumentation-user-interaction/dist';
+import { UserInteractionInstrumentation } from '@tracetest/instrumentation-user-interaction';
 import loadConfig from './loadConfig';
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
 

@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@opentelemetry/sdk-trace-base": "^1.18.1",
-    "tracetest-cypress": "file:../tracetest-js/packages/tracetest-cypress",
-    "tracetest-instrumentation-user-interaction": "file:../tracetest-js/packages/tracetest-instrumentation-user-interaction"
+    "@tracetest/core": "^0.0.7-alpha.0",
+    "@tracetest/cypress": "^0.0.9-alpha.0"
   }
 }
