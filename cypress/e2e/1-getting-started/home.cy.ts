@@ -1,4 +1,4 @@
-import Tracetest from '@tracetest/cypress/dist';
+import Tracetest from '@tracetest/cypress';
 
 const TRACETEST_API_TOKEN = Cypress.env('TRACETEST_API_TOKEN') || '';
 

@@ -61,7 +61,7 @@ services:
     ports:
       - 55679:55679
       - 8888:8888
-      # - 4317:4317
+      - 4317:4317
       - 4318:4318
     command:
       - '--config'
@@ -101,7 +101,6 @@ services:
         condition: service_healthy
       otel-collector:
         condition: service_started
-
   rpc:
     build: .
     environment:
