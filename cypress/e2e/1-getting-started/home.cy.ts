@@ -31,7 +31,7 @@ const definition = `
         value: attr:name
     `;
 
-describe('Home', /*{ defaultCommandTimeout: 60000 }, */ () => {
+describe('Home', { defaultCommandTimeout: 60000 }, () => {
   before(done => {
     tracetest.configure(TRACETEST_API_TOKEN).then(() => done());
   });
@@ -49,9 +49,9 @@ describe('Home', /*{ defaultCommandTimeout: 60000 }, */ () => {
 
 
   // uncomment to wait for trace tests to be done
-  // after(done => {
-  //   tracetest.summary().then(() => done());
-  // });
+  after(done => {
+    tracetest.summary().then(() => done());
+  });
 
   it('create a pokemon', () => {
     cy.get('[data-cy="create-pokemon-button"]').should('be.visible').click();
