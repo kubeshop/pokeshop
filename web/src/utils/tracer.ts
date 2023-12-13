@@ -11,15 +11,19 @@ import loadConfig from './loadConfig';
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
 
 const createTracer = async () => {
-  const { SERVICE_NAME = 'pokeshop-demo-webapp' } = await loadConfig();
+  const { SERVICE_NAME, HTTP_COLLECTOR_ENDPOINT } = await loadConfig();
 
   const provider = new WebTracerProvider({
     resource: new Resource({
-      [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,
+      [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME || 'pokeshop-demo-webapp',
     }),
   });
 
-  provider.addSpanProcessor(new SimpleSpanProcessor(new OTLPTraceExporter()));
+  provider.addSpanProcessor(
+    new SimpleSpanProcessor(
+      new OTLPTraceExporter({ url: HTTP_COLLECTOR_ENDPOINT || 'http://localhost:4318/v1/traces' })
+    )
+  );
 
   provider.register({
     contextManager: new ZoneContextManager(),

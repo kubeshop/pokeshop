@@ -8,3 +8,5 @@ api/.build/
 .idea/
 .DS_Store
 .env
+
+cypress/screenshots

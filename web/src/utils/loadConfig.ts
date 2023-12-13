@@ -2,6 +2,7 @@ import request from './request';
 
 interface IConfig {
   SERVICE_NAME: string;
+  HTTP_COLLECTOR_ENDPOINT: string;
 }
 
 export let config: IConfig | undefined = undefined;

@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "cy:open": "cypress open",
+    "cy:run": "cypress run",
     "generate-diagram": "mmdc"
   },
   "author": "",
@@ -26,7 +27,6 @@
   },
   "dependencies": {
     "@opentelemetry/sdk-trace-base": "^1.18.1",
-    "@tracetest/core": "^0.0.7-alpha.0",
-    "@tracetest/cypress": "^0.0.9-alpha.0"
+    "@tracetest/cypress": "^0.0.12-alpha.0"
   }
 }
