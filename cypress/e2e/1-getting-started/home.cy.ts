@@ -6,7 +6,7 @@ const tracetest = Tracetest();
 
 describe('Home', { defaultCommandTimeout: 60000 }, () => {
   before(done => {
-    tracetest.configure(TRACETEST_API_TOKEN, 'http://localhost:3000').then(() => done());
+    tracetest.configure(TRACETEST_API_TOKEN).then(() => done());
   });
 
   beforeEach(() => {
