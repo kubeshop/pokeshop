@@ -42,6 +42,7 @@ services:
       KAFKA_TOPIC: 'pokemon'
       KAFKA_CLIENT_ID: 'streaming-worker'
       REDIS_URL: cache
+    restart: on-failure
     depends_on:
       db:
         condition: service_healthy
