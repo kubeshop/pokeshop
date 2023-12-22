@@ -56,10 +56,6 @@ class InstrumentedKafkaStreamService<T> extends InstrumentedComponent implements
       const headers = this.extractHeaders(message);
       const parentContext = propagation.extract(context.active(), headers);
 
-      console.log('Extracting headers from message to get OTel data...')
-      console.log('Message headers: ', headers)
-      console.log('Context: ', parentContext)
-
       const span = await createSpanFromContext(
         `${this.topic} ${MessagingOperationValues.PROCESS}`,
         parentContext,
@@ -109,10 +105,8 @@ class KafkaStreamService<T> implements StreamingService<T> {
         brokers: [KAFKA_BROKER]
       });
 
-      console.log(`Checking if need to create topic...`)
       await this.waitForTopicCreation();
 
-      console.log(`Starting consumer for groupId 'test-group'...`)
       this.consumer = this.client.consumer({ groupId: 'test-group' });
       await this.consumer.connect();
     } catch (ex) {
@@ -125,16 +119,17 @@ class KafkaStreamService<T> implements StreamingService<T> {
   public async subscribe(callback: Function): Promise<void> {
     const consumer = await this.connect();
 
-    console.log(`Subscribing consumer for topic '${this.topic}'...`)
     await consumer.subscribe({ topic: this.topic, fromBeginning: true });
+
+    const { CRASH } = consumer.events;
+    await consumer.on(CRASH, () => {
+      // make the node process crash on purpose,
+      // so we can restart the worker
+      process.exit(-1);
+    });
 
     await consumer.run({
       eachMessage: async ({ message }) => {
-        console.log(`Consuming message...`);
-        console.log(`Message headers: ${message.headers?.toString()}`)
-        console.log(`Message key: ${message.key?.toString()}`)
-        console.log(`Message value: ${message.value?.toString()}`)
-
         await callback(message);
       },
     })
@@ -145,21 +140,17 @@ class KafkaStreamService<T> implements StreamingService<T> {
       return
     }
 
-    console.log(`Connecting to Kafka admin to check topics...`);
     const admin = this.client.admin()
     await admin.connect()
 
     while (true) {
       const topics = await admin.listTopics()
-      console.log(`Topics registered for broker '${topics}' ...`);
       
       if (topics.includes(this.topic)) {
-        console.log(`Topic '${this.topic}' exists.`);
         await admin?.disconnect()
         return  
       }
 
-      console.log(`Topic '${this.topic}' does not exists. Waiting for producer to create it.`);
       await sleep(5_000); //wait for 5 seconds
     }
   }

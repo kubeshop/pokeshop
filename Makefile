@@ -38,3 +38,6 @@ run: ## run Pokeshop API on Docker Compose and run Trace-based tests with Tracet
 
 down: ## stop Pokeshop API on Docker Compose and run Trace-based tests with Tracetest
 	docker compose -f docker-compose.yml -f ./docker-compose.stream.yml -f ./tracetest/docker-compose.yml down
+
+build/docker: # build docker image locally
+	docker build . -t kubeshop/demo-pokemon-api:latest
