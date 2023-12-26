@@ -1,4 +1,4 @@
-import { DOCUMENTATION_URL, GITHUB_URL, DISCORD_URL } from '../../constants/common';
+import { DOCUMENTATION_URL, GITHUB_URL, COMMUNITY_SLACK_URL } from '../../constants/common';
 import * as S from './Header.styled';
 
 interface IProps {
@@ -27,10 +27,10 @@ export const HeaderMenu = ({ pathname }: IProps) => {
           ),
         },
         {
-          key: 'discord',
+          key: 'slack',
           label: (
-            <a href={DISCORD_URL} target="_blank" data-cy="discord-link">
-              Discord
+            <a href={COMMUNITY_SLACK_URL} target="_blank" data-cy="slack-link">
+              Slack
             </a>
           ),
         },
