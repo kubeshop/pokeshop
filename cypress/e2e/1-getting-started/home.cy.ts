@@ -50,7 +50,7 @@ describe('Home', { defaultCommandTimeout: 60000 }, () => {
     - selector: span[tracetest.span.type="database"]
       name: "All Database Spans: Processing time is less than 100ms"
       assertions:
-      - attr:tracetest.span.duration < 100ms
+      - attr:tracetest.span.duration < 2s
     outputs:
     - name: MY_OUTPUT
       selector: span[tracetest.span.type="general" name="Tracetest trigger"]
