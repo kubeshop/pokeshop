@@ -10,3 +10,4 @@ api/.build/
 .env
 
 cypress/screenshots
+cypress/downloads
