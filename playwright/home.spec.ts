@@ -1,10 +1,17 @@
 import { test, expect } from '@playwright/test';
 import { generateTraceParent } from '@tracetest/core';
+import Tracetest from '@tracetest/core';
+
+const tracetest = Tracetest();
 
 test.describe.configure({ mode: 'serial' });
 
+test.beforeAll(async () => {
+  await tracetest.configure();
+});
+
 test.beforeEach(async ({ page }) => {
-  await page.goto('http://localhost:8081/');
+  await page.goto('/');
   const traceparent = generateTraceParent();
 
   await page.evaluate(traceparent => {
