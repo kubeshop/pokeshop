@@ -18,6 +18,7 @@ test.beforeEach(async ({ page }, { title }) => {
 
 test.afterEach(async ({}, { title, config }) => {
   await tracetest.runTest(title, config.metadata.definition ?? '');
+  config.metadata.definition = '';
 });
 
 // optional step to break the playwright script in case a Tracetest test fails
