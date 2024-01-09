@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@opentelemetry/sdk-trace-base": "^1.18.1",
-    "@tracetest/cypress": "^0.0.13-alpha.0"
+    "@tracetest/cypress": "^0.0.21",
+    "@tracetest/playwright": "0.0.21"
   }
 }

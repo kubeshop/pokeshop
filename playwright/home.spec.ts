@@ -1,31 +1,32 @@
 import { test, expect } from '@playwright/test';
-import { generateTraceParent } from '@tracetest/core';
-import Tracetest from '@tracetest/core';
+import Tracetest from '@tracetest/playwright';
+
+const { TRACETEST_API_TOKEN = '' } = process.env;
 
 const tracetest = Tracetest();
 
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
-  await tracetest.configure();
+  await tracetest.configure(TRACETEST_API_TOKEN);
 });
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page }, { title }) => {
   await page.goto('/');
-  const traceparent = generateTraceParent();
-
-  await page.evaluate(traceparent => {
-    const head = document.querySelector('head');
-    const meta = document.createElement('meta');
-
-    meta.setAttribute('name', 'traceparent');
-    meta.setAttribute('content', traceparent);
-
-    head?.appendChild(meta);
-  }, traceparent);
+  await tracetest.capture(title, page);
 });
 
-test('creates a pokemon', async ({ page }) => {
+test.afterEach(async ({}, { title, config }) => {
+  await tracetest.runTest(title, config.metadata.definition ?? '');
+});
+
+// optional step to break the playwright script in case a Tracetest test fails
+test.afterAll(async ({}, testInfo) => {
+  testInfo.setTimeout(60000);
+  await tracetest.summary();
+});
+
+test('Playwright: creates a pokemon', async ({ page }) => {
   expect(await page.getByText('Pokeshop')).toBeTruthy();
 
   await page.click('text=Add');
@@ -38,7 +39,31 @@ test('creates a pokemon', async ({ page }) => {
   await page.getByRole('button', { name: 'OK', exact: true }).click();
 });
 
-test('imports a pokemon', async ({ page }) => {
+const definition = `
+  type: Test
+  spec:
+    id: UGxheXdyaWdodDogaW1wb3J0cyBhIHBva2Vtb24=
+    name: "Playwright: imports a pokemon"
+    trigger:
+      type: playwright
+    specs:
+    - selector: span[tracetest.span.type="http"] span[tracetest.span.type="http"]
+      name: "All HTTP Spans: Status  code is 200"
+      assertions:
+      - attr:http.status_code   =   200
+    - selector: span[tracetest.span.type="database"]
+      name: "All Database Spans: Processing time is less than 100ms"
+      assertions:
+      - attr:tracetest.span.duration < 2s
+    outputs:
+    - name: MY_OUTPUT
+      selector: span[tracetest.span.type="general" name="Tracetest trigger"]
+      value: attr:name
+    `;
+
+test('Playwright: imports a pokemon', async ({ page }, { config: { metadata } }) => {
+  // set the definition for the tracetest test
+  metadata.definition = definition;
   expect(await page.getByText('Pokeshop')).toBeTruthy();
 
   await page.click('text=Import');
@@ -47,7 +72,7 @@ test('imports a pokemon', async ({ page }) => {
   await page.getByRole('button', { name: 'OK', exact: true }).click();
 });
 
-test('deletes a pokemon', async ({ page }) => {
+test('Playwright: deletes a pokemon', async ({ page }) => {
   await page.locator('[data-cy="pokemon-list"]');
 
   await page.locator('[data-cy="pokemon-card"]').first().click();
