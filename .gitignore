@@ -11,3 +11,7 @@ api/.build/
 
 cypress/screenshots
 cypress/downloads
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

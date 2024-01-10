@@ -67,7 +67,7 @@ describe('Home', { defaultCommandTimeout: 60000 }, () => {
     cy.get('button').contains('OK').click({ force: true });
   });
 
-  it('deletes a pokemon (2)', () => {
+  it('deletes a pokemon', () => {
     cy.get('[data-cy="pokemon-list"]').should('be.visible');
     cy.get('[data-cy="pokemon-card"]').first().click().get('[data-cy="delete-pokemon-button"]').first().click();
   });
