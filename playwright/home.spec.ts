@@ -77,5 +77,5 @@ test('Playwright: deletes a pokemon', async ({ page }) => {
   await page.locator('[data-cy="pokemon-list"]');
 
   await page.locator('[data-cy="pokemon-card"]').first().click();
-  await page.locator('[data-cy="pokemon-card"]').first().locator('[data-cy="delete-pokemon-button"]').click();
+  await page.locator('[data-cy="pokemon-card"] [data-cy="delete-pokemon-button"]').first().click();
 });
