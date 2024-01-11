@@ -8,13 +8,13 @@ let tracetest: Types.TracetestPlaywright | undefined = undefined;
 test.describe.configure({ mode: 'serial' });
 
 const definition = `
-  type: Test
-  spec:
-    id: UGxheXdyaWdodDogaW1wb3J0cyBhIHBva2Vtb24=
-    name: "Playwright: imports a pokemon"
-    trigger:
-      type: playwright
-    specs:
+type: Test
+spec:
+  id: UGxheXdyaWdodDogaW1wb3J0cyBhIHBva2Vtb24=
+  name: "Playwright: imports a pokemon"
+  trigger:
+    type: playwright
+  specs:
     - selector: span[tracetest.span.type="http"] span[tracetest.span.type="http"]
       name: "All HTTP Spans: Status  code is 200"
       assertions:
@@ -23,14 +23,15 @@ const definition = `
       name: "All Database Spans: Processing time is less than 100ms"
       assertions:
       - attr:tracetest.span.duration < 2s
-    outputs:
+  outputs:
     - name: MY_OUTPUT
       selector: span[tracetest.span.type="general" name="Tracetest trigger"]
       value: attr:name
-    `;
+`;
 
 test.beforeAll(async () => {
   tracetest = await Tracetest({ apiToken: TRACETEST_API_TOKEN });
+
   tracetest.setOptions({
     'Playwright: imports a pokemon': {
       definition,
