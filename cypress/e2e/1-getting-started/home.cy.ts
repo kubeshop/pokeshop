@@ -1,41 +1,10 @@
-import Tracetest from '@tracetest/cypress';
+import Tracetest, { Types } from '@tracetest/cypress';
 
 const TRACETEST_API_TOKEN = Cypress.env('TRACETEST_API_TOKEN') || '';
 
-const tracetest = Tracetest();
+let tracetest: Types.TracetestCypress | undefined = undefined;
 
-describe('Home', { defaultCommandTimeout: 60000 }, () => {
-  before(done => {
-    tracetest.configure(TRACETEST_API_TOKEN).then(() => done());
-  });
-
-  beforeEach(() => {
-    cy.visit('/', {
-      onBeforeLoad: win => tracetest.capture(win.document),
-    });
-  });
-
-  afterEach(done => {
-    const definition = Cypress.env('definition') || '';
-    tracetest.runTest(definition).then(() => done());
-  });
-
-  // uncomment to wait for trace tests to be done
-  after(done => {
-    tracetest.summary().then(() => done());
-  });
-
-  it('create a pokemon', () => {
-    cy.get('[data-cy="create-pokemon-button"]').should('be.visible').click();
-    cy.get('[data-cy="create-pokemon-modal"]').should('be.visible');
-    cy.get('#name').type('Pikachu');
-    cy.get('#type').type('Electric');
-    cy.get('#imageUrl').type('https://oyster.ignimgs.com/mediawiki/apis.ign.com/pokemon-blue-version/8/89/Pikachu.jpg');
-
-    cy.get('button').contains('OK').click();
-  });
-
-  const definition = `
+const definition = `
   type: Test
   spec:
     id: aW1wb3J0cyBhIHBva2Vtb24=
@@ -57,7 +26,42 @@ describe('Home', { defaultCommandTimeout: 60000 }, () => {
       value: attr:name
     `;
 
-  it('imports a pokemon', { env: { definition } }, () => {
+describe('Home', { defaultCommandTimeout: 60000 }, () => {
+  before(done => {
+    Tracetest({ apiToken: TRACETEST_API_TOKEN }).then(instance => {
+      tracetest = instance;
+      tracetest
+        .setOptions({
+          'imports a pokemon': {
+            definition,
+          },
+        })
+        .then(() => done());
+    });
+  });
+
+  beforeEach(() => {
+    cy.visit('/', {
+      onBeforeLoad: win => tracetest.capture(win.document),
+    });
+  });
+
+  // uncomment to wait for trace tests to be done
+  after(done => {
+    tracetest.summary().then(() => done());
+  });
+
+  it('create a pokemon', () => {
+    cy.get('[data-cy="create-pokemon-button"]').should('be.visible').click();
+    cy.get('[data-cy="create-pokemon-modal"]').should('be.visible');
+    cy.get('#name').type('Pikachu');
+    cy.get('#type').type('Electric');
+    cy.get('#imageUrl').type('https://oyster.ignimgs.com/mediawiki/apis.ign.com/pokemon-blue-version/8/89/Pikachu.jpg');
+
+    cy.get('button').contains('OK').click();
+  });
+
+  it('imports a pokemon', () => {
     cy.get('[data-cy="import-pokemon-button"]').click();
     cy.get('[data-cy="import-pokemon-form"]').should('be.visible');
 

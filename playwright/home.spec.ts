@@ -1,44 +1,11 @@
 import { test, expect } from '@playwright/test';
-import Tracetest from '@tracetest/playwright';
+import Tracetest, { Types } from '@tracetest/playwright';
 
 const { TRACETEST_API_TOKEN = '' } = process.env;
 
-const tracetest = Tracetest();
+let tracetest: Types.TracetestPlaywright | undefined = undefined;
 
 test.describe.configure({ mode: 'serial' });
-
-test.beforeAll(async () => {
-  await tracetest.configure(TRACETEST_API_TOKEN);
-});
-
-test.beforeEach(async ({ page }, { title }) => {
-  await page.goto('/');
-  await tracetest.capture(title, page);
-});
-
-test.afterEach(async ({}, { title, config }) => {
-  await tracetest.runTest(title, config.metadata.definition ?? '');
-  config.metadata.definition = '';
-});
-
-// optional step to break the playwright script in case a Tracetest test fails
-test.afterAll(async ({}, testInfo) => {
-  testInfo.setTimeout(60000);
-  await tracetest.summary();
-});
-
-test('Playwright: creates a pokemon', async ({ page }) => {
-  expect(await page.getByText('Pokeshop')).toBeTruthy();
-
-  await page.click('text=Add');
-
-  await page.getByLabel('Name').fill('Charizard');
-  await page.getByLabel('Type').fill('Flying');
-  await page
-    .getByLabel('Image URL')
-    .fill('https://upload.wikimedia.org/wikipedia/en/1/1f/Pok%C3%A9mon_Charizard_art.png');
-  await page.getByRole('button', { name: 'OK', exact: true }).click();
-});
 
 const definition = `
   type: Test
@@ -62,9 +29,40 @@ const definition = `
       value: attr:name
     `;
 
-test('Playwright: imports a pokemon', async ({ page }, { config: { metadata } }) => {
-  // set the definition for the tracetest test
-  metadata.definition = definition;
+test.beforeAll(async () => {
+  tracetest = await Tracetest({ apiToken: TRACETEST_API_TOKEN });
+  tracetest.setOptions({
+    'Playwright: imports a pokemon': {
+      definition,
+    },
+  });
+});
+
+test.beforeEach(async ({ page }, { title }) => {
+  await page.goto('/');
+  await tracetest?.capture(title, page);
+});
+
+// optional step to break the playwright script in case a Tracetest test fails
+test.afterAll(async ({}, testInfo) => {
+  testInfo.setTimeout(60000);
+  await tracetest?.summary();
+});
+
+test('Playwright: creates a pokemon', async ({ page }) => {
+  expect(await page.getByText('Pokeshop')).toBeTruthy();
+
+  await page.click('text=Add');
+
+  await page.getByLabel('Name').fill('Charizard');
+  await page.getByLabel('Type').fill('Flying');
+  await page
+    .getByLabel('Image URL')
+    .fill('https://upload.wikimedia.org/wikipedia/en/1/1f/Pok%C3%A9mon_Charizard_art.png');
+  await page.getByRole('button', { name: 'OK', exact: true }).click();
+});
+
+test('Playwright: imports a pokemon', async ({ page }) => {
   expect(await page.getByText('Pokeshop')).toBeTruthy();
 
   await page.click('text=Import');

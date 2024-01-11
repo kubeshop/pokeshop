@@ -6,8 +6,8 @@
   "scripts": {
     "cy:open": "cypress open",
     "cy:run": "cypress run",
-    "pr:run": "playwright test",
-    "pr:open": "playwright test --ui",
+    "pw:run": "playwright test",
+    "pw:open": "playwright test --ui",
     "generate-diagram": "mmdc"
   },
   "author": "",
@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@opentelemetry/sdk-trace-base": "^1.18.1",
-    "@tracetest/cypress": "^0.0.21",
-    "@tracetest/playwright": "0.0.21"
+    "@tracetest/cypress": "^0.0.22",
+    "@tracetest/playwright": "0.0.22"
   }
 }

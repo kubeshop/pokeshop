@@ -18,6 +18,10 @@ exporters:
     endpoint: ${JAEGER_ENDPOINT}
     tls:
       insecure: true
+  otlp/trace:
+    endpoint: tracetest-agent:4317
+    tls:
+      insecure: true
 
 service:
   pipelines:
@@ -25,3 +29,7 @@ service:
       receivers: [otlp]
       processors: []
       exporters: [logging, jaeger]
+    traces/1:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/trace]
