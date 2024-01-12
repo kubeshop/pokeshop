@@ -7,23 +7,23 @@ let tracetest: Types.TracetestCypress | undefined = undefined;
 const definition = `
 type: Test
 spec:
-  id: UGxheXdyaWdodDogaW1wb3J0cyBhIHBva2Vtb24=
-  name: "Playwright: imports a pokemon"
+  id: aW1wb3J0cyBhIHBva2Vtb24=
+  name: imports a pokemon
   trigger:
-    type: playwright
+    type: cypress
   specs:
-    - selector: span[tracetest.span.type="http"] span[tracetest.span.type="http"]
-      name: "All HTTP Spans: Status  code is 200"
-      assertions:
-      - attr:http.status_code   =   200
-    - selector: span[tracetest.span.type="database"]
-      name: "All Database Spans: Processing time is less than 100ms"
-      assertions:
-      - attr:tracetest.span.duration < 2s
+  - selector: span[tracetest.span.type="http"] span[tracetest.span.type="http"]
+    name: "All HTTP Spans: Status  code is 200"
+    assertions:
+    - attr:http.status_code   =   200
+  - selector: span[tracetest.span.type="database"]
+    name: "All Database Spans: Processing time is less than 100ms"
+    assertions:
+    - attr:tracetest.span.duration < 2s
   outputs:
-    - name: MY_OUTPUT
-      selector: span[tracetest.span.type="general" name="Tracetest trigger"]
-      value: attr:name
+  - name: MY_OUTPUT
+    selector: span[tracetest.span.type="general" name="Tracetest trigger"]
+    value: attr:name
 `;
 
 describe('Home', { defaultCommandTimeout: 60000 }, () => {
