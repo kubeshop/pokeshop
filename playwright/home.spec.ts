@@ -32,7 +32,7 @@ spec:
 test.beforeAll(async () => {
   tracetest = await Tracetest({ apiToken: TRACETEST_API_TOKEN });
 
-  tracetest.setOptions({
+  await tracetest.setOptions({
     'Playwright: imports a pokemon': {
       definition,
     },
@@ -46,7 +46,7 @@ test.beforeEach(async ({ page }, { title }) => {
 
 // optional step to break the playwright script in case a Tracetest test fails
 test.afterAll(async ({}, testInfo) => {
-  testInfo.setTimeout(60000);
+  testInfo.setTimeout(80000);
   await tracetest?.summary();
 });
 

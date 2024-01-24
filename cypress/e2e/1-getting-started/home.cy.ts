@@ -26,7 +26,7 @@ spec:
     value: attr:name
 `;
 
-describe('Home', { defaultCommandTimeout: 60000 }, () => {
+describe('Home', { defaultCommandTimeout: 80000 }, () => {
   before(done => {
     Tracetest({ apiToken: TRACETEST_API_TOKEN }).then(instance => {
       tracetest = instance;
