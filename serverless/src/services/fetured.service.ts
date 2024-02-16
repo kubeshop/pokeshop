@@ -1,9 +1,9 @@
-import { Pokemon } from '@prisma/client';
-import { prisma } from '../utils/db';
-import CacheService from './cache.service';
+import { getCacheService } from '../services/cache.service';
+import { getPokemonRepository, Pokemon } from '../repositories';
 
 const FeaturedService = () => {
-  const cacheService = CacheService<Pokemon[]>();
+  const cacheService = getCacheService<Pokemon[]>();
+  const repository = getPokemonRepository();
   const key = 'featured-list';
 
   return {
@@ -12,10 +12,10 @@ const FeaturedService = () => {
 
       if (!!fromCache) return fromCache;
 
-      const fromDb = await prisma.pokemon.findMany({ where: { isFeatured: true } });
-      await cacheService.set(key, fromDb);
+      const pokemons = await repository.findMany({ where: { isFeatured: true } });
+      await cacheService.set(key, pokemons);
 
-      return fromDb;
+      return pokemons;
     },
   };
 };
