@@ -1,25 +1,15 @@
 import { composeHandler } from '@lambda-middleware/compose';
 import { PromiseHandler } from '@lambda-middleware/utils';
-import { cors } from '@lambda-middleware/cors';
 import { jsonSerializer } from '@lambda-middleware/json-serializer';
 import errorHandler from './errorHandler';
 import instrumentation from './instrumentation';
+import db from './db';
 
 export const composeMiddleware = (handler: PromiseHandler) =>
   composeHandler(
-    instrumentation(),
     errorHandler(),
-    cors({
-      allowedHeaders: [],
-      cacheControl: 'max-age: 300',
-
-      allowCredentials: true,
-      maxAge: 300,
-      allowedMethods: ['GET', 'HEAD', 'PATCH', 'POST', 'DELETE'],
-      optionsSuccessStatus: 204,
-      allowedOrigins: ['*'],
-      preflightContinue: false,
-    }),
+    db(),
+    instrumentation(),
     jsonSerializer(),
     handler
   );

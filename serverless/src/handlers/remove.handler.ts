@@ -1,14 +1,7 @@
 import { PromiseHandler } from '@lambda-middleware/utils';
-import { prisma } from '../utils/db';
 
-const remove: PromiseHandler = async ({ pathParameters }) => {
-  const { id = '0' } = pathParameters || {};
-
-  const pokemon = await prisma.pokemon.delete({
-    where: { id: +id },
-  });
-
-  return pokemon;
+const remove: PromiseHandler = async () => {
+  return {};
 };
 
 export default remove;

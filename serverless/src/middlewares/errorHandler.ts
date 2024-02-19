@@ -13,7 +13,7 @@ const errorHandler =
     try {
       return await handler(event, context);
     } catch (error) {
-      console.log('@@@error', error);
+      console.log('[❌ - ERROR]', error);
       const { statusCode } = error as { statusCode?: number };
       if (typeof statusCode === 'number' && statusCode < 500) {
         logger(`Responding with full error as statusCode is ${statusCode}`);

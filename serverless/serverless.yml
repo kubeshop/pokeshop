@@ -2,40 +2,24 @@
 service: pokeshop-api-demo
 frameworkVersion: "3"
 
-package:
-  patterns:
-    - src/**
-    - "!.vscode/**"
-    - "!infra/**"
-    - "!node_modules/typescript/**"
-    - "!node_modules/aws-sdk/**"
-    - "!node_modules/serverless-offline/**"
-    - "!node_modules/.prisma/client/libquery_engine-*"
-    - "node_modules/.prisma/client/libquery_engine-rhel-*"
-    - "!node_modules/prisma/libquery_engine-*"
-    - "!node_modules/@prisma/engines/**"
-
 plugins:
+  - serverless-offline
   - serverless-plugin-typescript
   - serverless-vpc-plugin
 
+useDotenv: true
+
 custom:
-  databaseName: "pokeshop3"
+  databaseName: "pokeshop"
   databaseUsername: "ashketchum"
   databasePassword: "squirtle123"
-  openSearchPassword: "Squirtle123@"
   databaseEndpoint:
     Fn::GetAtt: [PokeDatabase, "Endpoint.Address"]
-  s3BucketArn:
-    Fn::GetAtt: [ImageBucket, Arn]
-  keyPairName: "pokeshop-api"
   vpcConfig:
     cidrBlock: "10.0.0.0/16"
     createNetworkAcl: false
     createDbSubnet: true
     createNatInstance: true
-    createBastionHost: true
-    bastionHostKeyName: ${self:custom.keyPairName}
     zones:
       - us-east-1a
       - us-east-1b
@@ -45,20 +29,10 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs14.x
-  timeout: 25
-  region: us-east-1
-  httpApi:
-    cors: true
-    payload: "1.0"
+  runtime: nodejs20.x
   environment:
-    NODE_OPTIONS: --require ./src/utils/tracer.js
-    COLLECTOR_ENDPOINT:
-      Fn::Join:
-        - ""
-        - - "http://"
-          - { Ref: ECSEIP }
-          - ":4317"
+    NODE_OPTIONS: --require ./src/setup
+    COLLECTOR_ENDPOINT: ${env:TRACETEST_AGENT_ENDPOINT}
     DATABASE_URL:
       Fn::Join:
         - ""
@@ -72,7 +46,6 @@ provider:
           - ${self:custom.databaseName}
           - "?schema=public"
     SQS_QUEUE_URL: { Ref: AssetsQueue }
-    S3_ARN: { Ref: ImageBucket }
     POKE_API_BASE_URL: "https://pokeapi.co/api/v2"
     REDIS_URL:
       Fn::GetAtt: [PokeCache, "RedisEndpoint.Address"]
@@ -84,23 +57,6 @@ provider:
             - sqs:*
           Resource:
             Fn::GetAtt: [AssetsQueue, Arn]
-        - Effect: Allow
-          Action:
-            - s3:PutObject
-            - s3:GetObject
-            - s3:DeleteObject
-          Resource:
-            Fn::GetAtt: [ImageBucket, Arn]
-        - Effect: Allow
-          Action:
-            - s3:PutObject
-            - s3:GetObject
-            - s3:DeleteObject
-          Resource:
-            - Fn::Join:
-                - ""
-                - - ${self:custom.s3BucketArn}
-                  - "/*"
 
 functions:
   get:
@@ -115,38 +71,14 @@ functions:
       - httpApi:
           path: /pokemon
           method: post
-  update:
-    handler: ./src/handler.update
-    events:
-      - httpApi:
-          path: /pokemon/{id}
-          method: patch
-  remove:
-    handler: ./src/handler.remove
-    events:
-      - httpApi:
-          path: /pokemon/{id}
-          method: delete
   import:
     handler: ./src/handler.importPokemon
     events:
       - httpApi:
           path: /pokemon/import
           method: post
-  search:
-    handler: ./src/handler.search
-    events:
-      - httpApi:
-          path: /pokemon/search
-          method: get
-  featured:
-    handler: ./src/handler.featured
-    events:
-      - httpApi:
-          path: /pokemon/featured
-          method: get
-  imageDownloader:
-    handler: ./src/handler.imageDownloader
+  worker:
+    handler: ./src/handler.worker
     events:
       - sqs:
           arn:
@@ -154,12 +86,26 @@ functions:
               - AssetsQueue
               - Arn
 
+  # update:
+  #   handler: ./src/handler.update
+  #   events:
+  #     - httpApi:
+  #         path: /pokemon/{id}
+  #         method: patch
+  # remove:
+  #   handler: ./src/handler.remove
+  #   events:
+  #     - httpApi:
+  #         path: /pokemon/{id}
+  #         method: delete
+  # featured:
+  #   handler: ./src/handler.featured
+  #   events:
+  #     - httpApi:
+  #         path: /pokemon/featured
+  #         method: get
+
 resources:
   - ${file(./infra/rds.yml)}
   - ${file(./infra/queue.yml)}
-  - ${file(./infra/s3.yml)}
   - ${file(./infra/elasticache.yml)}
-  - ${file(./infra/ecs-cluster.yml)}
-  - ${file(./infra/security-groups.yml)}
-  - ${file(./infra/opensearch.yml)}
-  - ${file(./infra/task-definition.yml)}

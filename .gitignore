@@ -15,3 +15,4 @@ cypress/downloads
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+serverless/.env

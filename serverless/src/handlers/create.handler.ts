@@ -1,29 +1,22 @@
 import { PromiseHandler } from '@lambda-middleware/utils';
 import { composeHandler } from '@lambda-middleware/compose';
 import { classValidator } from '@lambda-middleware/class-validator';
-import ImageDownloader from '../services/imageDownloader.service';
-import { prisma } from '../utils/db';
 import CreatePokemon from '../validators/createPokemon';
+import { getPokemonRepository, Pokemon } from '../repositories';
 
-const create: PromiseHandler = async (event: { body: CreatePokemon }) => {
-  const { name = '', type = '', isFeatured = false, imageUrl = '' } = event.body;
+const create: PromiseHandler<{ body: CreatePokemon }> = async ({body}) => {
+  const { name = '', type = '', isFeatured = false, imageUrl = '' } = body;
 
-  const pokemon = await prisma.pokemon.create({
-    data: {
+  const repository = getPokemonRepository();
+
+  const pokemon = await repository.create(
+    new Pokemon({
       name,
       type,
       isFeatured,
-    },
-  });
-
-  if (!!imageUrl) {
-    const downloader = ImageDownloader();
-
-    await downloader.queue({
-      id: pokemon.id,
-      url: imageUrl,
-    });
-  }
+      imageUrl,
+    })
+  );
 
   return pokemon;
 };
