@@ -33,3 +33,4 @@ jobs:
         cache-to: type=gha,mode=max
         tags: |
           kubeshop/demo-pokemon-api:latest
+          kubeshop/demo-pokemon-api:test
