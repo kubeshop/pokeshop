@@ -12,5 +12,6 @@
     "useDefineForClassFields": false,
     "lib": ["es2015"],
     "rootDir": "./"
-  }
+  },
+  "exclude": ["tracetest.ts"]
 }
