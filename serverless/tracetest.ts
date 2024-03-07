@@ -1,3 +1,4 @@
+import { URL } from 'url';
 import Tracetest from '@tracetest/client';
 import { TestResource } from '@tracetest/client/dist/modules/openapi-client';
 import { config } from 'dotenv';
@@ -5,7 +6,18 @@ import { config } from 'dotenv';
 config();
 
 const { TRACETEST_API_TOKEN = '' } = process.env;
-const [url = ''] = process.argv.slice(2);
+const [raw = ''] = process.argv.slice(2);
+
+let url = '';
+
+try {
+  url = new URL(raw).origin;
+} catch (error) {
+  console.error(
+    'The API Gateway URL is required as an argument. i.e: `npm test https://75yj353nn7.execute-api.us-east-1.amazonaws.com`'
+  );
+  process.exit(1);
+}
 
 const definition: TestResource = {
   type: 'Test',
