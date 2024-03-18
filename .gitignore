@@ -16,3 +16,6 @@ cypress/downloads
 /blob-report/
 /playwright/.cache/
 serverless/.env
+
+# k6 executable 
+/k6
