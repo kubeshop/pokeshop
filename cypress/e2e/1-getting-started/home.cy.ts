@@ -7,8 +7,8 @@ let tracetest: Types.TracetestCypress | undefined = undefined;
 const definition = `
 type: Test
 spec:
-  id: aW1wb3J0cyBhIHBva2Vtb24=
-  name: imports a pokemon
+  id: aW1wb3J0cyBhIHBva2Vtb23=
+  name: "Cypress: imports a pokemon"
   trigger:
     type: cypress
   specs:
@@ -32,7 +32,7 @@ describe('Home', { defaultCommandTimeout: 80000 }, () => {
       tracetest = instance;
       tracetest
         .setOptions({
-          'imports a pokemon': {
+          'Cypress: imports a pokemon': {
             definition,
           },
         })
@@ -51,7 +51,7 @@ describe('Home', { defaultCommandTimeout: 80000 }, () => {
     tracetest.summary().then(() => done());
   });
 
-  it('create a pokemon', () => {
+  it('Cypress: create a pokemon', () => {
     cy.get('[data-cy="create-pokemon-button"]').should('be.visible').click();
     cy.get('[data-cy="create-pokemon-modal"]').should('be.visible');
     cy.get('#name').type('Pikachu');
@@ -61,7 +61,7 @@ describe('Home', { defaultCommandTimeout: 80000 }, () => {
     cy.get('button').contains('OK').click();
   });
 
-  it('imports a pokemon', () => {
+  it('Cypress: imports a pokemon', () => {
     cy.get('[data-cy="import-pokemon-button"]').click();
     cy.get('[data-cy="import-pokemon-form"]').should('be.visible');
 
@@ -71,7 +71,7 @@ describe('Home', { defaultCommandTimeout: 80000 }, () => {
     cy.get('button').contains('OK').click({ force: true });
   });
 
-  it('deletes a pokemon', () => {
+  it('Cypress: deletes a pokemon', () => {
     cy.get('[data-cy="pokemon-list"]').should('be.visible');
     cy.get('[data-cy="pokemon-card"]').first().click().get('[data-cy="delete-pokemon-button"]').first().click();
   });
