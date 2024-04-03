@@ -1,0 +1,24 @@
+name: K6 Tests
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */1 * * *' # every hour
+
+jobs:
+  docker:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Start containers
+        run: docker compose -f docker-compose.yml -f docker-compose.k6.workflows.yml run k6-tracetest
+        env:
+          TRACETEST_API_TOKEN: ${{secrets.TRACETEST_TOKEN}}
+          POKESHOP_DEMO_URL: ${{secrets.POKESHOP_DEMO_URL}}
+
+      - name: Stop containers
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.k6.workflows.yml down

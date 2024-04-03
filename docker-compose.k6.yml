@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  k6-tracetest:
+    build:
+      context: .
+      dockerfile: k6.Dockerfile
+    environment:
+      XK6_TRACETEST_API_TOKEN: ${TRACETEST_API_TOKEN}
+      POKESHOP_DEMO_URL: ${POKESHOP_DEMO_URL}
+    depends_on:
+      - api
+      - tracetest-agent
+      - worker
+    volumes:
+      - ./test/k6/import-pokemon.js:/import-pokemon.js
+  tracetest-agent:
+    image: kubeshop/tracetest-agent:latest
+    environment:
+      TRACETEST_DEV: ${TRACETEST_DEV}
+      TRACETEST_API_KEY: ${TRACETEST_AGENT_API_KEY}
+      TRACETEST_SERVER_URL: ${TRACETEST_SERVER_URL}
