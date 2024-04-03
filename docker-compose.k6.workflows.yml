@@ -8,8 +8,5 @@ services:
     environment:
       XK6_TRACETEST_API_TOKEN: ${TRACETEST_API_TOKEN}
       POKESHOP_DEMO_URL: ${POKESHOP_DEMO_URL}
-    depends_on:
-      - worker
-      - api
     volumes:
       - ./test/k6/add-pokemon.js:/import-pokemon.js
