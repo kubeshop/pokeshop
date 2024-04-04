@@ -43,7 +43,7 @@ spec:
   - selector: span[tracetest.span.type="database" name="create pokeshop.pokemon" db.system="postgres" db.name="pokeshop" db.user="ashketchum" db.operation="create" db.sql.table="pokemon"]
     name: A Pokemon was inserted on database
     assertions:
-    - attr:db.result | json_path '$.imageUrl'  =  "https://assets.pokemon.com/assets/cms2/img/pokedex/full/052.png"
+    - attr:db.result | json_path '$.imageUrl'  =  "https://assets.pokemon.com/assets/cms2/img/pokedex/full/006.png"
 `;
 
   const response = http.post(url, payload, params);
