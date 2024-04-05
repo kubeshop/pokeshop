@@ -19,8 +19,8 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         env:
-          TRACETEST_API_TOKEN: ${{secrets.TRACETEST_TOKEN}}
-          POKESHOP_DEMO_URL: ${{secrets.POKESHOP_DEMO_URL}}
+          TRACETEST_API_TOKEN: ${{secrets.TRACETEST_TOKEN_STAGE}}
+          POKESHOP_DEMO_URL: ${{secrets.POKESHOP_DEMO_URL_STAGE}}
           
       - name: Send message on Slack in case of failure
         if: ${{ failure() }}
