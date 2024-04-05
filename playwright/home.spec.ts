@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import Tracetest, { Types } from '@tracetest/playwright';
 
-const { TRACETEST_API_TOKEN = '' } = process.env;
+const { TRACETEST_API_TOKEN = '', TRACETEST_SERVER_URL = 'https://app-stage.tracetest.io' } = process.env;
 
 let tracetest: Types.TracetestPlaywright | undefined = undefined;
 
@@ -30,7 +30,7 @@ spec:
 `;
 
 test.beforeAll(async () => {
-  tracetest = await Tracetest({ apiToken: TRACETEST_API_TOKEN });
+  tracetest = await Tracetest({ apiToken: TRACETEST_API_TOKEN, serverUrl: TRACETEST_SERVER_URL, serverPath: '' });
 
   await tracetest.setOptions({
     'Playwright: imports a pokemon': {
