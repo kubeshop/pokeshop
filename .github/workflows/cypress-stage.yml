@@ -1,4 +1,4 @@
-name: Cypress Tests
+name: Cypress Tests Stage
 
 on:
   # allows the manual trigger

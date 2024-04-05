@@ -9,6 +9,7 @@ module.exports = defineConfig({
     baseUrl: process.env.POKESHOP_DEMO_URL || 'http://localhost:3000',
     env: {
       TRACETEST_API_TOKEN: process.env.TRACETEST_API_TOKEN,
+      TRACETEST_SERVER_URL: process.env.TRACETEST_SERVER_URL || 'https://app.tracetest.io',
     },
     setupNodeEvents() {
       // implement node event listeners here
