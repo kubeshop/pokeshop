@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import Tracetest, { Types } from '@tracetest/playwright';
 
-const { TRACETEST_API_TOKEN = '', TRACETEST_SERVER_URL = 'https://app-stage.tracetest.io' } = process.env;
+const { TRACETEST_API_TOKEN = '', TRACETEST_SERVER_URL = 'https://app.tracetest.io' } = process.env;
 
 let tracetest: Types.TracetestPlaywright | undefined = undefined;
 
