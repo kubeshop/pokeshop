@@ -12,6 +12,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Install
+        run: npm ci
+
       - name: Execute load tests
         uses: artilleryio/action-cli@v1
         with:
