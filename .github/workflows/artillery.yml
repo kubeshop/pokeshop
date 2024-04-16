@@ -19,6 +19,8 @@ jobs:
         uses: artilleryio/action-cli@v1
         with:
           command: run ./test/artillery/import-pokemon.yml
+        env:
+          ARTILLERY_PLUGIN_PATH: ${{ github.workspace }}/node_modules/
       - name: Send message on Slack in case of failure
         if: ${{ failure() }}
         uses: slackapi/slack-github-action@v1.24.0
