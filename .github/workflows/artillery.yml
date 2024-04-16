@@ -1,4 +1,4 @@
-name: Artillery Socket.IO Load Test
+name: Artillery Tests
 on:
   workflow_dispatch:
   schedule:
