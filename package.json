@@ -8,6 +8,7 @@
     "cy:run": "cypress run",
     "pw:run": "playwright test",
     "pw:open": "playwright test --ui",
+    "artillery:run": "artillery run ./test/artillery/import-pokemon.yml",
     "generate-diagram": "mmdc"
   },
   "author": "",
@@ -18,6 +19,7 @@
     "@types/node": "^20.10.6",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
+    "artillery": "^2.0.9-83ceb0d",
     "cypress": "^13.6.1",
     "dotenv": "^16.3.1",
     "eslint": "^8.55.0",
@@ -30,7 +32,8 @@
   },
   "dependencies": {
     "@opentelemetry/sdk-trace-base": "^1.18.1",
-    "@tracetest/cypress": "^0.0.36",
-    "@tracetest/playwright": "0.0.36"
+    "@tracetest/cypress": "^0.0.37",
+    "@tracetest/playwright": "0.0.37",
+    "artillery-plugin-tracetest": "^0.0.37"
   }
 }

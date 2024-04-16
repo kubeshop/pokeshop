@@ -1,0 +1,19 @@
+type: Test
+spec:
+  id: artillery-plugin-import-pokemon
+  name: "Artillery Plugin: Import a Pokemon"
+  trigger:
+    type: artillery
+  specs:
+    - selector: span[tracetest.span.type="http"]
+      name: "All HTTP Spans: Status  code is 200"
+      assertions:
+        - attr:http.status_code = 200
+    - selector: span[tracetest.span.type="database"]
+      name: "All Database Spans: Processing time is less than 1s"
+      assertions:
+        - attr:tracetest.span.duration < 1s
+    - selector: span[tracetest.span.type="database" name="create pokeshop.pokemon" db.system="postgres" db.name="pokeshop" db.user="ashketchum" db.operation="create" db.sql.table="pokemon"]
+      name: Pokemon should be added to db
+      assertions:
+        - attr:tracetest.selected_spans.count = 1

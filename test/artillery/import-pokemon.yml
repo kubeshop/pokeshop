@@ -1,0 +1,37 @@
+config:
+  target: "https://demo-pokeshop.tracetest.io"
+  phases:
+    - duration: 1
+      arrivalRate: 1
+  plugins:
+    publish-metrics:
+      - type: "open-telemetry"
+        serviceName: "artillery"
+        metrics:
+          reporter: otlp-http
+          endpoint: "http://localhost:4318/v1/metrics"
+          attributes:
+            environment: "test"
+            tool: "Artillery"
+            type: "Load test"
+
+        traces:
+          reporter: otlp-http
+          endpoint: "http://localhost:4318/v1/traces"
+          attributes:
+            environment: "test"
+            tool: "Artillery"
+    tracetest:
+      token: tttoken_a2d67564c92023b6
+      definition: ./test/artillery/import-pokemon-definition.yml
+      runInfo:
+        variables:
+          - key: POKEMON_ID
+            value: "88"
+scenarios:
+  - name: "Import Pokemon"
+    flow:
+      - post:
+          url: "/pokemon/import"
+          json:
+            id: 88
