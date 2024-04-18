@@ -1,4 +1,4 @@
-name: K6 Tests
+name: K6 Tests Stage
 on:
   workflow_dispatch:
   schedule:
