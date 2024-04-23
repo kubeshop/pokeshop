@@ -3,9 +3,8 @@ name: Cypress Tests
 on:
   # allows the manual trigger
   workflow_dispatch:
-
-  # schedule:
-  #   - cron: '0 */1 * * *' # every hour
+  schedule:
+    - cron: '*/15 * * * *' # Run every 20 minutes
 
 jobs:
   cypress-run:

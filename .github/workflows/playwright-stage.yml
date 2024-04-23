@@ -2,7 +2,7 @@ name: Playwright Tests Stage
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */1 * * *' # every hour
+    - cron: '*/15 * * * *' # Run every 20 minutes
 
 jobs:
   test:
