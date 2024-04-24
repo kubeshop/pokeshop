@@ -69,8 +69,11 @@ test('Playwright: imports a pokemon', async ({ page }) => {
   await page.click('text=Import');
 
   await page.getByLabel('ID').fill('143');
-  await page.getByRole('button', { name: 'OK', exact: true }).click();
-  await page.waitForTimeout(1000);
+
+  await Promise.all([
+    page.waitForResponse(resp => resp.url().includes('/pokemon/import') && resp.status() === 200),
+    page.getByRole('button', { name: 'OK', exact: true }).click(),
+  ]);
 });
 
 test('Playwright: deletes a pokemon', async ({ page }) => {

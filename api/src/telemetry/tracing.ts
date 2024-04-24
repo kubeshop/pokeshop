@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { SpanStatusCode } from '@opentelemetry/api';
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
-import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 
@@ -23,8 +23,10 @@ async function createTracer(): Promise<opentelemetry.Tracer> {
   });
 
   const sdk = new NodeSDK({
-    spanProcessor: new SimpleSpanProcessor(collectorExporter),
-    // traceExporter: collectorExporter,
+    spanProcessor: new BatchSpanProcessor(collectorExporter, {
+      maxQueueSize: 10000,
+      scheduledDelayMillis: 200,
+    }),
     instrumentations: [],
   });
 
