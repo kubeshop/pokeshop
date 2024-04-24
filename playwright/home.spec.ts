@@ -68,7 +68,7 @@ test('Playwright: imports a pokemon', async ({ page }) => {
 
   await page.click('text=Import');
 
-  await page.getByLabel('ID').fill(Math.floor(Math.random() * 101).toString());
+  await page.getByLabel('ID').fill('55');
   await page.getByRole('button', { name: 'OK', exact: true }).click();
 });
 

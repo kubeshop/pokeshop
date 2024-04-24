@@ -13,7 +13,7 @@ spec:
   trigger:
     type: cypress
   specs:
-  - selector: span[tracetest.span.type="http"]
+  - selector: span[tracetest.span.type="http"] span[tracetest.span.type="http"]
     name: "All HTTP Spans: Status  code is 200"
     assertions:
     - attr:http.status_code   =   200
