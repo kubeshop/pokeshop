@@ -12,6 +12,7 @@ const instrumentRoute = () => {
     const isFixed = query.isFixed === 'true';
 
     const parentContext = propagation.extract(context.active(), headers);
+    console.log('@@>> Requesting method', method, route, headers);
     const span = await createSpanFromContext(`${method} ${route}`, parentContext, { kind: SpanKind.SERVER });
 
     try {
@@ -34,7 +35,6 @@ const instrumentRoute = () => {
         [SemanticAttributes.HTTP_CLIENT_IP]: ip,
         [SemanticAttributes.HTTP_METHOD]: method,
         [SemanticAttributes.HTTP_HOST]: host,
-        [SemanticAttributes.HTTP_SCHEME]: protocol,
         [SemanticAttributes.HTTP_USER_AGENT]: headers['user-agent'] || '',
 
         ...(isFixed

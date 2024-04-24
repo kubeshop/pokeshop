@@ -31,7 +31,7 @@ const createTracer = async () => {
     propagator: new CompositePropagator({
       propagators: [new W3CBaggagePropagator(), new W3CTraceContextPropagator()],
     }),
-  });
+  });  
 
   registerInstrumentations({
     tracerProvider: provider,
