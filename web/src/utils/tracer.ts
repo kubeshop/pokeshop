@@ -1,6 +1,6 @@
 import { CompositePropagator, W3CBaggagePropagator, W3CTraceContextPropagator } from '@opentelemetry/core';
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
-import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { Resource } from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
@@ -20,8 +20,9 @@ const createTracer = async () => {
   });
 
   provider.addSpanProcessor(
-    new SimpleSpanProcessor(
-      new OTLPTraceExporter({ url: HTTP_COLLECTOR_ENDPOINT || 'http://localhost:4318/v1/traces' })
+    new BatchSpanProcessor(
+      new OTLPTraceExporter({ url: HTTP_COLLECTOR_ENDPOINT || 'http://localhost:4318/v1/traces' }),
+      { maxQueueSize: 10000, scheduledDelayMillis: 200 }
     )
   );
 
