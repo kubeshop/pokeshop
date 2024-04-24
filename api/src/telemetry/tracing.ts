@@ -24,7 +24,7 @@ async function createTracer(): Promise<opentelemetry.Tracer> {
 
   const sdk = new NodeSDK({
     spanProcessor: new SimpleSpanProcessor(collectorExporter),
-    traceExporter: collectorExporter,
+    // traceExporter: collectorExporter,
     instrumentations: [],
   });
 
