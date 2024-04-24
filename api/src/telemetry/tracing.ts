@@ -1,9 +1,7 @@
 import * as opentelemetry from '@opentelemetry/api';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
-import { Resource } from '@opentelemetry/resources';
 import * as dotenv from 'dotenv';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { SpanStatusCode } from '@opentelemetry/api';
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
@@ -23,18 +21,15 @@ async function createTracer(): Promise<opentelemetry.Tracer> {
   });
 
   const sdk = new NodeSDK({
-    spanProcessor: new BatchSpanProcessor(collectorExporter, {
-      maxQueueSize: 10000,
-      scheduledDelayMillis: 200,
-    }),
+    serviceName: SERVICE_NAME,
+    spanProcessors: [
+      new BatchSpanProcessor(collectorExporter, {
+        maxQueueSize: 10000,
+        scheduledDelayMillis: 200,
+      }),
+    ],
     instrumentations: [],
   });
-
-  sdk.addResource(
-    new Resource({
-      [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,
-    })
-  );
 
   await sdk.start();
   process.on('SIGTERM', () => {
