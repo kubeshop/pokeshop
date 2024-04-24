@@ -56,5 +56,5 @@ jobs:
               ]
             }
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SYNTETIC_MONITORING_SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SYNTETIC_MONITORING_SLACK_WEBHOOK_URL_STAGE }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
