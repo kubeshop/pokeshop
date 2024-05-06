@@ -4,6 +4,7 @@ import { sleep } from 'k6';
 export const options = {
   vus: 1,
   duration: '5s',
+  teardownTimeout: '2m',
 };
 
 const POKESHOP_DEMO_URL = __ENV.POKESHOP_DEMO_URL || 'http://localhost:8081';
