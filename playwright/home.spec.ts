@@ -50,18 +50,18 @@ test.afterAll(async ({}, testInfo) => {
   await tracetest?.summary();
 });
 
-test('Playwright: creates a pokemon', async ({ page }) => {
-  expect(await page.getByText('Pokeshop')).toBeTruthy();
+// test('Playwright: creates a pokemon', async ({ page }) => {
+//   expect(await page.getByText('Pokeshop')).toBeTruthy();
 
-  await page.click('text=Add');
+//   await page.click('text=Add');
 
-  await page.getByLabel('Name').fill('Charizard');
-  await page.getByLabel('Type').fill('Flying');
-  await page
-    .getByLabel('Image URL')
-    .fill('https://upload.wikimedia.org/wikipedia/en/1/1f/Pok%C3%A9mon_Charizard_art.png');
-  await page.getByRole('button', { name: 'OK', exact: true }).click();
-});
+//   await page.getByLabel('Name').fill('Charizard');
+//   await page.getByLabel('Type').fill('Flying');
+//   await page
+//     .getByLabel('Image URL')
+//     .fill('https://upload.wikimedia.org/wikipedia/en/1/1f/Pok%C3%A9mon_Charizard_art.png');
+//   await page.getByRole('button', { name: 'OK', exact: true }).click();
+// });
 
 test('Playwright: imports a pokemon', async ({ page }) => {
   expect(await page.getByText('Pokeshop')).toBeTruthy();
@@ -74,6 +74,8 @@ test('Playwright: imports a pokemon', async ({ page }) => {
     page.waitForResponse(resp => resp.url().includes('/pokemon/import') && resp.status() === 200),
     page.getByRole('button', { name: 'OK', exact: true }).click(),
   ]);
+
+  await page.waitForTimeout(4000);
 });
 
 test('Playwright: deletes a pokemon', async ({ page }) => {

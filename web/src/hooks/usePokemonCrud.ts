@@ -6,9 +6,13 @@ const FEATURED_CACHE_KEY = `${CACHE_KEY}/featured`;
 
 const usePokemonCrud = () => {
   const queryClient = useQueryClient();
-  const allPokemon = useQuery(CACHE_KEY, PokemonGateway.getAll);
+  const allPokemon = useQuery(CACHE_KEY, PokemonGateway.getAll, {
+    refetchInterval: 500,
+  });
 
-  const featuredPokemon = useQuery(FEATURED_CACHE_KEY, PokemonGateway.getFeatured);
+  const featuredPokemon = useQuery(FEATURED_CACHE_KEY, PokemonGateway.getFeatured, {
+    refetchInterval: 500,
+  });
 
   const createPokemon = useMutation(PokemonGateway.create, {
     onSuccess: () => {
