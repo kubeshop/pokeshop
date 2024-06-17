@@ -32,8 +32,8 @@
   },
   "dependencies": {
     "@opentelemetry/sdk-trace-base": "^1.18.1",
-    "@tracetest/cypress": "^0.0.37",
-    "@tracetest/playwright": "0.0.37",
-    "artillery-plugin-tracetest": "^0.0.37"
+    "@tracetest/cypress": "^0.0.41",
+    "@tracetest/playwright": "0.0.41",
+    "artillery-plugin-tracetest": "^0.0.41"
   }
 }
