@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright Browsers
-        run: npx playwright@1.41.1 install --with-deps
+        run: npx playwright@1.44.1 install --with-deps
       - name: Run Playwright tests
         env:
           TRACETEST_API_TOKEN: ${{secrets.TRACETEST_TOKEN}}
