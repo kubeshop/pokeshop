@@ -13,5 +13,6 @@ COPY --from=builder /app/k6 /bin/
 COPY ./test/k6/import-pokemon.js .
 ENV XK6_TRACETEST_API_TOKEN=your-api-token
 ENV POKESHOP_DEMO_URL=http://localhost:8081
+ENV K6_TEARDOWN_TIMEOUT=600s
 
 ENTRYPOINT k6 run /import-pokemon.js -o xk6-tracetest -e POKESHOP_DEMO_URL=$POKESHOP_DEMO_URL
