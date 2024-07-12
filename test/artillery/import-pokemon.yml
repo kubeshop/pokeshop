@@ -1,8 +1,8 @@
 config:
   target: "https://demo-pokeshop.tracetest.io"
   phases:
-    - duration: 5
-      arrivalRate: 5
+    - duration: 2
+      arrivalRate: 2
   plugins:
     publish-metrics:
       - type: "open-telemetry"
