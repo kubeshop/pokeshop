@@ -18,7 +18,7 @@ export default function () {
     name: 'charizard',
     type: 'flying',
     imageUrl: 'https://assets.pokemon.com/assets/cms2/img/pokedex/full/006.png',
-    isFeatured: true,
+    isFeatured: false,
   });
   const params = {
     headers: {
