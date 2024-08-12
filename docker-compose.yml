@@ -4,8 +4,8 @@ name: pokeshop
 services:
   db:
     image: postgres:14
-    ports:
-      - 5434:5432
+    # ports:
+    #   - 5434:5432
     environment:
       POSTGRES_USER: ashketchum
       POSTGRES_PASSWORD: squirtle123
@@ -18,8 +18,8 @@ services:
 
   cache:
     image: redis:6
-    ports:
-      - 6379:6379
+    # ports:
+    #   - 6379:6379
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 1s
@@ -29,9 +29,9 @@ services:
   queue:
     image: rabbitmq:3.12
     restart: unless-stopped
-    ports:
-      - 5672:5672
-      - 15672:15672
+    # ports:
+    #   - 5672:5672
+    #   - 15672:15672
     healthcheck:
       test: rabbitmq-diagnostics -q check_running
       interval: 1s
@@ -58,11 +58,11 @@ services:
     restart: unless-stopped
     extra_hosts:
       - 'host.docker.internal:host-gateway'
-    ports:
-      - 55679:55679
-      - 8888:8888
-      - 4317:4317
-      - 4318:4318
+    # ports:
+    #   - 55679:55679
+    #   - 8888:8888
+    #   - 4317:4317
+    #   - 4318:4318
     command:
       - '--config'
       - '/otel-local-config.yaml'

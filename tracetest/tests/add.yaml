@@ -13,7 +13,7 @@ spec:
           "name": "meowth",
           "type":"normal",
           "imageUrl":"https://assets.pokemon.com/assets/cms2/img/pokedex/full/052.png",
-          "isFeatured": true
+          "isFeatured": false
         }
       headers:
       - key: Content-Type
