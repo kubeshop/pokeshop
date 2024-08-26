@@ -12,7 +12,7 @@ const startApp = async () => {
 
   server.addService(PokeshopService, PokemonRpcService);
 
-  server.bindAsync(`0.0.0.0:${RPC_PORT}`, ServerCredentials.createInsecure(), error => {
+  server.bindAsync(`:${RPC_PORT}`, ServerCredentials.createInsecure(), error => {
     if (error) {
       console.log(error)
     }
