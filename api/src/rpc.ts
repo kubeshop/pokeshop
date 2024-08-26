@@ -4,6 +4,7 @@ import PokemonRpcService from './services/pokemonRpc.service';
 import { setupSequelize } from './utils/db';
 
 const { RPC_PORT = 8082 } = process.env;
+const { RPC_HOST = `0.0.0.0:${RPC_PORT}` } = process.env
 
 const startApp = async () => {
   await setupSequelize();
@@ -12,7 +13,7 @@ const startApp = async () => {
 
   server.addService(PokeshopService, PokemonRpcService);
 
-  server.bindAsync(`:${RPC_PORT}`, ServerCredentials.createInsecure(), error => {
+  server.bindAsync(RPC_HOST, ServerCredentials.createInsecure(), error => {
     if (error) {
       console.log(error)
     }
