@@ -30,6 +30,8 @@ COPY ./api/package.json ./api/package-lock.json ./
 RUN npm clean-install
 
 EXPOSE 80
+EXPOSE 8081
+EXPOSE 8082
 
 ENV NPM_RUN_COMMAND=api
 
