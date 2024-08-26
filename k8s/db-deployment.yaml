@@ -29,13 +29,6 @@ spec:
             - name: POSTGRES_USER
               value: ashketchum
           image: postgres:14
-          livenessProbe:
-            exec:
-              command:
-                - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
-            failureThreshold: 60
-            periodSeconds: 1
-            timeoutSeconds: 5
           name: db
           ports:
             - containerPort: 5432
