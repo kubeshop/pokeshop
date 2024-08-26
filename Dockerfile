@@ -23,7 +23,7 @@ COPY ./api ./
 RUN npm run build
 
 # app
-FROM node:alpine as app
+FROM node:20-alpine as app
 
 WORKDIR /app
 COPY ./api/package.json ./api/package-lock.json ./
