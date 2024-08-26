@@ -11,7 +11,7 @@ COPY ./web ./
 RUN npm run build
 
 # build
-FROM node:alpine as build
+FROM node:20-alpine as build
 
 WORKDIR /build
 RUN npm i -g typescript
