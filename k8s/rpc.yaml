@@ -30,6 +30,8 @@ spec:
               value: guest:guest@queue
             - name: REDIS_URL
               value: cache
+            - name: RPC_PORT
+              value: "8082"
           image: kubeshop/demo-pokemon-api:latest
           imagePullPolicy: Always
           livenessProbe:
