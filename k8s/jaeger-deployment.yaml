@@ -38,6 +38,8 @@ spec:
             timeoutSeconds: 3
           name: jaeger
           ports:
+            - containerPort: 4317
+              protocol: TCP
             - containerPort: 14250
               protocol: TCP
             - containerPort: 16685

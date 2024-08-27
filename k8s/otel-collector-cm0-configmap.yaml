@@ -5,11 +5,9 @@ data:
       otlp:
         protocols:
           grpc:
+            endpoint: 0.0.0.0:4317
           http:
-            cors:
-              allowed_origins:
-                - "http://*"
-                - "https://*"
+              endpoint: 0.0.0.0:4318
 
     processors:
       batch:
@@ -17,25 +15,25 @@ data:
     exporters:
       logging:
         loglevel: debug
-      jaeger:
+      otlp/jaeger:
         endpoint: ${JAEGER_ENDPOINT}
         tls:
           insecure: true
-      otlp/trace:
+      otlp/tracetest:
         endpoint: ${TRACETEST_AGENT_ENDPOINT}
         tls:
           insecure: true
 
     service:
       pipelines:
-        traces:
+        traces/jaeger:
           receivers: [otlp]
           processors: []
-          exporters: [logging, jaeger]
-        traces/1:
+          exporters: [logging, otlp/jaeger]
+        traces/tracetest:
           receivers: [otlp]
           processors: [batch]
-          exporters: [otlp/trace]
+          exporters: [otlp/tracetest]
 kind: ConfigMap
 metadata:
   annotations:

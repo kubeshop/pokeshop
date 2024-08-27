@@ -9,6 +9,9 @@ metadata:
   name: jaeger
 spec:
   ports:
+    - name: "4317"
+      port: 4317
+      targetPort: 4317
     - name: "14250"
       port: 14250
       targetPort: 14250

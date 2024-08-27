@@ -28,10 +28,10 @@ spec:
             - /config/otel-local-config.yaml
           env:
             - name: JAEGER_ENDPOINT
-              value: jaeger.default.svc.cluster.local:14250
+              value: jaeger.default.svc.cluster.local:4317
             - name: TRACETEST_AGENT_ENDPOINT
               value: tracetest-agent.default.svc.cluster.local:4317
-          image: otel/opentelemetry-collector-contrib:0.59.0
+          image: otel/opentelemetry-collector-contrib:0.107.0 #0.59.0
           name: otel-collector
           ports:
             - containerPort: 55679
