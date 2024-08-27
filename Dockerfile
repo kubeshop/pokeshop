@@ -11,7 +11,7 @@ COPY ./web ./
 RUN npm run build
 
 # build
-FROM node:alpine as build
+FROM node:20-alpine as build
 
 WORKDIR /build
 RUN npm i -g typescript
@@ -23,7 +23,7 @@ COPY ./api ./
 RUN npm run build
 
 # app
-FROM node:alpine as app
+FROM node:20-alpine as app
 
 WORKDIR /app
 COPY ./api/package.json ./api/package-lock.json ./
