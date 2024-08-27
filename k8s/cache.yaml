@@ -1,9 +1,8 @@
+# Deployment
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert -f docker-compose.yaml
-    kompose.version: 1.34.0 (HEAD)
   labels:
     io.kompose.service: cache
   name: cache
@@ -14,9 +13,6 @@ spec:
       io.kompose.service: cache
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert -f docker-compose.yaml
-        kompose.version: 1.34.0 (HEAD)
       labels:
         io.kompose.service: cache
     spec:
@@ -35,3 +31,19 @@ spec:
             - containerPort: 6379
               protocol: TCP
       restartPolicy: Always
+
+# Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: cache
+  name: cache
+spec:
+  ports:
+    - name: "6379"
+      port: 6379
+      targetPort: 6379
+  selector:
+    io.kompose.service: cache

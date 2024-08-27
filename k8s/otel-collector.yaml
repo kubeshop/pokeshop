@@ -1,0 +1,119 @@
+# Deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: otel-collector
+  name: otel-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: otel-collector
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: otel-collector
+    spec:
+      containers:
+        - args:
+            - --config
+            - /config/otel-local-config.yaml
+          env:
+            - name: JAEGER_ENDPOINT
+              value: jaeger.default.svc.cluster.local:4317
+            - name: TRACETEST_AGENT_ENDPOINT
+              value: tracetest-agent.default.svc.cluster.local:4317
+          image: otel/opentelemetry-collector-contrib:0.107.0
+          name: otel-collector
+          ports:
+            - containerPort: 55679
+              protocol: TCP
+            - containerPort: 8888
+              protocol: TCP
+            - containerPort: 4317
+              protocol: TCP
+            - containerPort: 4318
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /config
+              name: otel-collector-cm0
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            items:
+              - key: collector.config.yaml
+                path: otel-local-config.yaml
+            name: otel-collector-cm0
+          name: otel-collector-cm0
+
+# Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: otel-collector
+  name: otel-collector
+spec:
+  ports:
+    - name: "55679"
+      port: 55679
+      targetPort: 55679
+    - name: "8888"
+      port: 8888
+      targetPort: 8888
+    - name: "4317"
+      port: 4317
+      targetPort: 4317
+    - name: "4318"
+      port: 4318
+      targetPort: 4318
+  selector:
+    io.kompose.service: otel-collector
+
+# ConfigMap
+---
+apiVersion: v1
+data:
+  collector.config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+              endpoint: 0.0.0.0:4318
+    processors:
+      batch:
+    exporters:
+      logging:
+        loglevel: debug
+      otlp/jaeger:
+        endpoint: ${JAEGER_ENDPOINT}
+        tls:
+          insecure: true
+      otlp/tracetest:
+        endpoint: ${TRACETEST_AGENT_ENDPOINT}
+        tls:
+          insecure: true
+    service:
+      pipelines:
+        traces/jaeger:
+          receivers: [otlp]
+          processors: []
+          exporters: [logging, otlp/jaeger]
+        traces/tracetest:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlp/tracetest]
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  labels:
+    io.kompose.service: otel-collector
+  name: otel-collector-cm0

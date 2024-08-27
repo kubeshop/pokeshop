@@ -1,9 +1,8 @@
+# Deployment
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert -f docker-compose.yaml
-    kompose.version: 1.34.0 (HEAD)
   labels:
     io.kompose.service: db
   name: db
@@ -14,9 +13,6 @@ spec:
       io.kompose.service: db
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert -f docker-compose.yaml
-        kompose.version: 1.34.0 (HEAD)
       labels:
         io.kompose.service: db
     spec:
@@ -41,3 +37,53 @@ spec:
           persistentVolumeClaim:
             claimName: db-volume-claim
       restartPolicy: Always
+
+# Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: db
+  name: db
+spec:
+  ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+  selector:
+    io.kompose.service: db
+
+# Persistent Volume
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: db-volume
+  labels:
+    type: local
+    io.kompose.service: db
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /data/postgresql
+
+# Persistent Volume Claim
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-volume-claim
+  labels:
+    io.kompose.service: db
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi

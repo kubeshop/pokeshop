@@ -1,9 +1,8 @@
+# Deployment
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert -f docker-compose.yaml
-    kompose.version: 1.34.0 (HEAD)
   labels:
     io.kompose.service: jaeger
   name: jaeger
@@ -14,9 +13,6 @@ spec:
       io.kompose.service: jaeger
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert -f docker-compose.yaml
-        kompose.version: 1.34.0 (HEAD)
       labels:
         io.kompose.service: jaeger
     spec:
@@ -47,3 +43,28 @@ spec:
             - containerPort: 16686
               protocol: TCP
       restartPolicy: Always
+
+# Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: jaeger
+  name: jaeger
+spec:
+  ports:
+    - name: "4317"
+      port: 4317
+      targetPort: 4317
+    - name: "14250"
+      port: 14250
+      targetPort: 14250
+    - name: "16685"
+      port: 16685
+      targetPort: 16685
+    - name: "16686"
+      port: 16686
+      targetPort: 16686
+  selector:
+    io.kompose.service: jaeger

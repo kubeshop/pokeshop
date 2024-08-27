@@ -1,29 +1,25 @@
+# Deployment
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert -f docker-compose.yaml
-    kompose.version: 1.34.0 (HEAD)
   labels:
-    io.kompose.service: worker
-  name: worker
+    io.kompose.service: rpc
+  name: rpc
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: worker
+      io.kompose.service: rpc
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert -f docker-compose.yaml
-        kompose.version: 1.34.0 (HEAD)
       labels:
-        io.kompose.service: worker
+        io.kompose.service: rpc
     spec:
       containers:
         - env:
             - name: NPM_RUN_COMMAND
-              value: worker
+              value: rpc
             - name: COLLECTOR_ENDPOINT
               value: http://otel-collector.default.svc.cluster.local:4317
             - name: DATABASE_URL
@@ -36,5 +32,33 @@ spec:
               value: cache
           image: kubeshop/demo-pokemon-api:latest
           imagePullPolicy: Always
-          name: worker
+          livenessProbe:
+            exec:
+              command:
+                - wget
+                - --spider
+                - 0.0.0.0:8081/pokemon/healthcheck
+            failureThreshold: 60
+            periodSeconds: 1
+            timeoutSeconds: 3
+          name: rpc
+          ports:
+            - containerPort: 8082
+              protocol: TCP
       restartPolicy: Always
+
+# Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: rpc
+  name: rpc
+spec:
+  ports:
+    - name: "8082"
+      port: 8082
+      targetPort: 8082
+  selector:
+    io.kompose.service: rpc

@@ -1,9 +1,8 @@
+# Deployment
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert -f docker-compose.yaml
-    kompose.version: 1.34.0 (HEAD)
   labels:
     io.kompose.service: queue
   name: queue
@@ -14,9 +13,6 @@ spec:
       io.kompose.service: queue
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert -f docker-compose.yaml
-        kompose.version: 1.34.0 (HEAD)
       labels:
         io.kompose.service: queue
     spec:
@@ -36,3 +32,22 @@ spec:
             - containerPort: 15672
               protocol: TCP
       restartPolicy: Always
+
+# Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: queue
+  name: queue
+spec:
+  ports:
+    - name: "5672"
+      port: 5672
+      targetPort: 5672
+    - name: "15672"
+      port: 15672
+      targetPort: 15672
+  selector:
+    io.kompose.service: queue
