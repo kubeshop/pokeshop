@@ -1,0 +1,70 @@
+# Deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: jaeger
+  name: jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: jaeger
+  template:
+    metadata:
+      labels:
+        io.kompose.service: jaeger
+    spec:
+      containers:
+        - env:
+            - name: COLLECTOR_OTLP_ENABLED
+              value: "true"
+            - name: COLLECTOR_ZIPKIN_HOST_PORT
+              value: :9411
+          image: jaegertracing/all-in-one:latest
+          livenessProbe:
+            exec:
+              command:
+                - wget
+                - --spider
+                - localhost:16686
+            failureThreshold: 60
+            periodSeconds: 1
+            timeoutSeconds: 3
+          name: jaeger
+          ports:
+            - containerPort: 4317
+              protocol: TCP
+            - containerPort: 14250
+              protocol: TCP
+            - containerPort: 16685
+              protocol: TCP
+            - containerPort: 16686
+              protocol: TCP
+      restartPolicy: Always
+
+# Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: jaeger
+  name: jaeger
+spec:
+  ports:
+    - name: "4317"
+      port: 4317
+      targetPort: 4317
+    - name: "14250"
+      port: 14250
+      targetPort: 14250
+    - name: "16685"
+      port: 16685
+      targetPort: 16685
+    - name: "16686"
+      port: 16686
+      targetPort: 16686
+  selector:
+    io.kompose.service: jaeger

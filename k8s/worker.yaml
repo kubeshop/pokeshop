@@ -1,0 +1,36 @@
+# Deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: worker
+  name: worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: worker
+  template:
+    metadata:
+      labels:
+        io.kompose.service: worker
+    spec:
+      containers:
+        - env:
+            - name: NPM_RUN_COMMAND
+              value: worker
+            - name: COLLECTOR_ENDPOINT
+              value: http://otel-collector.default.svc.cluster.local:4317
+            - name: DATABASE_URL
+              value: postgresql://ashketchum:squirtle123@db:5432/pokeshop?schema=public
+            - name: POKE_API_BASE_URL
+              value: https://pokeapi.co/api/v2
+            - name: RABBITMQ_HOST
+              value: guest:guest@queue
+            - name: REDIS_URL
+              value: cache
+          image: kubeshop/demo-pokemon-api:latest
+          imagePullPolicy: Always
+          name: worker
+      restartPolicy: Always

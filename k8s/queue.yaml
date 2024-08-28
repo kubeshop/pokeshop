@@ -1,0 +1,53 @@
+# Deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: queue
+  name: queue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: queue
+  template:
+    metadata:
+      labels:
+        io.kompose.service: queue
+    spec:
+      containers:
+        - image: rabbitmq:3.12
+          livenessProbe:
+            exec:
+              command:
+                - rabbitmq-diagnostics -q check_running
+            failureThreshold: 60
+            periodSeconds: 1
+            timeoutSeconds: 5
+          name: queue
+          ports:
+            - containerPort: 5672
+              protocol: TCP
+            - containerPort: 15672
+              protocol: TCP
+      restartPolicy: Always
+
+# Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: queue
+  name: queue
+spec:
+  ports:
+    - name: "5672"
+      port: 5672
+      targetPort: 5672
+    - name: "15672"
+      port: 15672
+      targetPort: 15672
+  selector:
+    io.kompose.service: queue
