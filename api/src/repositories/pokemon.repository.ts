@@ -1,5 +1,3 @@
-import { PokemonModel } from './pokemon.sequelize.repository';
-
 export class Pokemon {
   public id?: number;
   public name: string;

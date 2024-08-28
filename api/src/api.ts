@@ -17,6 +17,9 @@ import updateHandler from '@pokemon/handlers/update.handler';
 import healthcheckHandler from '@pokemon/handlers/healthcheck.handler';
 import { setupSequelize } from '@pokemon/utils/db';
 import { instrumentRoute } from '@pokemon/middlewares/instrumentation';
+import { graphqlHTTP } from 'koa-graphql';
+import schema from './schema';
+import resolvers from './graphql/resolvers';
 
 const { APP_PORT = 8081 } = process.env;
 
@@ -53,6 +56,7 @@ async function startApp() {
 
   ui.use(serve(resolve(__dirname, './ui')));
   app.use(mount('/', ui));
+  app.use(mount('/graphql', graphqlHTTP({ schema, rootValue: resolvers, graphiql: true })));
 
   console.log(`Starting server on port ${APP_PORT}`);
   app.listen(APP_PORT);
