@@ -33,3 +33,9 @@ dependencies:
   - name: redis
     version: 17.3.17
     repository: https://charts.bitnami.com/bitnami
+  - name: opentelemetry-collector
+    version: 0.92.0
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+  - name: jaeger
+    version: 3.0.10
+    repository: https://jaegertracing.github.io/helm-charts

@@ -7,6 +7,7 @@
     ```bash
     kubectl apply -f .
     ```
+
 4. Create and run a test by going to [`app.tracetest.io`](https://app.tracetest.io) and using the internal Kubernetes service networking:
 
     - **POST** `http://api.default.svc.cluster.local:8081/pokemon/import` - Body: `{ "id": 1 }`
