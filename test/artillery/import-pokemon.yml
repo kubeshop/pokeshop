@@ -22,7 +22,7 @@ config:
             environment: "test"
             tool: "Artillery"
     tracetest:
-      token: tttoken_a2d67564c92023b6
+      token: 0_3A703Sg
       definition: ./test/artillery/import-pokemon-definition.yml
       serverUrl: https://app.tracetest.io/
       runInfo:
