@@ -1,12 +1,18 @@
 dependencies:
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
-  version: 11.1.19
+  version: 12.1.6
 - name: rabbitmq
   repository: https://charts.bitnami.com/bitnami
-  version: 8.30.0
+  version: 11.2.2
 - name: redis
   repository: https://charts.bitnami.com/bitnami
-  version: 16.8.5
-digest: sha256:7cba0f80b53fc0f7da7cf6402dd131cbfbeab5d7615feb26a005f3f861277195
-generated: "2022-04-15T14:45:15.128266901-03:00"
+  version: 17.3.17
+- name: opentelemetry-collector
+  repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+  version: 0.92.0
+- name: jaeger
+  repository: https://jaegertracing.github.io/helm-charts
+  version: 3.0.10
+digest: sha256:3004524c4ef3f6cb0d3b04bd4f652b239ff0f0ffb73b39ae96c89f71d7221591
+generated: "2024-08-28T14:20:10.713465+02:00"

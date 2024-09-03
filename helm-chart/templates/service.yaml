@@ -8,6 +8,10 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
+      targetPort: 80
+      protocol: TCP
+      name: ingress
+    - port: {{ .Values.service.httpPort }}
       targetPort: 8081
       protocol: TCP
       name: http

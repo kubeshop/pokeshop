@@ -1,4 +1,6 @@
 {{- $rpcPort := .Values.service.rpcPort -}}
+{{- $httpPort := .Values.service.httpPort -}}
+{{- $port := .Values.service.port -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -36,7 +38,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: {{ $httpPort }}
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -79,23 +81,8 @@ spec:
               value: rpc
             - name: SERVICE_NAME
               value: pokeshop
-            {{- toYaml .Values.env | nindent 12 }}
-        - name: {{ .Chart.Name }}-stream-worker
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          env:
-            - name: NPM_RUN_COMMAND
-              value: stream-worker
-            - name: SERVICE_NAME
-              value: pokeshop-stream-worker
+            - name: RPC_PORT
+              value: "8082"
             {{- toYaml .Values.env | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

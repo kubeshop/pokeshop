@@ -6,29 +6,21 @@ replicaCount: 1
 
 image:
   repository: kubeshop/demo-pokemon-api
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: latest
 
 env:
+  - name: COLLECTOR_ENDPOINT
+    value: http://pokeshop-opentelemetry-collector:44317
   - name: DATABASE_URL
     value: postgresql://ashketchum:squirtle123@postgresql:5432/pokeshop?schema=public
   - name: REDIS_URL
-    value: redis-master
+    value: redis-headless
   - name: RABBITMQ_HOST
     value: guest:guest@rabbitmq-headless
   - name: POKE_API_BASE_URL
     value: https://pokeapi.co/api/v2
-  - name: COLLECTOR_ENDPOINT
-    value: http://otel-collector.tracetest.svc.cluster.local:4317
-  - name: ZIPKIN_URL
-    value: http://jaeger-agent.tracetest.svc.cluster.local:9411
-  - name: KAFKA_BROKER
-    value: stream:9092
-  - name: KAFKA_TOPIC
-    value: pokemon
-  - name: KAFKA_CLIENT_ID
-    value: streaming-worker
 
 imagePullSecrets: []
 nameOverride: ""
@@ -61,6 +53,7 @@ securityContext:
 service:
   type: ClusterIP
   port: 80
+  httpPort: 8081
   rpcPort: 8082
 
 ingress:
@@ -144,3 +137,99 @@ rabbitmq:
     requests:
       cpu: 400m
       memory: 512Mi
+
+opentelemetry-collector:
+  mode: deployment
+
+  image:
+    repository: "otel/opentelemetry-collector-contrib"
+
+
+  ports:
+    otlp:
+      enabled: true
+      containerPort: 4317
+      servicePort: 44317
+      hostPort: 44317
+      protocol: TCP
+      appProtocol: grpc
+    otlp-http:
+      enabled: true
+      containerPort: 4318
+      servicePort: 44318
+      hostPort: 44318
+      protocol: TCP
+    jaeger-compact:
+      enabled: false
+    jaeger-thrift:
+      enabled: false
+    jaeger-grpc:
+      enabled: false
+    zipkin:
+      enabled: false
+
+  config:
+    receivers:
+      otlp:
+        protocols:
+          http:
+          grpc:
+
+    processors:
+      batch:
+        timeout: 5s
+
+    exporters:
+      debug/noop:
+        verbosity: normal
+        sampling_initial: 0
+        sampling_thereafter: 0
+
+      debug:
+        verbosity: detailed
+      
+      otlp/jaeger:
+        endpoint: pokeshop-jaeger-collector:4317
+        tls:
+          insecure: true
+
+      otlp/tracetest:
+        endpoint: agent-tracetest-agent:4317
+        tls:
+          insecure: true
+
+    service:
+      pipelines:
+        logs:
+          exporters: [debug/noop]
+          processors: [memory_limiter, batch]
+          receivers: [otlp]
+        metrics:
+          exporters: [debug/noop]
+          processors: [memory_limiter, batch]
+          receivers: [otlp,prometheus]
+        traces/jaeger:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlp/jaeger]
+        traces/tracetest:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlp/tracetest]
+
+jaeger:
+  enabled: true
+  provisionDataStore:
+    cassandra: false
+  allInOne:
+    enabled: true
+
+  storage:
+    type: memory
+
+  agent:
+    enabled: false
+  collector:
+    enabled: false
+  query:
+    enabled: false
