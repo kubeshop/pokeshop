@@ -53,6 +53,7 @@ securityContext:
 service:
   type: ClusterIP
   port: 80
+  httpPort: 8081
   rpcPort: 8082
 
 ingress:
@@ -192,6 +193,11 @@ opentelemetry-collector:
         tls:
           insecure: true
 
+      otlp/tracetest:
+        endpoint: agent-tracetest-agent:4317
+        tls:
+          insecure: true
+
     service:
       pipelines:
         logs:
@@ -202,10 +208,14 @@ opentelemetry-collector:
           exporters: [debug/noop]
           processors: [memory_limiter, batch]
           receivers: [otlp,prometheus]
-        traces:
+        traces/jaeger:
           receivers: [otlp]
           processors: [batch]
           exporters: [otlp/jaeger]
+        traces/tracetest:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlp/tracetest]
 
 jaeger:
   enabled: true
