@@ -12,8 +12,8 @@ const pokemonSyncronizationHandler = async (message: KafkaMessage) => {
     return;
   }
 
-  const { id }: TPokemonSyncMessage = JSON.parse(messageString);
-  await pokemonSyncronizer.sync(id);
+  const msg: TPokemonSyncMessage = JSON.parse(messageString);
+  await pokemonSyncronizer.sync(msg);
 };
 
 export default function setupWorker(streamService: StreamingService<TPokemonSyncMessage>) {

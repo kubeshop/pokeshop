@@ -111,11 +111,11 @@ class RabbitQueueService<T> implements QueueService<T> {
     this.messageGroup = messageGroup;
   }
 
-  private async connect(useCache: boolean = true): Promise<ampqlib.Channel> {
+  private async connect(ignoreCache: boolean = true): Promise<ampqlib.Channel> {
     let lastError;
     for (let i = 0; i < 10; i++) {
       try {
-        return await this._connect(useCache)
+        return await this._connect(ignoreCache)
       } catch (ex) {
         lastError = ex
         await new Promise(r => setTimeout(r, 2000));
@@ -125,8 +125,8 @@ class RabbitQueueService<T> implements QueueService<T> {
     throw new Error(`could not connect after 10 tries: ${lastError?.message}`)
   }
 
-  private async _connect(useCache: boolean = true): Promise<ampqlib.Channel> {
-    if (useCache && this.channel) {
+  private async _connect(ignoreCache: boolean = true): Promise<ampqlib.Channel> {
+    if (ignoreCache && this.channel) {
       return this.channel;
     }
 

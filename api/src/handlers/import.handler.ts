@@ -8,10 +8,11 @@ const pokeApiService = new PokeAPIService();
 const pokemonSyncronizer = PokemonSyncronizer(pokeApiService);
 
 const importPokemon = async (ctx: { body: ImportPokemon }) => {
-  const { id = 0 } = ctx.body;
+  const { id = 0, ignoreCache = false } = ctx.body;
 
   await pokemonSyncronizer.queue({
     id: id,
+    ignoreCache: ignoreCache,
   });
 
   return {
