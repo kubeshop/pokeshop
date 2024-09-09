@@ -6,9 +6,9 @@ import ampqlib from 'amqplib';
 const pokemonSyncronizationHandler = async (message: ampqlib.ConsumeMessage) => {
   const pokeApiService = new PokeAPIService();
   const pokemonSyncronizer = PokemonSyncronizer(pokeApiService);
-  const { id }: TPokemonSyncMessage = JSON.parse(message.content.toString());
+  const pokemonSyncMessage: TPokemonSyncMessage = JSON.parse(message.content.toString());
 
-  await pokemonSyncronizer.sync(id);
+  await pokemonSyncronizer.sync(pokemonSyncMessage);
 };
 
 export default function setupWorker(queueService: QueueService<TPokemonSyncMessage>) {

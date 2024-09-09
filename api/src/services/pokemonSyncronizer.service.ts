@@ -9,27 +9,37 @@ export const MESSAGE_GROUP = 'queue.synchronizePokemon';
 
 export type TPokemonSyncMessage = {
   id: number;
+  ignoreCache: boolean;
 };
 
 const PokemonSyncronizer = pokeApiService => {
   const queue = createQueueService<TPokemonSyncMessage>(MESSAGE_GROUP);
   const repository = getPokemonRepository();
-  const cache = getCacheService<TPokemon>()
+  const cache = getCacheService<TPokemon>();
+
+  async function getFromCache(message: TPokemonSyncMessage) {
+    if (message.ignoreCache) {
+      return null
+    }
+
+    return await cache.get(`pokemon_${message.id}`)
+  }
 
   return {
     async queue(message: TPokemonSyncMessage) {
       return queue.send(message);
     },
-    async sync(pokemonId: Number) {
+
+    async sync(message: TPokemonSyncMessage) {
       const parentSpan = await getParentSpan();
       const span = await createSpan('import pokemon', parentSpan, { kind: SpanKind.INTERNAL });
 
       try {
         return await runWithSpan(span, async () => {
-          let pokemon = await cache.get(`pokemon_${pokemonId}`)
+          let pokemon = await getFromCache(message)
           if (!pokemon) {
-            pokemon = await pokeApiService.getPokemon(pokemonId);
-            await cache.set(`pokemon_${pokemonId}`, pokemon!!)
+            pokemon = await pokeApiService.getPokemon(message.id);
+            await cache.set(`pokemon_${message.id}`, pokemon!!)
           }
 
           await repository.create(new Pokemon({ ...pokemon }));

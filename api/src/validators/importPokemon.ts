@@ -4,6 +4,8 @@ class ImportPokemon {
   @IsNumber()
   @IsPositive()
   public id: number;
+
+  public ignoreCache: boolean;
 }
 
 export default ImportPokemon;

@@ -25,9 +25,10 @@ const PokemonRpcService = (): PokeshopServer => ({
 
     callback(null, pokemon);
   },
-  async importPokemon({ request: { id } }, callback) {
+  async importPokemon({ request: { id, ignoreCache }}, callback) {
     await pokemonSyncronizer.queue({
-      id: id,
+      id,
+      ignoreCache: ignoreCache ?? false,
     });
 
     callback(null, { id });

@@ -18,6 +18,7 @@ export const protobufPackage = "pokeshop";
 export interface ImportPokemonRequest {
   id: number;
   isFixed?: boolean | undefined;
+  ignoreCache?: boolean | undefined;
 }
 
 export interface GetPokemonRequest {
