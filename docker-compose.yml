@@ -140,6 +140,7 @@ services:
       COLLECTOR_ENDPOINT: http://otel-collector:4317
       ZIPKIN_URL: http://localhost:9411
       NPM_RUN_COMMAND: worker
+      SERVICE_NAME: pokeshop-worker
     depends_on:
       db:
         condition: service_healthy
