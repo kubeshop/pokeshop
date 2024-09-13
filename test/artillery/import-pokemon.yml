@@ -1,5 +1,5 @@
 config:
-  target: "https://demo-pokeshop.tracetest.io"
+  target: "http://localhost:8081"
   phases:
     - duration: 2
       arrivalRate: 2
@@ -21,8 +21,9 @@ config:
           attributes:
             environment: "test"
             tool: "Artillery"
+            w3c.tracestate: "tracetest=true"
     tracetest:
-      token: 0_3A703Sg
+      token: VLpIlEeSg
       definition: ./test/artillery/import-pokemon-definition.yml
       serverUrl: https://app.tracetest.io/
       runInfo:

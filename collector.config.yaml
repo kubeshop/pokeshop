@@ -11,11 +11,24 @@ receivers:
 processors:
   batch:
 
+  tail_sampling:
+    decision_wait: 2s
+    num_traces: 100
+    expected_new_traces_per_sec: 10
+    policies:
+      [
+        {
+          name: Accept traces that started from tracetest,
+          type: trace_state,
+          trace_state: { key: "tracetest", values: ["true"] },
+        },
+      ]
+
 exporters:
   logging:
     loglevel: debug
-  jaeger:
-    endpoint: ${JAEGER_ENDPOINT}
+  otlp:
+    endpoint: jaeger:4317
     tls:
       insecure: true
   otlp/trace:
@@ -27,9 +40,9 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: []
-      exporters: [logging, jaeger]
-    traces/1:
+      processors: [tail_sampling, batch]
+      exporters: [otlp]
+    traces/agent:
       receivers: [otlp]
-      processors: [batch]
+      processors: [tail_sampling, batch]
       exporters: [otlp/trace]

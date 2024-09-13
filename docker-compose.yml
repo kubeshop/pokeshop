@@ -44,9 +44,6 @@ services:
       - 14250:14250
       - 16685:16685
       - 16686:16686
-    environment:
-      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
-      - COLLECTOR_OTLP_ENABLED=true
     healthcheck:
       test: ['CMD', 'wget', '--spider', 'localhost:16686']
       interval: 1s
@@ -54,22 +51,18 @@ services:
       retries: 60
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.59.0
+    image: otel/opentelemetry-collector-contrib:0.100.0
     restart: unless-stopped
     extra_hosts:
       - 'host.docker.internal:host-gateway'
-    # ports:
-    #   - 55679:55679
-    #   - 8888:8888
-    #   - 4317:4317
-    #   - 4318:4318
+    ports:
+      - 4317:4317
+      - 4318:4318
     command:
       - '--config'
       - '/otel-local-config.yaml'
     volumes:
       - ./collector.config.yaml:/otel-local-config.yaml
-    environment:
-      - JAEGER_ENDPOINT=jaeger:14250
     depends_on:
       jaeger:
         condition: service_healthy

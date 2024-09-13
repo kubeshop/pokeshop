@@ -9,13 +9,15 @@
     "pw:run": "playwright test",
     "pw:open": "playwright test --ui",
     "artillery:run": "artillery run ./test/artillery/import-pokemon.yml",
+    "k6:run": "sh ./test/k6/run.sh",
+    "test": "npm run cy:run && npm run pw:run && npm run artillery:run && npm run k6:run",
     "generate-diagram": "mmdc"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "^10.6.1",
-    "@playwright/test": "1.44.1",
+    "@playwright/test": "1.45.0",
     "@types/node": "^20.10.6",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
@@ -31,9 +33,9 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@opentelemetry/sdk-trace-base": "^1.18.1",
-    "@tracetest/cypress": "^0.0.41",
-    "@tracetest/playwright": "0.0.41",
-    "artillery-plugin-tracetest": "^0.0.41"
+    "@opentelemetry/sdk-trace-base": "^1.26.0",
+    "@tracetest/cypress": "^0.2.0",
+    "@tracetest/playwright": "0.2.0",
+    "artillery-plugin-tracetest": "^0.2.0"
   }
 }
