@@ -11,18 +11,11 @@ receivers:
 processors:
   batch:
 
-  tail_sampling:
-    decision_wait: 2s
-    num_traces: 100
-    expected_new_traces_per_sec: 10
-    policies:
-      [
-        {
-          name: Accept traces that started from tracetest,
-          type: trace_state,
-          trace_state: { key: "tracetest", values: ["true"] },
-        },
-      ]
+  filter:
+    error_mode: ignore
+    traces:
+      span:
+        - 'trace_state["tracetest"] != "true"'
 
 exporters:
   logging:
@@ -40,9 +33,9 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [tail_sampling, batch]
+      processors: [filter, batch]
       exporters: [otlp]
     traces/agent:
       receivers: [otlp]
-      processors: [tail_sampling, batch]
+      processors: [filter, batch]
       exporters: [otlp/trace]
