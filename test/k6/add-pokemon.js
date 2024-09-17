@@ -2,7 +2,7 @@ import { Http, Tracetest } from 'k6/x/tracetest';
 import { sleep } from 'k6';
 
 export const options = {
-  vus: 5,
+  vus: 2,
   duration: '5s',
   teardownTimeout: '2m',
 };

@@ -42,9 +42,8 @@ describe('Home', { defaultCommandTimeout: 80000 }, () => {
   });
 
   beforeEach(() => {
-    cy.visit('/', {
-      onBeforeLoad: win => tracetest.capture(win.document),
-    });
+    tracetest.capture();
+    cy.visit('/');
   });
 
   // uncomment to wait for trace tests to be done
