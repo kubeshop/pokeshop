@@ -37,5 +37,5 @@ service:
       exporters: [otlp]
     traces/agent:
       receivers: [otlp]
-      processors: [filter, batch]
+      processors: [batch]
       exporters: [otlp/trace]
