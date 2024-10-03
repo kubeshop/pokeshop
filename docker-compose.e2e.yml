@@ -3,7 +3,7 @@ name: pokeshop
 
 services:
   tracetest-agent:
-    image: kubeshop/tracetest-agent:dev
+    image: kubeshop/tracetest-agent:latest
     environment:
       TRACETEST_DEV: ${TRACETEST_DEV}
       TRACETEST_API_KEY: ${TRACETEST_AGENT_API_KEY}
