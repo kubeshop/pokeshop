@@ -4,8 +4,6 @@ name: pokeshop
 services:
   db:
     image: postgres:14
-    # ports:
-    #   - 5434:5432
     environment:
       POSTGRES_USER: ashketchum
       POSTGRES_PASSWORD: squirtle123

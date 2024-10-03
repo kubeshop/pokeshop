@@ -5,8 +5,8 @@ receivers:
       http:
         cors:
           allowed_origins:
-            - "http://*"
-            - "https://*"
+            - 'http://*'
+            - 'https://*'
 
 processors:
   batch:
@@ -25,7 +25,7 @@ exporters:
     tls:
       insecure: true
   otlp/trace:
-    endpoint: tracetest-agent:4317
+    endpoint: host.docker.internal:4317
     tls:
       insecure: true
 
