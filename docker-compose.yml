@@ -55,9 +55,6 @@ services:
     restart: unless-stopped
     extra_hosts:
       - 'host.docker.internal:host-gateway'
-    ports:
-      - 4317:4317
-      - 4318:4318
     command:
       - '--config'
       - '/otel-local-config.yaml'
@@ -78,7 +75,7 @@ services:
       ZIPKIN_URL: http://localhost:9411
     healthcheck:
       test: ['CMD', 'wget', '--spider', 'localhost:8081/pokemon/healthcheck']
-      interval: 1s
+      interval: 1m
       timeout: 3s
       retries: 60
     ports:
@@ -106,7 +103,7 @@ services:
       NPM_RUN_COMMAND: rpc
     healthcheck:
       test: ['CMD', 'wget', '--spider', 'localhost:8081/pokemon/healthcheck']
-      interval: 1s
+      interval: 1m
       timeout: 3s
       retries: 60
     ports:
