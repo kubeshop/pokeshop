@@ -10,6 +10,7 @@ module.exports = defineConfig({
     env: {
       TRACETEST_API_TOKEN: process.env.TRACETEST_API_TOKEN,
       TRACETEST_SERVER_URL: process.env.TRACETEST_SERVER_URL || 'https://app.tracetest.io',
+      TRACETEST_ENVIRONMENT_ID: process.env.TRACETEST_ENVIRONMENT_ID
     },
     setupNodeEvents() {
       // implement node event listeners here

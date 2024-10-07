@@ -1,6 +1,7 @@
 import Tracetest, { Types } from '@tracetest/cypress';
 
 const TRACETEST_API_TOKEN = Cypress.env('TRACETEST_API_TOKEN') || '';
+const TRACETEST_ENVIRONMENT_ID = Cypress.env('TRACETEST_ENVIRONMENT_ID') || '';
 const TRACETEST_SERVER_URL = Cypress.env('TRACETEST_SERVER_URL') || 'https://app.tracetest.io';
 
 let tracetest: Types.TracetestCypress | undefined = undefined;
@@ -29,7 +30,12 @@ spec:
 
 describe('Home', { defaultCommandTimeout: 80000 }, () => {
   before(done => {
-    Tracetest({ apiToken: TRACETEST_API_TOKEN, serverUrl: TRACETEST_SERVER_URL, serverPath: '' }).then(instance => {
+    Tracetest({
+      apiToken: TRACETEST_API_TOKEN,
+      environmentId: TRACETEST_ENVIRONMENT_ID,
+      serverUrl: TRACETEST_SERVER_URL,
+      serverPath: ''
+    }).then(instance => {
       tracetest = instance;
       tracetest
         .setOptions({
